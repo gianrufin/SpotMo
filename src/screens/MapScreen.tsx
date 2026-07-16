@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion';
 import { LocateFixed, SlidersHorizontal, X } from 'lucide-react';
-import type { SpotEvent, EventFilters, DateBucket, Category } from '../types';
+import type { SpotEvent, EventFilters, DateFilter, Category } from '../types';
 import type { Coords } from '../lib/useUserLocation';
 import { MapView } from '../components/map/MapView';
 import { EventPreviewCard } from '../components/event/EventPreviewCard';
@@ -27,10 +27,10 @@ interface MapScreenProps {
   onToggleSave: (id: string) => void;
 }
 
-const DATE_CHIPS: { value: DateBucket; label: string }[] = [
+const DATE_CHIPS: { value: DateFilter; label: string }[] = [
   { value: 'today', label: 'Today' },
   { value: 'tomorrow', label: 'Tomorrow' },
-  { value: 'week', label: 'This Week' },
+  { value: 'weekend', label: 'This Weekend' },
 ];
 
 export function MapScreen(props: MapScreenProps) {
@@ -53,7 +53,7 @@ export function MapScreen(props: MapScreenProps) {
 
   const selected = events.find((e) => e.id === selectedId) ?? null;
 
-  function toggleDate(value: DateBucket) {
+  function toggleDate(value: DateFilter) {
     setFilters({ ...filters, date: filters.date === value ? null : value });
   }
   function toggleCategory(value: Category) {

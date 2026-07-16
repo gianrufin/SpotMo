@@ -8,6 +8,7 @@ import { MapScreen } from './screens/MapScreen';
 import { SavedScreen } from './screens/SavedScreen';
 import { DiscoverScreen } from './screens/DiscoverScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
+import { OrganizerDashboard } from './screens/organizer/OrganizerDashboard';
 import { CreateEventFlow } from './screens/organizer/CreateEventFlow';
 import { SubmissionStatus } from './screens/organizer/SubmissionStatus';
 import { AdminQueue } from './screens/admin/AdminQueue';
@@ -22,14 +23,15 @@ import { haversineKm, formatDistance } from './lib/format';
 
 type Overlay =
   | { kind: 'none' }
-  | { kind: 'organizer' }
+  | { kind: 'organizer' } // dashboard
+  | { kind: 'create' } // create-event flow
   | { kind: 'submitted'; event: SpotEvent }
   | { kind: 'admin' };
 
 export default function App() {
   const { seen, complete, reset } = useOnboarding();
   const { savedIds, isSaved, toggle } = useSavedEvents();
-  const { submissions, approved, add, setStatus, remove } = useSubmissions();
+  const { submissions, approved, add, setStatus, remove, update } = useSubmissions();
   const location = useUserLocation();
 
   const [tab, setTab] = useState<Tab>('map');
@@ -189,8 +191,15 @@ export default function App() {
             transition={{ type: 'spring', damping: 34, stiffness: 320 }}
           >
             {overlay.kind === 'organizer' && (
+              <OrganizerDashboard
+                submissions={submissions}
+                onBack={() => setOverlay({ kind: 'none' })}
+                onCreate={() => setOverlay({ kind: 'create' })}
+              />
+            )}
+            {overlay.kind === 'create' && (
               <CreateEventFlow
-                onCancel={() => setOverlay({ kind: 'none' })}
+                onCancel={() => setOverlay({ kind: 'organizer' })}
                 onSubmit={(event) => {
                   add(event, 'You');
                   setOverlay({ kind: 'submitted', event });
@@ -200,11 +209,8 @@ export default function App() {
             {overlay.kind === 'submitted' && (
               <SubmissionStatus
                 event={overlay.event}
-                onDone={() => {
-                  setOverlay({ kind: 'none' });
-                  setTab('map');
-                }}
-                onCreateAnother={() => setOverlay({ kind: 'organizer' })}
+                onDone={() => setOverlay({ kind: 'organizer' })}
+                onCreateAnother={() => setOverlay({ kind: 'create' })}
               />
             )}
             {overlay.kind === 'admin' && (
@@ -213,6 +219,7 @@ export default function App() {
                 onBack={() => setOverlay({ kind: 'none' })}
                 onSetStatus={setStatus}
                 onRemove={remove}
+                onUpdate={update}
               />
             )}
           </motion.div>

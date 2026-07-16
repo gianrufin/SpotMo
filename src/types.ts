@@ -43,9 +43,12 @@ export interface Submission extends SpotEvent {
 
 export type Tab = 'map' | 'saved' | 'discover' | 'profile';
 
+/** Date quick-filter chips shown on the map (distinct from pin date buckets). */
+export type DateFilter = 'today' | 'tomorrow' | 'weekend';
+
 export interface EventFilters {
   query: string;
-  date: DateBucket | null;
+  date: DateFilter | null;
   category: Category | null;
   price: 'free' | 'paid' | null;
 }

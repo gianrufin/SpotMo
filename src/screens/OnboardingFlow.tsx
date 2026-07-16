@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, Heart } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
 import { PrimaryButton } from '../components/common/PrimaryButton';
 
@@ -9,7 +9,7 @@ interface OnboardingFlowProps {
   onAllowLocation: () => void;
 }
 
-type Step = 'splash' | 'welcome' | 'location';
+type Step = 'splash' | 'welcome' | 'features' | 'location';
 
 export function OnboardingFlow({ onDone, onAllowLocation }: OnboardingFlowProps) {
   const [step, setStep] = useState<Step>('splash');
@@ -26,6 +26,13 @@ export function OnboardingFlow({ onDone, onAllowLocation }: OnboardingFlowProps)
         {step === 'welcome' && (
           <WelcomeStep
             key="welcome"
+            onNext={() => setStep('features')}
+            onSkip={onDone}
+          />
+        )}
+        {step === 'features' && (
+          <FeaturesStep
+            key="features"
             onNext={() => setStep('location')}
             onSkip={onDone}
           />
@@ -130,6 +137,67 @@ function WelcomeStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => voi
           From gigs to art shows, night markets to meetups — discover what's
           happening around you on a live map.
         </p>
+      </div>
+
+      <div className="px-6 pb-8">
+        <PrimaryButton full onClick={onNext}>
+          Next
+        </PrimaryButton>
+      </div>
+    </StepShell>
+  );
+}
+
+function FeaturesStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void }) {
+  const features = [
+    {
+      icon: MapPin,
+      title: 'Find it',
+      text: 'Tap a poster pin on the map to see the full event.',
+    },
+    {
+      icon: Heart,
+      title: 'Save it',
+      text: 'Keep the events you love and come back to them anytime.',
+    },
+    {
+      icon: Navigation,
+      title: 'Go to it',
+      text: 'Get directions in a tap, or open the ticket link.',
+    },
+  ];
+  return (
+    <StepShell>
+      <div className="flex items-center justify-between p-5">
+        <Logo size={26} />
+        <button onClick={onSkip} className="text-[14px] text-muted">
+          Skip
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-center px-8">
+        <h1 className="mb-8 text-center font-serif text-[34px] leading-[1.1] text-ink">
+          Everything local, <span className="text-brand">in one tap</span>.
+        </h1>
+        <div className="space-y-5">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 + i * 0.12 }}
+              className="flex items-center gap-4"
+            >
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand">
+                <f.icon size={22} strokeWidth={1.9} />
+              </span>
+              <div>
+                <p className="font-serif text-xl leading-tight text-ink">{f.title}</p>
+                <p className="text-[13.5px] leading-snug text-muted">{f.text}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <div className="px-6 pb-8">

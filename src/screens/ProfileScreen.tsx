@@ -65,8 +65,8 @@ export function ProfileScreen({
           </p>
           <Row
             icon={<PlusCircle size={19} strokeWidth={1.8} />}
-            title="Create an event"
-            subtitle="List your gig, show, or market on SpotMo"
+            title="Organizer dashboard"
+            subtitle="Manage your events, track performance, submit new ones"
             onClick={onOpenOrganizer}
           />
           <Row

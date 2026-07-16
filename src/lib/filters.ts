@@ -8,14 +8,21 @@ export const EMPTY_FILTERS: EventFilters = {
   price: null,
 };
 
+function isThisWeekend(iso: string): boolean {
+  const event = new Date(iso);
+  const day = event.getDay(); // 0 = Sun, 6 = Sat
+  if (day !== 0 && day !== 6) return false;
+  // only the upcoming weekend: a Sat/Sun within the next 7 days
+  const bucket = dateBucket(iso);
+  return bucket === 'today' || bucket === 'tomorrow' || bucket === 'week';
+}
+
 function matchesDate(event: SpotEvent, filters: EventFilters): boolean {
   if (!filters.date) return true;
   const bucket = dateBucket(event.startsAt);
   if (filters.date === 'today') return bucket === 'today';
   if (filters.date === 'tomorrow') return bucket === 'tomorrow';
-  // "week" chip means today through the next 7 days
-  if (filters.date === 'week')
-    return bucket === 'today' || bucket === 'tomorrow' || bucket === 'week';
+  if (filters.date === 'weekend') return isThisWeekend(event.startsAt);
   return true;
 }
 

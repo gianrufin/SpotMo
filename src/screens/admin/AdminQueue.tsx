@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { ArrowLeft, Check, X, Trash2, ShieldCheck, Inbox } from 'lucide-react';
-import type { Submission, SubmissionStatus } from '../../types';
+import { ArrowLeft, Check, X, Trash2, ShieldCheck, Inbox, Pencil } from 'lucide-react';
+import type { Submission, SubmissionStatus, SpotEvent } from '../../types';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
 import { formatShortDate } from '../../lib/format';
 import { categoryLabel } from '../../data/categories';
+import { EditSubmission } from './EditSubmission';
 
 interface AdminQueueProps {
   submissions: Submission[];
   onBack: () => void;
   onSetStatus: (id: string, status: SubmissionStatus) => void;
   onRemove: (id: string) => void;
+  onUpdate: (id: string, patch: Partial<SpotEvent>) => void;
 }
 
 type Filter = 'pending' | 'approved' | 'rejected';
@@ -26,8 +28,10 @@ export function AdminQueue({
   onBack,
   onSetStatus,
   onRemove,
+  onUpdate,
 }: AdminQueueProps) {
   const [filter, setFilter] = useState<Filter>('pending');
+  const [editing, setEditing] = useState<Submission | null>(null);
   const list = submissions.filter((s) => s.status === filter);
   const pendingCount = submissions.filter((s) => s.status === 'pending').length;
 
@@ -129,6 +133,12 @@ export function AdminQueue({
                     </button>
                   )}
                   <button
+                    onClick={() => setEditing(s)}
+                    className="flex flex-1 items-center justify-center gap-1.5 border-l border-hairline py-3 text-[13px] text-ink transition active:bg-surface"
+                  >
+                    <Pencil size={15} strokeWidth={1.9} /> Edit
+                  </button>
+                  <button
                     onClick={() => onRemove(s.id)}
                     className="flex flex-1 items-center justify-center gap-1.5 border-l border-hairline py-3 text-[13px] text-red-500 transition active:bg-red-50"
                   >
@@ -140,6 +150,17 @@ export function AdminQueue({
           </div>
         )}
       </div>
+
+      {editing && (
+        <EditSubmission
+          submission={editing}
+          onCancel={() => setEditing(null)}
+          onSave={(patch) => {
+            onUpdate(editing.id, patch);
+            setEditing(null);
+          }}
+        />
+      )}
     </div>
   );
 }
