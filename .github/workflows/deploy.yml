@@ -1,9 +1,13 @@
 name: Deploy to GitHub Pages
 
+# Manual-only. The live site is currently published from the `gh-pages` branch
+# (Settings → Pages → Deploy from a branch), which needs no special token perms.
+#
+# To use this Actions-based deploy instead, first enable write access for the
+# workflow token: Settings → Actions → General → Workflow permissions →
+# "Read and write permissions". Then set Settings → Pages → Source → "GitHub
+# Actions" and run this workflow from the Actions tab ("Run workflow").
 on:
-  push:
-    branches:
-      - claude/spotmo-events-map-app-1k4471
   workflow_dispatch:
 
 # Allow the workflow to publish to GitHub Pages via OIDC.
