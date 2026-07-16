@@ -5,6 +5,7 @@ import {
   Share2,
   MapPin,
   Calendar,
+  CalendarPlus,
   Navigation,
   Ticket,
   ExternalLink,
@@ -22,7 +23,9 @@ import {
   mapsSearchUrl,
   shareEvent,
   relativeDayLabel,
+  isHappeningNow,
 } from '../../lib/format';
+import { buildIcsDataUrl, icsFileName } from '../../lib/calendar';
 
 interface EventDetailProps {
   event: SpotEvent;
@@ -109,6 +112,12 @@ export function EventDetail({
             <span className="rounded-full bg-white/85 px-2.5 py-1 text-[11px] text-ink backdrop-blur">
               {relativeDayLabel(event.startsAt)}
             </span>
+            {isHappeningNow(event) && (
+              <span className="flex items-center gap-1 rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-medium text-white">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                Happening now
+              </span>
+            )}
           </div>
           <h1 className="font-serif text-[38px] leading-[1.05] text-white drop-shadow-sm">
             {event.title}
@@ -121,13 +130,25 @@ export function EventDetail({
         <div className="px-5 pb-40 pt-4">
           {/* meta rows */}
           <div className="space-y-3">
-            <MetaRow
-              icon={<Calendar size={18} strokeWidth={1.75} />}
-              title={formatEventDate(event.startsAt)}
-              subtitle={
-                event.endsAt ? `Ends around ${formatTime(event.endsAt)}` : undefined
-              }
-            />
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <MetaRow
+                  icon={<Calendar size={18} strokeWidth={1.75} />}
+                  title={formatEventDate(event.startsAt)}
+                  subtitle={
+                    event.endsAt ? `Ends around ${formatTime(event.endsAt)}` : undefined
+                  }
+                />
+              </div>
+              <a
+                href={buildIcsDataUrl(event)}
+                download={icsFileName(event)}
+                className="mt-0.5 flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-[12px] text-ink transition active:scale-95"
+              >
+                <CalendarPlus size={14} strokeWidth={1.9} />
+                Add to calendar
+              </a>
+            </div>
             <MetaRow
               icon={<MapPin size={18} strokeWidth={1.75} />}
               title={event.venue}

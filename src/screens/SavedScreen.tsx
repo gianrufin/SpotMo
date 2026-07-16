@@ -1,14 +1,16 @@
 import { useMemo, useState } from 'react';
-import { Heart, MapPin } from 'lucide-react';
+import { Heart, MapPin, Clock } from 'lucide-react';
 import type { SpotEvent } from '../types';
 import { EventListItem } from '../components/cards/EventListItem';
 import { EmptyState } from '../components/common/EmptyState';
 import { SegmentedTabs } from '../components/common/SegmentedTabs';
 import { PrimaryButton } from '../components/common/PrimaryButton';
 import { sortByDate } from '../lib/filters';
+import { formatShortDate } from '../lib/format';
 
 interface SavedScreenProps {
   savedEvents: SpotEvent[];
+  startingSoon: SpotEvent[];
   onOpen: (id: string) => void;
   onBrowseMap: () => void;
 }
@@ -17,6 +19,7 @@ type View = 'events' | 'venues';
 
 export function SavedScreen({
   savedEvents,
+  startingSoon,
   onOpen,
   onBrowseMap,
 }: SavedScreenProps) {
@@ -52,6 +55,25 @@ export function SavedScreen({
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pb-28">
+        {startingSoon.length > 0 && (
+          <div className="mb-4 mt-1 space-y-2 rounded-3xl bg-brandsoft p-4">
+            <p className="flex items-center gap-1.5 text-[12.5px] font-medium text-brandsoftfg">
+              <Clock size={14} strokeWidth={2} /> Starting soon
+            </p>
+            {startingSoon.map((e) => (
+              <button
+                key={e.id}
+                onClick={() => onOpen(e.id)}
+                className="flex w-full items-center justify-between rounded-2xl bg-card px-3 py-2.5 text-left shadow-soft"
+              >
+                <span className="min-w-0 truncate text-[13.5px] text-ink">{e.title}</span>
+                <span className="ml-2 shrink-0 text-[11.5px] text-muted">
+                  {formatShortDate(e.startsAt)}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
         {savedEvents.length === 0 ? (
           <EmptyState
             icon={<Heart size={26} strokeWidth={1.6} />}

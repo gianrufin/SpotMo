@@ -52,6 +52,10 @@ interface ProfileScreenProps {
   onInstall: () => void;
   themePref: ThemePref;
   onSetTheme: (pref: ThemePref) => void;
+  remindersEnabled: boolean;
+  canNotify: boolean;
+  onEnableReminders: () => void;
+  onDisableReminders: () => void;
 }
 
 export function ProfileScreen({
@@ -68,6 +72,10 @@ export function ProfileScreen({
   onResetOnboarding,
   canInstall,
   installed,
+  remindersEnabled,
+  canNotify,
+  onEnableReminders,
+  onDisableReminders,
   onInstall,
   themePref,
   onSetTheme,
@@ -283,9 +291,23 @@ export function ProfileScreen({
           </p>
           <Row
             icon={<Bell size={19} strokeWidth={1.8} />}
-            title="Notifications"
-            subtitle="Alerts for saved events — coming soon"
-            disabled
+            title="Reminders for saved events"
+            subtitle={
+              !canNotify
+                ? 'Not supported on this browser'
+                : remindersEnabled
+                  ? 'On — notifies you shortly before it starts'
+                  : 'Get notified shortly before a saved event starts'
+            }
+            disabled={!canNotify}
+            onClick={
+              canNotify
+                ? remindersEnabled
+                  ? onDisableReminders
+                  : onEnableReminders
+                : undefined
+            }
+            badge={remindersEnabled ? 'On' : undefined}
           />
           <Row
             icon={<Heart size={19} strokeWidth={1.8} />}
@@ -331,7 +353,7 @@ function Row({
   subtitle: string;
   onClick?: () => void;
   disabled?: boolean;
-  badge?: number;
+  badge?: number | string;
 }) {
   return (
     <button

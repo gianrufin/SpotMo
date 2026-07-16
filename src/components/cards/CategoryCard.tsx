@@ -17,8 +17,11 @@ export function CategoryCard({ category, count, onClick }: CategoryCardProps) {
         src={category.image}
         alt={category.label}
         loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        className="absolute inset-0 h-full w-full object-cover saturate-[0.55] contrast-[0.95] brightness-[0.97] transition-transform duration-300 group-hover:scale-105"
       />
+      {/* Flat, muted brand wash — keeps every category photo consistent
+          regardless of how vibrant the source photo is. */}
+      <div className="absolute inset-0 bg-brand/20 mix-blend-multiply" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
       <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#111827] backdrop-blur">
         <Icon size={16} strokeWidth={1.9} />

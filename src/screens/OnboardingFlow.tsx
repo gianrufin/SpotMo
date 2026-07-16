@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Navigation, Heart } from 'lucide-react';
-import { Logo } from '../components/common/Logo';
+import { Logo, AppIconGlyph } from '../components/common/Logo';
 import { PrimaryButton } from '../components/common/PrimaryButton';
 
 interface OnboardingFlowProps {
@@ -114,8 +114,8 @@ function WelcomeStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => voi
           className="relative mb-10"
         >
           <div className="flex h-40 w-40 items-center justify-center rounded-full bg-brandsoft">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brand shadow-float">
-              <MapPin size={44} className="text-white" fill="white" strokeWidth={1.5} />
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-card shadow-float">
+              <AppIconGlyph size={52} />
             </div>
           </div>
           <motion.span

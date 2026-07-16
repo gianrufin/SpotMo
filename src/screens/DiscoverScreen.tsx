@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { MapPinOff } from 'lucide-react';
 import type { SpotEvent, Category } from '../types';
 import { SearchBar } from '../components/common/SearchBar';
 import { CategoryCard } from '../components/cards/CategoryCard';
@@ -7,6 +8,8 @@ import { CATEGORIES } from '../data/categories';
 import { applyFilters, sortByDate } from '../lib/filters';
 import { haversineKm } from '../lib/format';
 import type { Coords } from '../lib/useUserLocation';
+
+const NEAR_YOU_RADIUS_KM = 20;
 
 interface DiscoverScreenProps {
   events: SpotEvent[];
@@ -35,13 +38,12 @@ export function DiscoverScreen({
 
   const nearYou = useMemo(
     () =>
-      [...events]
-        .sort(
-          (a, b) =>
-            haversineKm(userCoords.lat, userCoords.lng, a.lat, a.lng) -
-            haversineKm(userCoords.lat, userCoords.lng, b.lat, b.lng),
-        )
-        .slice(0, 4),
+      events
+        .map((e) => ({ e, km: haversineKm(userCoords.lat, userCoords.lng, e.lat, e.lng) }))
+        .filter(({ km }) => km <= NEAR_YOU_RADIUS_KM)
+        .sort((a, b) => a.km - b.km)
+        .slice(0, 4)
+        .map(({ e }) => e),
     [events, userCoords],
   );
 
@@ -105,40 +107,53 @@ export function DiscoverScreen({
             {/* Near you */}
             <section className="pt-7">
               <h2 className="mb-3 font-serif text-xl text-ink">Near You</h2>
-              <div className="space-y-2.5">
-                {nearYou.map((e) => (
-                  <EventListItem key={e.id} event={e} onClick={() => onOpen(e.id)} />
-                ))}
-              </div>
+              {nearYou.length > 0 ? (
+                <div className="space-y-2.5">
+                  {nearYou.map((e) => (
+                    <EventListItem key={e.id} event={e} onClick={() => onOpen(e.id)} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 rounded-3xl bg-card p-4 shadow-soft">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-muted">
+                    <MapPinOff size={18} strokeWidth={1.8} />
+                  </span>
+                  <p className="text-[13px] leading-snug text-muted">
+                    Nothing within {NEAR_YOU_RADIUS_KM} km yet — check back soon.
+                  </p>
+                </div>
+              )}
             </section>
 
             {/* Recommended */}
-            <section className="pt-7">
-              <h2 className="mb-1 font-serif text-xl text-ink">Recommended</h2>
-              <p className="mb-3 text-[12px] text-muted">Happening soon near you</p>
-              <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5">
-                {recommended.map((e) => (
-                  <button
-                    key={e.id}
-                    onClick={() => onOpen(e.id)}
-                    className="w-[150px] shrink-0 text-left"
-                  >
-                    <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-soft">
-                      <img
-                        src={e.posterUrl}
-                        alt={e.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <p className="mt-1.5 truncate font-serif text-[16px] leading-tight text-ink">
-                      {e.title}
-                    </p>
-                    <p className="truncate text-[12px] text-muted">{e.venue}</p>
-                  </button>
-                ))}
-              </div>
-            </section>
+            {recommended.length > 0 && (
+              <section className="pt-7">
+                <h2 className="mb-1 font-serif text-xl text-ink">Recommended</h2>
+                <p className="mb-3 text-[12px] text-muted">Happening soon near you</p>
+                <div className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5">
+                  {recommended.map((e) => (
+                    <button
+                      key={e.id}
+                      onClick={() => onOpen(e.id)}
+                      className="w-[150px] shrink-0 text-left"
+                    >
+                      <div className="aspect-[3/4] overflow-hidden rounded-2xl shadow-soft">
+                        <img
+                          src={e.posterUrl}
+                          alt={e.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <p className="mt-1.5 truncate font-serif text-[16px] leading-tight text-ink">
+                        {e.title}
+                      </p>
+                      <p className="truncate text-[12px] text-muted">{e.venue}</p>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
       </div>

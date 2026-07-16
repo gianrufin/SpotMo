@@ -10,6 +10,9 @@ import { CATEGORIES } from '../data/categories';
 
 interface MapScreenProps {
   events: SpotEvent[];
+  /** Whether any event exists at all, before filters — lets the empty state
+   * tell "nothing posted yet" apart from "your filter matched nothing". */
+  hasAnyEvents: boolean;
   filters: EventFilters;
   setFilters: (f: EventFilters) => void;
   selectedId: string | null;
@@ -32,6 +35,7 @@ const DATE_CHIPS: { value: DateFilter; label: string }[] = [
 export function MapScreen(props: MapScreenProps) {
   const {
     events,
+    hasAnyEvents,
     filters,
     setFilters,
     selectedId,
@@ -163,14 +167,25 @@ export function MapScreen(props: MapScreenProps) {
         </button>
       </div>
 
-      {/* Empty state when filters match nothing */}
+      {/* Empty state: nothing posted yet vs. filters matching nothing */}
       {events.length === 0 && (
         <div className="pointer-events-none absolute inset-x-0 top-1/2 z-20 flex -translate-y-1/2 justify-center px-8">
           <div className="glass pointer-events-auto rounded-3xl px-6 py-5 text-center shadow-card">
-            <p className="font-serif text-xl text-ink">No events match</p>
-            <p className="mt-1 text-[13px] text-muted">
-              Try clearing a filter or searching a different area.
-            </p>
+            {hasAnyEvents ? (
+              <>
+                <p className="font-serif text-xl text-ink">No events match</p>
+                <p className="mt-1 text-[13px] text-muted">
+                  Try clearing a filter or searching a different area.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-serif text-xl text-ink">Nothing posted yet</p>
+                <p className="mt-1 text-[13px] text-muted">
+                  New events will appear here as soon as they're live.
+                </p>
+              </>
+            )}
           </div>
         </div>
       )}

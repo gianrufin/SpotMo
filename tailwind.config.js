@@ -29,7 +29,7 @@ export default {
         brandsoftfg: 'rgb(var(--c-brand-soft-fg) / <alpha-value>)', // text on tint
       },
       fontFamily: {
-        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontWeight: {

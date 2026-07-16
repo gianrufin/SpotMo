@@ -118,6 +118,38 @@ export function formatDistance(km: number): string {
   return `${Math.round(km)} km away`;
 }
 
+/** Rough walk/drive time from distance — no routing API, just a quick-glance
+ * estimate: walking under ~1.5km, driving beyond that. */
+export function formatTravelEstimate(km: number): string {
+  const WALK_KMH = 4.5;
+  const DRIVE_KMH = 22;
+  if (km <= 1.5) {
+    const min = Math.max(1, Math.round((km / WALK_KMH) * 60));
+    return `~${min} min walk`;
+  }
+  const min = Math.max(1, Math.round((km / DRIVE_KMH) * 60 / 5) * 5);
+  return `~${min} min drive`;
+}
+
+/** The moment an event stops being "current". Uses endsAt when the organizer
+ * set one; otherwise assumes it runs through the end of its start day, so a
+ * single-day event doesn't vanish from the map mid-evening. */
+export function eventEndMoment(event: SpotEvent): Date {
+  if (event.endsAt) return new Date(event.endsAt);
+  const end = new Date(event.startsAt);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+export function hasEventEnded(event: SpotEvent): boolean {
+  return eventEndMoment(event).getTime() < Date.now();
+}
+
+export function isHappeningNow(event: SpotEvent): boolean {
+  const now = Date.now();
+  return new Date(event.startsAt).getTime() <= now && now <= eventEndMoment(event).getTime();
+}
+
 /** Google Maps directions deep link (opens native maps app on mobile) */
 export function directionsUrl(event: SpotEvent): string {
   const q = encodeURIComponent(`${event.venue}, ${event.address}`);
@@ -130,10 +162,21 @@ export function mapsSearchUrl(event: SpotEvent): string {
   return `https://www.google.com/maps/search/?api=1&query=${q}`;
 }
 
+/** A link that deep-links straight back to this event (see App.tsx's
+ * `?event=` handling on load) — since there's no login/feed, a link is the
+ * only way an event spreads beyond the app itself. */
+export function eventShareUrl(event: SpotEvent): string {
+  if (typeof window === 'undefined') return '';
+  const url = new URL(window.location.href);
+  url.search = `?event=${encodeURIComponent(event.id)}`;
+  url.hash = '';
+  return url.toString();
+}
+
 /** Share via Web Share API, falling back to clipboard copy */
 export async function shareEvent(event: SpotEvent): Promise<'shared' | 'copied' | 'failed'> {
   const text = `${event.title} · ${formatShortDate(event.startsAt)} · ${event.venue}`;
-  const url = typeof window !== 'undefined' ? window.location.href : '';
+  const url = eventShareUrl(event);
   try {
     if (navigator.share) {
       await navigator.share({ title: `SpotMo — ${event.title}`, text, url });

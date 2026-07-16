@@ -1,7 +1,7 @@
 import { MapPin } from 'lucide-react';
 import type { SpotEvent } from '../../types';
 import { PosterImage } from '../common/PosterImage';
-import { formatShortDate, relativeDayLabel } from '../../lib/format';
+import { formatShortDate, relativeDayLabel, isHappeningNow } from '../../lib/format';
 import { categoryLabel } from '../../data/categories';
 
 interface EventListItemProps {
@@ -38,9 +38,16 @@ export function EventListItem({ event, onClick }: EventListItemProps) {
           <span className="truncate">{event.venue}</span>
         </p>
       </div>
-      <span className="mr-1 shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] text-ink">
-        {relativeDayLabel(event.startsAt)}
-      </span>
+      {isHappeningNow(event) ? (
+        <span className="mr-1 flex shrink-0 items-center gap-1 rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-medium text-white">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+          Now
+        </span>
+      ) : (
+        <span className="mr-1 shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] text-ink">
+          {relativeDayLabel(event.startsAt)}
+        </span>
+      )}
     </button>
   );
 }

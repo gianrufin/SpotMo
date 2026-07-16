@@ -34,6 +34,7 @@ import { useSubmissions } from './lib/useSubmissions';
 import { useUserLocation, type Coords } from './lib/useUserLocation';
 import { useInstallPrompt } from './lib/useInstallPrompt';
 import { useTheme } from './lib/useTheme';
+import { useSavedReminders } from './lib/useSavedReminders';
 import { useOrganizer } from './lib/useOrganizer';
 import { useAdmin } from './lib/useAdmin';
 import { useAuth } from './lib/useAuth';
@@ -43,7 +44,7 @@ import { useOrganizersAdmin } from './lib/useOrganizersAdmin';
 import { useAdminsRoster } from './lib/useAdminsRoster';
 import { requestOrganizerAccess } from './lib/organizerAccess';
 import { isSupabaseEnabled } from './lib/supabase';
-import { haversineKm, formatDistance } from './lib/format';
+import { haversineKm, formatTravelEstimate, hasEventEnded } from './lib/format';
 
 type Overlay =
   | { kind: 'none' }
@@ -226,8 +227,11 @@ export default function App() {
   }
 
   // Live map data = curated events + approved submissions
+  // Public-facing views only ever show events that haven't ended yet — an
+  // approved-but-past event should quietly disappear rather than clutter the
+  // map. Organizer/admin management screens use their own unfiltered feeds.
   const allEvents = useMemo<SpotEvent[]>(
-    () => [...EVENTS, ...approved],
+    () => [...EVENTS, ...approved].filter((e) => !hasEventEnded(e)),
     [approved],
   );
   const mapEvents = useMemo(
@@ -239,6 +243,27 @@ export default function App() {
     () => savedIds.map((id) => allEvents.find((e) => e.id === id)).filter(Boolean) as SpotEvent[],
     [savedIds, allEvents],
   );
+  const reminders = useSavedReminders(savedEvents);
+
+  // Shareable event links: a `?event=<id>` URL (see lib/format.ts
+  // eventShareUrl) opens straight to that event once it's loaded — the only
+  // way an event spreads beyond the app itself, since there's no login/feed.
+  const [pendingSharedId, setPendingSharedId] = useState<string | null>(() =>
+    typeof window === 'undefined'
+      ? null
+      : new URLSearchParams(window.location.search).get('event'),
+  );
+  useEffect(() => {
+    if (!pendingSharedId) return;
+    const found = allEvents.find((e) => e.id === pendingSharedId);
+    if (found) {
+      setDetailId(found.id);
+      setPendingSharedId(null);
+      const url = new URL(window.location.href);
+      url.search = '';
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, [pendingSharedId, allEvents]);
 
   const detailEvent = detailId
     ? allEvents.find((e) => e.id === detailId) ?? null
@@ -248,7 +273,7 @@ export default function App() {
 
   function distanceLabel(e: SpotEvent | null): string | undefined {
     if (!e || !showUser) return undefined;
-    return formatDistance(
+    return formatTravelEstimate(
       haversineKm(location.coords.lat, location.coords.lng, e.lat, e.lng),
     );
   }
@@ -298,6 +323,7 @@ export default function App() {
         {tab === 'map' && (
           <MapScreen
             events={mapEvents}
+            hasAnyEvents={allEvents.length > 0}
             filters={filters}
             setFilters={setFilters}
             selectedId={selectedPinId}
@@ -314,6 +340,7 @@ export default function App() {
         {tab === 'saved' && (
           <SavedScreen
             savedEvents={savedEvents}
+            startingSoon={reminders.startingSoon}
             onOpen={openDetail}
             onBrowseMap={() => setTab('map')}
           />
@@ -348,6 +375,10 @@ export default function App() {
             onInstall={install.promptInstall}
             themePref={theme.pref}
             onSetTheme={theme.setPref}
+            remindersEnabled={reminders.enabled}
+            canNotify={reminders.canNotify}
+            onEnableReminders={() => void reminders.enableReminders()}
+            onDisableReminders={reminders.disableReminders}
           />
         )}
       </div>
