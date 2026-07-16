@@ -21,12 +21,12 @@ export function Logo({ size = 34, variant = 'default', className = '' }: LogoPro
       aria-label="SpotMo"
     >
       <span style={{ color: inkColor }}>Spot</span>
-      <span style={{ color: '#10B981' }}>M</span>
+      <span style={{ color: '#2F7D5A' }}>M</span>
       <MapPin
         size={size * 0.66}
         strokeWidth={1.5}
         className="-ml-[0.04em] mb-[0.06em] self-end"
-        style={{ color: '#10B981', fill: '#10B981' }}
+        style={{ color: '#2F7D5A', fill: '#2F7D5A' }}
       />
     </span>
   );
@@ -41,7 +41,7 @@ export function LogoMark({ size = 40 }: { size?: number }) {
       <MapPin
         size={size * 0.56}
         strokeWidth={2.4}
-        style={{ color: '#10B981', fill: '#10B981' }}
+        style={{ color: '#2F7D5A', fill: '#2F7D5A' }}
         className="text-brand"
       />
     </span>

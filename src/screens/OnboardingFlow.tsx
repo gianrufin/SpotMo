@@ -233,7 +233,7 @@ function LocationStep({
           className="mb-10 flex h-40 w-40 items-center justify-center rounded-full bg-brandsoft"
         >
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-card shadow-float">
-            <Navigation size={40} className="text-brand" fill="#10B981" strokeWidth={1.2} />
+            <Navigation size={40} className="text-brand" fill="#2F7D5A" strokeWidth={1.2} />
           </div>
         </motion.div>
 

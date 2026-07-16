@@ -33,7 +33,7 @@ export function BottomNav({ active, onChange, savedCount = 0 }: BottomNavProps) 
                   size={22}
                   strokeWidth={isActive ? 2.2 : 1.6}
                   className={isActive ? 'text-brand' : 'text-muted'}
-                  fill={id === 'saved' && isActive ? '#10B981' : 'none'}
+                  fill={id === 'saved' && isActive ? '#2F7D5A' : 'none'}
                 />
                 {id === 'saved' && savedCount > 0 && (
                   <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-medium text-white">

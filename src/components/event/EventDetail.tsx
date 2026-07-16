@@ -68,7 +68,7 @@ export function EventDetail({
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 pt-5">
           <button
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-ink shadow-soft backdrop-blur transition active:scale-90"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-[#111827] shadow-soft backdrop-blur transition active:scale-90"
             aria-label="Back"
           >
             <ArrowLeft size={20} strokeWidth={1.9} />
@@ -76,7 +76,7 @@ export function EventDetail({
           <div className="flex gap-2">
             <button
               onClick={handleShare}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-ink shadow-soft backdrop-blur transition active:scale-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-[#111827] shadow-soft backdrop-blur transition active:scale-90"
               aria-label="Share"
             >
               {shareState === 'copied' ? (
@@ -87,14 +87,14 @@ export function EventDetail({
             </button>
             <button
               onClick={onToggleSave}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-ink shadow-soft backdrop-blur transition active:scale-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-[#111827] shadow-soft backdrop-blur transition active:scale-90"
               aria-label={saved ? 'Unsave' : 'Save'}
             >
               <Heart
                 size={19}
                 strokeWidth={1.9}
-                className={saved ? 'text-brand' : 'text-ink'}
-                fill={saved ? '#10B981' : 'none'}
+                className={saved ? 'text-brand' : 'text-[#111827]'}
+                fill={saved ? '#2F7D5A' : 'none'}
               />
             </button>
           </div>
@@ -255,7 +255,7 @@ export function EventDetail({
             }`}
             aria-label={saved ? 'Saved' : 'Save event'}
           >
-            <Heart size={22} strokeWidth={1.9} fill={saved ? '#10B981' : 'none'} />
+            <Heart size={22} strokeWidth={1.9} fill={saved ? '#2F7D5A' : 'none'} />
           </button>
 
           <a href={directionsUrl(event)} target="_blank" rel="noreferrer" className="flex-1">

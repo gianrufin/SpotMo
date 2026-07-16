@@ -15,6 +15,7 @@ import { formatShortDate } from '../../lib/format';
 import { categoryLabel } from '../../data/categories';
 
 interface OrganizerDashboardProps {
+  organizerName: string;
   submissions: Submission[];
   onBack: () => void;
   onCreate: () => void;
@@ -50,6 +51,7 @@ type Filter = 'all' | 'approved' | 'pending';
 
 export function OrganizerDashboard({
   submissions,
+  organizerName,
   onBack,
   onCreate,
 }: OrganizerDashboardProps) {
@@ -113,7 +115,7 @@ export function OrganizerDashboard({
         <div>
           <p className="text-[12px] text-muted">SpotMo for Organizers</p>
           <p className="font-serif text-xl leading-none text-ink">
-            {greeting}, Organizer
+            {greeting}, {organizerName}
           </p>
         </div>
       </header>

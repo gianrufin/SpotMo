@@ -81,9 +81,9 @@ export function dateBucket(iso: string): DateBucketValue {
 
 /** Emerald-forward color scale for date-coded pins */
 export const BUCKET_COLOR: Record<DateBucketValue, string> = {
-  today: '#10B981', // emerald — happening now
-  tomorrow: '#059669', // deep emerald
-  week: '#0EA5A3', // teal
+  today: '#2F7D5A', // emerald — happening now
+  tomorrow: '#256A4C', // deep emerald
+  week: '#3B7E72', // teal
   later: '#6B7280', // muted gray
 };
 

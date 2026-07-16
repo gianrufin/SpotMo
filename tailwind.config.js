@@ -5,17 +5,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        // SpotMo brand palette (emerald — static across themes)
+        // SpotMo brand palette (muted, flat green — static across themes)
         brand: {
-          DEFAULT: '#10B981', // emerald accent
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#10B981',
-          600: '#059669',
-          700: '#047857',
+          DEFAULT: '#2F7D5A',
+          50: '#EEF6F1',
+          100: '#DBEBE2',
+          200: '#B4D6C6',
+          300: '#82B7A0',
+          400: '#4E967A',
+          500: '#2F7D5A',
+          600: '#276A4C',
+          700: '#1F5540',
         },
         // Theme-aware semantic tokens (flip in dark mode via CSS variables)
         ink: 'rgb(var(--c-fg) / <alpha-value>)', // primary text + inverse pill bg

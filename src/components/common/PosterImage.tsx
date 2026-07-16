@@ -13,11 +13,11 @@ interface PosterImageProps {
 // Deterministic gradient per category — always painted behind the image so the
 // poster area is never see-through, even if the remote image fails to load.
 const GRADIENTS: Record<string, string> = {
-  music: 'linear-gradient(135deg, #10B981 0%, #0f766e 100%)',
+  music: 'linear-gradient(135deg, #2F7D5A 0%, #1f5540 100%)',
   art: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
   comedy: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
   market: 'linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%)',
-  community: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+  community: 'linear-gradient(135deg, #2F7D5A 0%, #256A4C 100%)',
   food: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)',
   default: 'linear-gradient(135deg, #111827 0%, #374151 100%)',
 };

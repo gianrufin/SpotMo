@@ -36,11 +36,11 @@ async function render(size, bg, pinColor, holeColor, ratio, radius, out) {
 }
 
 // Standard icons — white square, emerald pin (matches brand app icon)
-await render(192, '#ffffff', '#10B981', '#ffffff', 0.62, 0, `${OUT}pwa-192.png`);
-await render(512, '#ffffff', '#10B981', '#ffffff', 0.62, 0, `${OUT}pwa-512.png`);
+await render(192, '#ffffff', '#2F7D5A', '#ffffff', 0.62, 0, `${OUT}pwa-192.png`);
+await render(512, '#ffffff', '#2F7D5A', '#ffffff', 0.62, 0, `${OUT}pwa-512.png`);
 // Maskable — full-bleed emerald, white pin, kept inside the safe zone
-await render(512, '#10B981', '#ffffff', '#10B981', 0.5, 0, `${OUT}pwa-maskable-512.png`);
+await render(512, '#2F7D5A', '#ffffff', '#2F7D5A', 0.5, 0, `${OUT}pwa-maskable-512.png`);
 // Apple touch icon — white square, emerald pin (iOS rounds the corners itself)
-await render(180, '#ffffff', '#10B981', '#ffffff', 0.62, 0, `${OUT}apple-touch-icon.png`);
+await render(180, '#ffffff', '#2F7D5A', '#ffffff', 0.62, 0, `${OUT}apple-touch-icon.png`);
 
 await browser.close();

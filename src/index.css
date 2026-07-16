@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --brand: #10b981;
+    --brand: #2f7d5a;
     /* Light theme tokens (space-separated RGB for Tailwind alpha support) */
     --c-bg: 255 255 255;
     --c-card: 255 255 255;
@@ -48,6 +48,16 @@
   body,
   #root {
     height: 100%;
+    /* Disable browser pull-to-refresh + overscroll bounce so it feels native */
+    overscroll-behavior: none;
+  }
+
+  html {
+    /* prevent the whole page from rubber-banding / pull-to-refresh */
+    overflow: hidden;
+    position: fixed;
+    inset: 0;
+    width: 100%;
   }
 
   body {
@@ -60,6 +70,15 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overscroll-behavior: none;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+
+  /* Inner scroll areas contain their own overscroll (no chaining to the page) */
+  .no-scrollbar,
+  [class*='overflow-y-auto'] {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Instrument Serif is only ~400/italic; used for titles + emotional highlights */
@@ -115,7 +134,7 @@
   .input:focus {
     outline: none;
     background: rgb(var(--c-card));
-    border-color: #10b981;
+    border-color: #2f7d5a;
   }
 }
 
@@ -183,7 +202,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: #10b981;
+  background: #2f7d5a;
   border: 3px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 6px 16px -4px rgba(17, 24, 39, 0.45);
   color: #fff;

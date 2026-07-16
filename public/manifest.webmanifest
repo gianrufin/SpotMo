@@ -8,7 +8,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#10B981",
+  "theme_color": "#2F7D5A",
   "categories": ["events", "entertainment", "lifestyle", "navigation"],
   "icons": [
     {

@@ -13,6 +13,7 @@ import { Logo } from '../../components/common/Logo';
 import { VenueAutocomplete } from '../../components/common/VenueAutocomplete';
 import { CATEGORIES } from '../../data/categories';
 import { MANILA } from '../../lib/useUserLocation';
+import { geocodeOnce } from '../../lib/useGeocode';
 
 interface CreateEventFlowProps {
   onCancel: () => void;
@@ -68,26 +69,51 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
 
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) set('poster', URL.createObjectURL(file));
+    if (!file) return;
+    // Read as a data URL (base64) so the poster persists in localStorage and
+    // stays on the event — a blob: URL would be revoked after reload.
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') set('poster', reader.result);
+    };
+    reader.readAsDataURL(file);
   }
 
   const canNext1 = !!draft.poster;
   const canNext2 =
     draft.title.trim() && draft.venue.trim() && draft.date && draft.category;
 
-  function finalize() {
+  const [submitting, setSubmitting] = useState(false);
+
+  async function finalize() {
+    setSubmitting(true);
     const startsAt = draft.date
       ? new Date(`${draft.date}T${draft.time || '19:00'}`).toISOString()
       : new Date().toISOString();
     const isFree = !draft.price.trim() || /free/i.test(draft.price);
+
+    // Prefer the picked place's coords; otherwise geocode the typed
+    // venue/address so a manually-entered place still lands correctly.
+    let lat = draft.lat;
+    let lng = draft.lng;
+    if (lat == null || lng == null) {
+      const query = [draft.venue, draft.address, draft.city]
+        .filter(Boolean)
+        .join(', ');
+      const hit = await geocodeOnce(query);
+      if (hit) {
+        lat = hit.lat;
+        lng = hit.lng;
+      }
+    }
+
     const event: SpotEvent = {
       id: `sub-${Date.now()}`,
       title: draft.title.trim(),
       category: draft.category,
       posterUrl: draft.poster ?? STOCK_POSTERS[0],
-      // real coordinates from the picked place; small jitter near Manila if none
-      lat: draft.lat ?? MANILA.lat + (Math.random() - 0.5) * 0.06,
-      lng: draft.lng ?? MANILA.lng + (Math.random() - 0.5) * 0.06,
+      lat: lat ?? MANILA.lat + (Math.random() - 0.5) * 0.06,
+      lng: lng ?? MANILA.lng + (Math.random() - 0.5) * 0.06,
       venue: draft.venue.trim(),
       address: draft.address.trim() || draft.city,
       city: draft.city.trim(),
@@ -343,8 +369,9 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
             variant="brand"
             icon={<Check size={18} strokeWidth={2.2} />}
             onClick={finalize}
+            disabled={submitting}
           >
-            Submit for Review
+            {submitting ? 'Submitting…' : 'Submit for Review'}
           </PrimaryButton>
         )}
       </div>
