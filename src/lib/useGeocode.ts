@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import {
+  isGooglePlacesEnabled,
+  autocompleteGoogle,
+  newSessionToken,
+} from './googlePlaces';
 
 export interface Place {
   name: string;
@@ -6,6 +11,10 @@ export interface Place {
   city: string;
   lat: number;
   lng: number;
+  /** Google prediction awaiting a Place Details call (cost-optimized: only
+   * resolved when the user actually picks it, not for every suggestion). */
+  needsResolve?: boolean;
+  placeId?: string;
 }
 
 // --- Photon (OpenStreetMap) — autocomplete-friendly ---
@@ -65,13 +74,41 @@ function nominatimToPlace(r: NominatimResult): Place {
 
 const dedupeKey = (p: Place) => `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
 
-/** Query both providers (Philippines-biased) and merge, Photon first. */
+/**
+ * Query for place suggestions. When a Google Places API key is configured,
+ * Google's data is tried first (better coverage); its predictions carry no
+ * coordinates yet (`needsResolve: true`) since resolving costs a separate
+ * call, made only once the user selects one. Falls back to the free,
+ * keyless OpenStreetMap providers (Photon + Nominatim) if Google is
+ * unconfigured, errors, or returns nothing.
+ */
 export async function searchPlaces(
   query: string,
   signal?: AbortSignal,
+  sessionToken?: string,
 ): Promise<Place[]> {
   const q = query.trim();
   if (q.length < 2) return [];
+
+  if (isGooglePlacesEnabled && sessionToken) {
+    try {
+      const predictions = await autocompleteGoogle(q, sessionToken, signal);
+      if (predictions.length > 0) {
+        return predictions.map((p) => ({
+          name: p.name,
+          address: p.address,
+          city: '',
+          lat: 0,
+          lng: 0,
+          needsResolve: true,
+          placeId: p.placeId,
+        }));
+      }
+    } catch {
+      /* ignore — fall through to the free OSM providers below */
+    }
+  }
+
   const results: Place[] = [];
   const seen = new Set<string>();
 
@@ -118,12 +155,24 @@ export async function searchPlaces(
 
 /** One best match — used at submit time to place manually-typed venues. */
 export async function geocodeOnce(query: string): Promise<Place | null> {
-  const list = await searchPlaces(query).catch(() => []);
-  return list[0] ?? null;
+  const token = newSessionToken();
+  const list = await searchPlaces(query, undefined, token).catch(() => []);
+  const top = list[0];
+  if (!top) return null;
+  if (top.needsResolve && top.placeId) {
+    try {
+      const { resolveGooglePlace } = await import('./googlePlaces');
+      return await resolveGooglePlace(top.placeId, token);
+    } catch {
+      return null;
+    }
+  }
+  return top;
 }
 
-/** Debounced live autocomplete hook. */
-export function useGeocode(query: string, enabled = true) {
+/** Debounced live autocomplete hook. Pass the same `sessionToken` across a
+ * typing session (reset it after a selection) for Google's session billing. */
+export function useGeocode(query: string, enabled = true, sessionToken?: string) {
   const [results, setResults] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
   const controller = useRef<AbortController | null>(null);
@@ -141,7 +190,7 @@ export function useGeocode(query: string, enabled = true) {
       controller.current = ac;
       setLoading(true);
       try {
-        const places = await searchPlaces(q, ac.signal);
+        const places = await searchPlaces(q, ac.signal, sessionToken);
         if (!ac.signal.aborted) setResults(places);
       } catch {
         if (!ac.signal.aborted) setResults([]);
@@ -150,7 +199,7 @@ export function useGeocode(query: string, enabled = true) {
       }
     }, 300);
     return () => clearTimeout(t);
-  }, [query, enabled]);
+  }, [query, enabled, sessionToken]);
 
   return { results, loading };
 }
