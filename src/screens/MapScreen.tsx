@@ -1,30 +1,24 @@
-import { AnimatePresence } from 'framer-motion';
 import { LocateFixed, SlidersHorizontal, X } from 'lucide-react';
 import type { SpotEvent, EventFilters, DateFilter, Category } from '../types';
 import type { Coords } from '../lib/useUserLocation';
 import { MapView } from '../components/map/MapView';
-import { EventPreviewCard } from '../components/event/EventPreviewCard';
 import { SearchBar } from '../components/common/SearchBar';
 import { Chip } from '../components/common/Chip';
 import { Logo } from '../components/common/Logo';
 import { CATEGORIES } from '../data/categories';
-import { haversineKm, formatDistance } from '../lib/format';
 
 interface MapScreenProps {
   events: SpotEvent[];
   filters: EventFilters;
   setFilters: (f: EventFilters) => void;
   selectedId: string | null;
+  /** A pin tap opens the event details directly. */
   onSelectPin: (id: string) => void;
-  onClearSelection: () => void;
-  onExpand: (id: string) => void;
   userCoords: Coords;
   showUser: boolean;
   onLocate: () => void;
   center: Coords;
   flyToken: number;
-  isSaved: (id: string) => boolean;
-  onToggleSave: (id: string) => void;
 }
 
 const DATE_CHIPS: { value: DateFilter; label: string }[] = [
@@ -40,18 +34,12 @@ export function MapScreen(props: MapScreenProps) {
     setFilters,
     selectedId,
     onSelectPin,
-    onClearSelection,
-    onExpand,
     userCoords,
     showUser,
     onLocate,
     center,
     flyToken,
-    isSaved,
-    onToggleSave,
   } = props;
-
-  const selected = events.find((e) => e.id === selectedId) ?? null;
 
   function toggleDate(value: DateFilter) {
     setFilters({ ...filters, date: filters.date === value ? null : value });
@@ -68,8 +56,9 @@ export function MapScreen(props: MapScreenProps) {
 
   return (
     <div className="relative h-full w-full">
-      {/* Map */}
-      <div className="absolute inset-0">
+      {/* Map — `isolate` keeps Leaflet's internal panes (markers at z-index 600)
+          from painting over the top bar / bottom nav as the map pans. */}
+      <div className="absolute inset-0 isolate">
         <MapView
           events={events}
           center={center}
@@ -173,31 +162,6 @@ export function MapScreen(props: MapScreenProps) {
           </div>
         </div>
       )}
-
-      {/* Preview card */}
-      <AnimatePresence>
-        {selected && (
-          <EventPreviewCard
-            event={selected}
-            saved={isSaved(selected.id)}
-            onToggleSave={() => onToggleSave(selected.id)}
-            onExpand={() => onExpand(selected.id)}
-            onClose={onClearSelection}
-            distanceLabel={
-              showUser
-                ? formatDistance(
-                    haversineKm(
-                      userCoords.lat,
-                      userCoords.lng,
-                      selected.lat,
-                      selected.lng,
-                    ),
-                  )
-                : undefined
-            }
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

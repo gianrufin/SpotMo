@@ -39,11 +39,8 @@ function MapController({
       return;
     }
     if (selectedEvent) {
-      // offset upward so the pin sits above the preview card
-      const target = map.project([selectedEvent.lat, selectedEvent.lng], 15);
-      target.y += 120;
-      const latlng = map.unproject(target, 15);
-      map.flyTo(latlng, 15, { duration: 0.7 });
+      // center the map on the tapped pin (visible behind the detail sheet on close)
+      map.flyTo([selectedEvent.lat, selectedEvent.lng], 15, { duration: 0.7 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEvent?.id]);

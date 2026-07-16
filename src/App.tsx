@@ -82,6 +82,12 @@ export default function App() {
     setDetailId(id);
   }
 
+  // Tapping a map pin highlights it and opens the event details directly.
+  function selectPin(id: string) {
+    setSelectedPinId(id);
+    setDetailId(id);
+  }
+
   function pickCategory(category: Category) {
     setFilters({ ...EMPTY_FILTERS, category });
     setSelectedPinId(null);
@@ -114,16 +120,12 @@ export default function App() {
             filters={filters}
             setFilters={setFilters}
             selectedId={selectedPinId}
-            onSelectPin={setSelectedPinId}
-            onClearSelection={() => setSelectedPinId(null)}
-            onExpand={openDetail}
+            onSelectPin={selectPin}
             userCoords={location.coords}
             showUser={showUser}
             onLocate={handleLocate}
             center={center}
             flyToken={flyToken}
-            isSaved={isSaved}
-            onToggleSave={toggle}
           />
         )}
 
