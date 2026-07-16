@@ -217,6 +217,27 @@
   transform: scale(1.06);
 }
 
+/* Draggable pin used by the organizer location picker */
+.spotmo-drag-pin {
+  width: 28px;
+  height: 28px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #2f7d5a;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px -3px rgba(17, 24, 39, 0.5);
+}
+.spotmo-drag-pin::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+}
+
 .spotmo-user-dot {
   width: 18px;
   height: 18px;

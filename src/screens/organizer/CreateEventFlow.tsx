@@ -11,6 +11,7 @@ import type { Category, SpotEvent } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { Logo } from '../../components/common/Logo';
 import { VenueAutocomplete } from '../../components/common/VenueAutocomplete';
+import { LocationPicker } from '../../components/common/LocationPicker';
 import { CATEGORIES } from '../../data/categories';
 import { MANILA } from '../../lib/useUserLocation';
 import { geocodeOnce } from '../../lib/useGeocode';
@@ -18,6 +19,7 @@ import { geocodeOnce } from '../../lib/useGeocode';
 interface CreateEventFlowProps {
   onCancel: () => void;
   onSubmit: (event: SpotEvent) => void;
+  dark: boolean;
 }
 
 interface Draft {
@@ -59,9 +61,10 @@ const STOCK_POSTERS = [
   'https://images.unsplash.com/photo-1524650359799-842906ca1c06?auto=format&fit=crop&w=600&q=70',
 ];
 
-export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
+export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowProps) {
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
+  const [focusToken, setFocusToken] = useState(0);
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
@@ -254,6 +257,7 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
                     lat: place.lat,
                     lng: place.lng,
                   }));
+                  setFocusToken((t) => t + 1);
                 }}
                 placeholder="Search a venue or address"
               />
@@ -265,6 +269,19 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
                 onChange={(e) => set('address', e.target.value)}
                 placeholder="Auto-fills from the venue, or type it"
                 className="input"
+              />
+            </Field>
+
+            <Field label="Pin the exact location">
+              <p className="-mt-0.5 mb-2 text-[12px] text-muted">
+                Not found in search? Drag the pin or tap the map to set the exact spot.
+              </p>
+              <LocationPicker
+                lat={draft.lat ?? MANILA.lat}
+                lng={draft.lng ?? MANILA.lng}
+                focusToken={focusToken}
+                dark={dark}
+                onChange={(lat, lng) => setDraft((d) => ({ ...d, lat, lng }))}
               />
             </Field>
 

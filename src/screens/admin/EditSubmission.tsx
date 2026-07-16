@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import type { Submission, SpotEvent, Category } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { VenueAutocomplete } from '../../components/common/VenueAutocomplete';
+import { LocationPicker } from '../../components/common/LocationPicker';
 import { CATEGORIES } from '../../data/categories';
 
 interface EditSubmissionProps {
   submission: Submission;
+  dark: boolean;
   onCancel: () => void;
   onSave: (patch: Partial<SpotEvent>) => void;
 }
@@ -24,13 +26,17 @@ function toTimeInput(iso: string) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function EditSubmission({ submission, onCancel, onSave }: EditSubmissionProps) {
+export function EditSubmission({ submission, dark, onCancel, onSave }: EditSubmissionProps) {
   const [title, setTitle] = useState(submission.title);
   const [category, setCategory] = useState<Category>(submission.category);
   const [venue, setVenue] = useState(submission.venue);
   const [address, setAddress] = useState(submission.address);
   const [city, setCity] = useState(submission.city);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number }>({
+    lat: submission.lat,
+    lng: submission.lng,
+  });
+  const [focusToken, setFocusToken] = useState(0);
   const [date, setDate] = useState(toDateInput(submission.startsAt));
   const [time, setTime] = useState(toTimeInput(submission.startsAt));
   const [price, setPrice] = useState(submission.isFree ? '' : submission.priceLabel);
@@ -51,7 +57,8 @@ export function EditSubmission({ submission, onCancel, onSave }: EditSubmissionP
       isFree,
       ticketUrl: ticketUrl.trim() || undefined,
       description: description.trim(),
-      ...(coords ? { lat: coords.lat, lng: coords.lng } : {}),
+      lat: coords.lat,
+      lng: coords.lng,
     });
   }
 
@@ -100,15 +107,13 @@ export function EditSubmission({ submission, onCancel, onSave }: EditSubmissionP
         <Field label="Venue">
           <VenueAutocomplete
             value={venue}
-            onChangeText={(text) => {
-              setVenue(text);
-              setCoords(null);
-            }}
+            onChangeText={setVenue}
             onSelectPlace={(place) => {
               setVenue(place.name);
               setAddress(place.address);
               if (place.city) setCity(place.city);
               setCoords({ lat: place.lat, lng: place.lng });
+              setFocusToken((t) => t + 1);
             }}
           />
         </Field>
@@ -118,6 +123,16 @@ export function EditSubmission({ submission, onCancel, onSave }: EditSubmissionP
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="input"
+          />
+        </Field>
+
+        <Field label="Pin the exact location">
+          <LocationPicker
+            lat={coords.lat}
+            lng={coords.lng}
+            focusToken={focusToken}
+            dark={dark}
+            onChange={(lat, lng) => setCoords({ lat, lng })}
           />
         </Field>
 

@@ -258,6 +258,7 @@ export default function App() {
               ))}
             {overlay.kind === 'create' && (
               <CreateEventFlow
+                dark={theme.isDark}
                 onCancel={goBack}
                 onSubmit={(event) => {
                   add(event, organizerName);
@@ -283,6 +284,7 @@ export default function App() {
                   onSetStatus={setStatus}
                   onRemove={remove}
                   onUpdate={update}
+                  dark={theme.isDark}
                 />
               ) : (
                 <AdminGate

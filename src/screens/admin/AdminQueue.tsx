@@ -13,6 +13,7 @@ interface AdminQueueProps {
   onSetStatus: (id: string, status: SubmissionStatus) => void;
   onRemove: (id: string) => void;
   onUpdate: (id: string, patch: Partial<SpotEvent>) => void;
+  dark: boolean;
 }
 
 type Filter = 'pending' | 'approved' | 'rejected';
@@ -29,6 +30,7 @@ export function AdminQueue({
   onSetStatus,
   onRemove,
   onUpdate,
+  dark,
 }: AdminQueueProps) {
   const [filter, setFilter] = useState<Filter>('pending');
   const [editing, setEditing] = useState<Submission | null>(null);
@@ -154,6 +156,7 @@ export function AdminQueue({
       {editing && (
         <EditSubmission
           submission={editing}
+          dark={dark}
           onCancel={() => setEditing(null)}
           onSave={(patch) => {
             onUpdate(editing.id, patch);
