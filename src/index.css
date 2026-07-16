@@ -1,0 +1,173 @@
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #10b981;
+    --ink: #111827;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 300;
+    color: var(--ink);
+    background: #e9edf1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+  }
+
+  /* Instrument Serif is only ~400/italic; used for titles + emotional highlights */
+  .font-serif {
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  /* Soft glass panel used across the app */
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+
+  .glass-dark {
+    background: rgba(17, 24, 39, 0.55);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Hide scrollbars for horizontal chip rows */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tracking-brand {
+    letter-spacing: 0.22em;
+  }
+
+  /* Form input used across the organizer flow */
+  .input {
+    width: 100%;
+    border-radius: 1rem;
+    background: #f1f5f9;
+    padding: 0.75rem 1rem;
+    font-size: 14px;
+    color: #111827;
+    border: 1px solid transparent;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .input::placeholder {
+    color: #9ca3af;
+  }
+  .input:focus {
+    outline: none;
+    background: #fff;
+    border-color: #10b981;
+  }
+}
+
+/* ---- Leaflet overrides for a clean, premium map ---- */
+.leaflet-container {
+  background: #eef1f4;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  outline: none;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  color: #9ca3af !important;
+  backdrop-filter: blur(4px);
+  border-radius: 8px 0 0 0;
+  padding: 1px 6px !important;
+}
+.leaflet-control-attribution a {
+  color: #6b7280 !important;
+}
+
+/* Custom poster pin marker */
+.spotmo-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+.spotmo-pin-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  filter: drop-shadow(0 6px 12px rgba(17, 24, 39, 0.28));
+}
+
+.spotmo-pin-poster {
+  overflow: hidden;
+  border-radius: 14px;
+  border: 3px solid var(--pin);
+  background: var(--pin);
+  box-shadow: 0 2px 6px rgba(17, 24, 39, 0.2);
+}
+
+.spotmo-pin-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.spotmo-pin-tail {
+  width: 0;
+  height: 0;
+  margin-top: -1px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 9px solid var(--pin);
+}
+
+.spotmo-user-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18);
+}
+
+.spotmo-pin-label {
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: #111827;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 400;
+  padding: 2px 7px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(17, 24, 39, 0.25);
+}
+
+.leaflet-marker-icon {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
