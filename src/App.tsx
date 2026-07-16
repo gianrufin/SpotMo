@@ -10,11 +10,14 @@ import { DiscoverScreen } from './screens/DiscoverScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { OrganizerDashboard } from './screens/organizer/OrganizerDashboard';
 import { OrganizerAuth } from './screens/organizer/OrganizerAuth';
+import { RequestAccess } from './screens/organizer/RequestAccess';
+import { OrganizerStatusScreen } from './screens/organizer/OrganizerStatusScreen';
 import { CreateEventFlow } from './screens/organizer/CreateEventFlow';
 import { SubmissionStatus } from './screens/organizer/SubmissionStatus';
 import { AdminQueue } from './screens/admin/AdminQueue';
 import { AdminGate } from './screens/admin/AdminGate';
 import { NotAdmin } from './screens/admin/NotAdmin';
+import { OrganizersManager } from './screens/admin/OrganizersManager';
 import { AuthPanel } from './screens/auth/AuthPanel';
 import { EventDetail } from './components/event/EventDetail';
 import { EVENTS } from './data/events';
@@ -29,6 +32,9 @@ import { useOrganizer } from './lib/useOrganizer';
 import { useAdmin } from './lib/useAdmin';
 import { useAuth } from './lib/useAuth';
 import { useRemoteEvents } from './lib/useRemoteEvents';
+import { useMyOrganizerProfile } from './lib/useMyOrganizerProfile';
+import { useOrganizersAdmin } from './lib/useOrganizersAdmin';
+import { requestOrganizerAccess } from './lib/organizerAccess';
 import { isSupabaseEnabled } from './lib/supabase';
 import { haversineKm, formatDistance } from './lib/format';
 
@@ -37,7 +43,8 @@ type Overlay =
   | { kind: 'organizer' } // dashboard
   | { kind: 'create' } // create-event flow
   | { kind: 'submitted'; event: SpotEvent }
-  | { kind: 'admin' };
+  | { kind: 'admin' }
+  | { kind: 'organizers-manager' };
 
 export default function App() {
   const { seen, complete, reset } = useOnboarding();
@@ -53,22 +60,55 @@ export default function App() {
   const localOrg = useOrganizer();
   const localAdmin = useAdmin();
   const remote = useRemoteEvents(auth.session, auth.isAdmin);
+  const myProfile = useMyOrganizerProfile(auth.session);
+  const organizersAdmin = useOrganizersAdmin(auth.isAdmin);
 
   // Unified data surface (same shape regardless of backend)
   const approved = remoteMode ? remote.approved : local.approved;
   const organizerName = remoteMode
-    ? auth.name ?? auth.email ?? 'You'
+    ? myProfile.profile?.org_name || auth.name || auth.email || 'You'
     : localOrg.organizer?.name ?? 'You';
   const mySubmissions = remoteMode
     ? remote.mine
     : local.submissions.filter((s) => s.submittedBy === organizerName);
   const allSubmissions = remoteMode ? remote.all : local.submissions;
-  const addSubmission = remoteMode ? remote.add : local.add;
   const setStatus = remoteMode ? remote.setStatus : local.setStatus;
   const remove = remoteMode ? remote.remove : local.remove;
   const update = remoteMode ? remote.update : local.update;
 
-  const isSignedInOrganizer = remoteMode ? !!auth.session : !!localOrg.organizer;
+  async function submitEvent(
+    event: SpotEvent,
+  ): Promise<{ ok: boolean; error?: string }> {
+    if (remoteMode) return remote.add(event, organizerName);
+    local.add(event, organizerName);
+    return { ok: true };
+  }
+
+  // Organizer access state — separate from admin-ness entirely. In remote
+  // mode, "approved" requires BOTH a signed-in session AND an approved row
+  // in the organizers roster (server-enforced, not just this check).
+  type OrganizerAccessState =
+    | 'not-signed-in'
+    | 'loading'
+    | 'approved'
+    | 'pending'
+    | 'revoked'
+    | 'not-requested';
+  const organizerAccessState: OrganizerAccessState = !remoteMode
+    ? localOrg.organizer
+      ? 'approved'
+      : 'not-signed-in'
+    : !auth.session
+      ? 'not-signed-in'
+      : myProfile.loading
+        ? 'loading'
+        : myProfile.profile?.status === 'approved'
+          ? 'approved'
+          : myProfile.profile?.status === 'pending'
+            ? 'pending'
+            : myProfile.profile?.status === 'revoked'
+              ? 'revoked'
+              : 'not-requested';
 
   const [tab, setTab] = useState<Tab>('map');
   const [filters, setFilters] = useState<EventFilters>(EMPTY_FILTERS);
@@ -227,6 +267,9 @@ export default function App() {
             pendingCount={allSubmissions.filter((s) => s.status === 'pending').length}
             onOpenOrganizer={() => setOverlay({ kind: 'organizer' })}
             onOpenAdmin={() => setOverlay({ kind: 'admin' })}
+            onOpenOrganizersManager={
+              remoteMode ? () => setOverlay({ kind: 'organizers-manager' }) : undefined
+            }
             onResetOnboarding={reset}
             canInstall={install.canInstall}
             installed={install.installed}
@@ -274,31 +317,54 @@ export default function App() {
             transition={{ type: 'spring', damping: 34, stiffness: 320 }}
           >
             {overlay.kind === 'organizer' &&
-              (isSignedInOrganizer ? (
+              (organizerAccessState === 'approved' ? (
                 <OrganizerDashboard
                   organizerName={organizerName}
                   submissions={mySubmissions}
                   onBack={goBack}
                   onCreate={() => setOverlay({ kind: 'create' })}
                   onSignOut={remoteMode ? handleSignOut : undefined}
+                  onEditName={remoteMode ? myProfile.updateOrgName : undefined}
                 />
-              ) : remoteMode ? (
-                <AuthPanel
-                  variant="organizer"
-                  onBack={goBack}
-                  onSignIn={auth.signIn}
-                  onSignUp={auth.signUp}
-                />
+              ) : organizerAccessState === 'loading' ? (
+                <div className="flex h-full items-center justify-center bg-bg text-[14px] text-muted">
+                  Loading…
+                </div>
+              ) : organizerAccessState === 'not-signed-in' ? (
+                remoteMode ? (
+                  <RequestAccess
+                    onBack={goBack}
+                    onSignIn={auth.signIn}
+                    onSignUp={auth.signUp}
+                  />
+                ) : (
+                  <OrganizerAuth onBack={goBack} onSignUp={localOrg.signUp} />
+                )
               ) : (
-                <OrganizerAuth onBack={goBack} onSignUp={localOrg.signUp} />
+                <OrganizerStatusScreen
+                  status={organizerAccessState}
+                  email={auth.email}
+                  onBack={goBack}
+                  onSignOut={handleSignOut}
+                  onRequestNow={
+                    organizerAccessState === 'not-requested'
+                      ? async () => {
+                          const result = await requestOrganizerAccess(auth.email!);
+                          if (result.ok) await myProfile.refresh();
+                          return result;
+                        }
+                      : undefined
+                  }
+                />
               ))}
             {overlay.kind === 'create' && (
               <CreateEventFlow
                 dark={theme.isDark}
                 onCancel={goBack}
                 onSubmit={async (event) => {
-                  await addSubmission(event, organizerName);
-                  setOverlay({ kind: 'submitted', event });
+                  const result = await submitEvent(event);
+                  if (result.ok) setOverlay({ kind: 'submitted', event });
+                  return result;
                 }}
               />
             )}
@@ -352,6 +418,31 @@ export default function App() {
                   onBack={goBack}
                   onSetPin={localAdmin.setPin}
                   onUnlock={localAdmin.unlock}
+                />
+              ))}
+            {overlay.kind === 'organizers-manager' && remoteMode &&
+              (!auth.session ? (
+                <AuthPanel
+                  variant="admin"
+                  onBack={goBack}
+                  onSignIn={auth.signIn}
+                  onSignUp={auth.signUp}
+                />
+              ) : !auth.isAdmin ? (
+                <NotAdmin
+                  email={auth.email}
+                  onBack={goBack}
+                  onSignOut={handleSignOut}
+                />
+              ) : (
+                <OrganizersManager
+                  organizers={organizersAdmin.organizers}
+                  onBack={goBack}
+                  onApprove={(id) => organizersAdmin.setStatus(id, 'approved')}
+                  onRevoke={(id) => organizersAdmin.setStatus(id, 'revoked')}
+                  onUpdateName={organizersAdmin.updateOrgName}
+                  onRemove={organizersAdmin.remove}
+                  onAdd={organizersAdmin.addOrganizer}
                 />
               ))}
           </motion.div>

@@ -7,19 +7,36 @@ interface AuthPanelProps {
   onBack: () => void;
   onSignIn: (email: string, password: string) => Promise<string | null>;
   onSignUp: (name: string, email: string, password: string) => Promise<string | null>;
+  /** Pre-fill the email (e.g. once an organizer request has been approved). */
+  initialEmail?: string;
+  /** Which mode to start in — defaults to 'up' for organizers, 'in' for admin. */
+  initialMode?: 'in' | 'up';
+  /** Lock the email field and offer a "use a different email" link instead. */
+  lockEmail?: boolean;
+  onChangeEmail?: () => void;
 }
 
-export function AuthPanel({ variant, onBack, onSignIn, onSignUp }: AuthPanelProps) {
-  // Admins only ever sign in; organizers can sign up or sign in.
-  const [mode, setMode] = useState<'in' | 'up'>(variant === 'admin' ? 'in' : 'up');
+export function AuthPanel({
+  variant,
+  onBack,
+  onSignIn,
+  onSignUp,
+  initialEmail = '',
+  initialMode,
+  lockEmail = false,
+  onChangeEmail,
+}: AuthPanelProps) {
+  const isAdmin = variant === 'admin';
+  const [mode, setMode] = useState<'in' | 'up'>(
+    initialMode ?? (isAdmin ? 'in' : 'up'),
+  );
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  const isAdmin = variant === 'admin';
   const valid =
     /.+@.+\..+/.test(email) &&
     password.length >= 6 &&
@@ -70,20 +87,22 @@ export function AuthPanel({ variant, onBack, onSignIn, onSignUp }: AuthPanelProp
           {isAdmin
             ? 'Sign in to moderate events'
             : mode === 'up'
-              ? 'List your events on SpotMo'
+              ? 'Set up your organizer account'
               : 'Welcome back'}
         </h2>
         <p className="mt-1.5 text-[14px] leading-relaxed text-muted">
           {isAdmin
             ? 'Only the admin account can approve, decline, or review submissions.'
-            : 'Sign up to submit gigs, shows, and markets. Every submission is reviewed before it goes live.'}
+            : mode === 'up'
+              ? 'Your request was approved — create a password and pick a name for your events.'
+              : 'Sign in to manage your events.'}
         </p>
 
         <div className="mt-6 space-y-3.5">
           {mode === 'up' && !isAdmin && (
             <label className="block">
               <span className="mb-1.5 block text-[12.5px] text-muted">
-                Organizer / venue name
+                Organizer name (venue, production, event organizer, etc.)
               </span>
               <input
                 value={name}
@@ -99,10 +118,19 @@ export function AuthPanel({ variant, onBack, onSignIn, onSignUp }: AuthPanelProp
               type="email"
               autoCapitalize="none"
               value={email}
+              disabled={lockEmail}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
-              className="input"
+              className="input disabled:opacity-60"
             />
+            {lockEmail && onChangeEmail && (
+              <button
+                onClick={onChangeEmail}
+                className="mt-1.5 text-[12.5px] text-muted underline underline-offset-2"
+              >
+                Use a different email
+              </button>
+            )}
           </label>
           <label className="block">
             <span className="mb-1.5 block text-[12.5px] text-muted">Password</span>
@@ -139,7 +167,7 @@ export function AuthPanel({ variant, onBack, onSignIn, onSignUp }: AuthPanelProp
           >
             {mode === 'up'
               ? 'Already have an account? Sign in'
-              : 'New here? Create an organizer account'}
+              : 'New here? Create your account'}
           </button>
         )}
       </div>

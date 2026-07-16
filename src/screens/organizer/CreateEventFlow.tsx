@@ -18,7 +18,7 @@ import { geocodeOnce } from '../../lib/useGeocode';
 
 interface CreateEventFlowProps {
   onCancel: () => void;
-  onSubmit: (event: SpotEvent) => void;
+  onSubmit: (event: SpotEvent) => Promise<{ ok: boolean; error?: string }>;
   dark: boolean;
 }
 
@@ -87,9 +87,11 @@ export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowPro
     draft.title.trim() && draft.venue.trim() && draft.date && draft.category;
 
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   async function finalize() {
     setSubmitting(true);
+    setSubmitError('');
     const startsAt = draft.date
       ? new Date(`${draft.date}T${draft.time || '19:00'}`).toISOString()
       : new Date().toISOString();
@@ -129,7 +131,11 @@ export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowPro
       ticketUrl: draft.ticketUrl.trim() || undefined,
       organizer: 'You',
     };
-    onSubmit(event);
+    const result = await onSubmit(event);
+    if (!result.ok) {
+      setSubmitError(result.error ?? 'Something went wrong. Please try again.');
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -372,6 +378,9 @@ export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowPro
 
       {/* footer action */}
       <div className="absolute inset-x-0 bottom-0 border-t border-hairline bg-card/90 p-4 pb-5 backdrop-blur">
+        {step === 3 && submitError && (
+          <p className="mb-2 text-center text-[13px] text-red-500">{submitError}</p>
+        )}
         {step < 3 ? (
           <PrimaryButton
             full

@@ -105,15 +105,29 @@ export function useRemoteEvents(session: Session | null, isAdmin: boolean) {
   }, [refresh]);
 
   const add = useCallback(
-    async (event: SpotEvent, name: string) => {
-      if (!supabase || !session) return;
-      await supabase.from('events').insert({
+    async (
+      event: SpotEvent,
+      name: string,
+    ): Promise<{ ok: boolean; error?: string }> => {
+      if (!supabase || !session) return { ok: false, error: 'Not signed in.' };
+      const { error } = await supabase.from('events').insert({
         ...eventToRow(event),
         organizer: name,
         organizer_id: session.user.id,
         status: 'pending',
       });
       await refresh();
+      if (error) {
+        // RLS blocks this insert until the organizer's account is approved.
+        const notApproved = error.code === '42501';
+        return {
+          ok: false,
+          error: notApproved
+            ? 'Your organizer account isn’t approved yet. Please wait for admin approval.'
+            : error.message,
+        };
+      }
+      return { ok: true };
     },
     [session, refresh],
   );

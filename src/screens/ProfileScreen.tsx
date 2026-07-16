@@ -2,6 +2,7 @@ import {
   Heart,
   PlusCircle,
   ShieldCheck,
+  Users,
   Bell,
   Info,
   ChevronRight,
@@ -27,6 +28,7 @@ interface ProfileScreenProps {
   pendingCount: number;
   onOpenOrganizer: () => void;
   onOpenAdmin: () => void;
+  onOpenOrganizersManager?: () => void;
   onResetOnboarding: () => void;
   canInstall: boolean;
   installed: boolean;
@@ -41,6 +43,7 @@ export function ProfileScreen({
   pendingCount,
   onOpenOrganizer,
   onOpenAdmin,
+  onOpenOrganizersManager,
   onResetOnboarding,
   canInstall,
   installed,
@@ -154,6 +157,14 @@ export function ProfileScreen({
             badge={pendingCount > 0 ? pendingCount : undefined}
             onClick={onOpenAdmin}
           />
+          {onOpenOrganizersManager && (
+            <Row
+              icon={<Users size={19} strokeWidth={1.8} />}
+              title="Manage organizers"
+              subtitle="Approve requests, add, edit, or remove organizers"
+              onClick={onOpenOrganizersManager}
+            />
+          )}
         </div>
 
         <div className="mt-6 space-y-2.5">

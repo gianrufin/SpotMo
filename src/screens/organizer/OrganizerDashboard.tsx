@@ -6,6 +6,8 @@ import {
   Heart,
   MousePointerClick,
   TrendingUp,
+  Pencil,
+  Check,
 } from 'lucide-react';
 import type { Submission, SubmissionStatus } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
@@ -20,6 +22,9 @@ interface OrganizerDashboardProps {
   onBack: () => void;
   onCreate: () => void;
   onSignOut?: () => void;
+  /** When set, shows a pencil icon letting the organizer rename themselves
+   * (their venue/production/organizer name — shown on their events). */
+  onEditName?: (name: string) => void;
 }
 
 // Deterministic pseudo-metrics per event id, so numbers are stable across renders
@@ -56,8 +61,11 @@ export function OrganizerDashboard({
   onBack,
   onCreate,
   onSignOut,
+  onEditName,
 }: OrganizerDashboardProps) {
   const [filter, setFilter] = useState<Filter>('all');
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(organizerName);
 
   const counts = useMemo(() => {
     return {
@@ -116,9 +124,42 @@ export function OrganizerDashboard({
         </button>
         <div className="min-w-0 flex-1">
           <p className="text-[12px] text-muted">SpotMo for Organizers</p>
-          <p className="truncate font-serif text-xl leading-none text-ink">
-            {greeting}, {organizerName}
-          </p>
+          {editingName ? (
+            <div className="mt-1 flex items-center gap-1.5">
+              <input
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
+                className="input py-1.5 text-[14px]"
+                autoFocus
+              />
+              <button
+                onClick={() => {
+                  onEditName?.(nameDraft.trim() || organizerName);
+                  setEditingName(false);
+                }}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-onink"
+                aria-label="Save name"
+              >
+                <Check size={14} strokeWidth={2.2} />
+              </button>
+            </div>
+          ) : (
+            <p className="flex items-center gap-1.5 truncate font-serif text-xl leading-none text-ink">
+              {greeting}, {organizerName}
+              {onEditName && (
+                <button
+                  onClick={() => {
+                    setNameDraft(organizerName);
+                    setEditingName(true);
+                  }}
+                  className="shrink-0 text-muted"
+                  aria-label="Edit organizer name"
+                >
+                  <Pencil size={14} strokeWidth={1.9} />
+                </button>
+              )}
+            </p>
+          )}
         </div>
         {onSignOut && (
           <button
