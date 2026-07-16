@@ -55,6 +55,25 @@ export function useMyOrganizerProfile(session: Session | null) {
     void refresh();
   }, [refresh]);
 
+  // Live sync: the moment an admin approves/revokes this email, it reflects
+  // here immediately — no need to sign out and back in or refresh.
+  useEffect(() => {
+    if (!supabase || !session?.user.email) return;
+    const client = supabase;
+    const email = session.user.email.toLowerCase();
+    const channel = client
+      .channel(`organizer-profile-${email}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'organizers', filter: `email=eq.${email}` },
+        () => void refresh(),
+      )
+      .subscribe();
+    return () => {
+      void client.removeChannel(channel);
+    };
+  }, [session?.user?.email, refresh]);
+
   const updateOrgName = useCallback(
     async (orgName: string) => {
       if (!supabase || !profile) return;

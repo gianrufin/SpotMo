@@ -13,15 +13,18 @@ export async function checkOrganizerStatus(
   return data as OrganizerStatusCheck;
 }
 
-/** Public: submit a bare-email request for organizer access. */
+/** Public: submit a request for organizer access — email plus an optional
+ * note on what they'd be listing, so the admin has context to approve on. */
 export async function requestOrganizerAccess(
   email: string,
+  note?: string,
 ): Promise<{ ok: boolean; error?: string }> {
   if (!supabase) return { ok: false, error: 'Backend not configured.' };
   const { error } = await supabase.from('organizers').insert({
     email: email.trim().toLowerCase(),
     status: 'pending',
     created_by: 'request',
+    request_note: note?.trim() || null,
   });
   if (error) {
     const dup = error.code === '23505';

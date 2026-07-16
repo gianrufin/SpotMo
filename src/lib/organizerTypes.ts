@@ -10,6 +10,7 @@ export interface OrganizerRow {
   requested_at: string;
   reviewed_at: string | null;
   created_by: 'request' | 'admin';
+  request_note: string | null;
 }
 
 export interface OrganizerStatusCheck {

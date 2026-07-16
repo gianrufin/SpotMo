@@ -40,6 +40,7 @@ import { useAuth } from './lib/useAuth';
 import { useRemoteEvents } from './lib/useRemoteEvents';
 import { useMyOrganizerProfile } from './lib/useMyOrganizerProfile';
 import { useOrganizersAdmin } from './lib/useOrganizersAdmin';
+import { useAdminsRoster } from './lib/useAdminsRoster';
 import { requestOrganizerAccess } from './lib/organizerAccess';
 import { isSupabaseEnabled } from './lib/supabase';
 import { haversineKm, formatDistance } from './lib/format';
@@ -68,6 +69,7 @@ export default function App() {
   const remote = useRemoteEvents(auth.session, auth.isAdmin);
   const myProfile = useMyOrganizerProfile(auth.session);
   const organizersAdmin = useOrganizersAdmin(auth.isAdmin);
+  const adminsRoster = useAdminsRoster(auth.isAdmin, auth.session?.user.id ?? null);
 
   // Unified data surface (same shape regardless of backend)
   const approved = remoteMode ? remote.approved : local.approved;
@@ -517,6 +519,10 @@ export default function App() {
                   onUpdateName={organizersAdmin.updateOrgName}
                   onRemove={organizersAdmin.remove}
                   onAdd={organizersAdmin.addOrganizer}
+                  isAdminUser={(userId) => adminsRoster.adminIds.has(userId)}
+                  canDemote={adminsRoster.canDemote}
+                  onPromote={adminsRoster.promote}
+                  onDemote={adminsRoster.demote}
                 />
               ))}
           </motion.div>

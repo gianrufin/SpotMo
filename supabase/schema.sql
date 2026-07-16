@@ -5,8 +5,11 @@
 
 -- 1) Admins allowlist -------------------------------------------------------
 create table if not exists public.admins (
-  id uuid primary key references auth.users (id) on delete cascade
+  id         uuid primary key references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
 );
+-- Safe to re-run on a table created before this column existed.
+alter table public.admins add column if not exists created_at timestamptz not null default now();
 alter table public.admins enable row level security;
 
 -- A signed-in user may check whether THEY are an admin (only their own row).
@@ -23,6 +26,26 @@ create or replace function public.is_admin()
 as $$
   select exists (select 1 from public.admins where id = auth.uid());
 $$;
+
+-- Admins can see the full admin roster (to know who's already promoted),
+-- promote any signed-up user to admin, and demote another admin — but never
+-- themselves, and never the very first admin ever created (this project's
+-- founding admin), so the community can never lock everyone out.
+drop policy if exists "admin can read all admins" on public.admins;
+create policy "admin can read all admins" on public.admins
+  for select using (public.is_admin());
+
+drop policy if exists "admin can add admins" on public.admins;
+create policy "admin can add admins" on public.admins
+  for insert with check (public.is_admin());
+
+drop policy if exists "admin can remove other admins" on public.admins;
+create policy "admin can remove other admins" on public.admins
+  for delete using (
+    public.is_admin()
+    and id <> auth.uid()
+    and id <> (select id from public.admins order by created_at asc limit 1)
+  );
 
 -- 2) Events -----------------------------------------------------------------
 create table if not exists public.events (
@@ -104,8 +127,11 @@ create table if not exists public.organizers (
   requested_at timestamptz not null default now(),
   reviewed_at  timestamptz,
   created_by   text not null default 'request'
-               check (created_by in ('request', 'admin'))
+               check (created_by in ('request', 'admin')),
+  request_note text
 );
+-- Safe to re-run on a table created before this column existed.
+alter table public.organizers add column if not exists request_note text;
 create unique index if not exists organizers_email_key
   on public.organizers (lower(email));
 alter table public.organizers enable row level security;
@@ -177,8 +203,22 @@ create policy "insert own pending" on public.events
     and (public.is_admin() or public.is_approved_organizer())
   );
 
+-- 4) Realtime — so admin approvals / organizer changes show up live for
+--    everyone with the app open, with no manual refresh needed.
+do $$
+begin
+  alter publication supabase_realtime add table public.events;
+exception when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.organizers;
+exception when duplicate_object then null;
+end $$;
+
 -- ============================================================================
--- 4) Make yourself the admin  (run AFTER you have signed up in the app once)
+-- 5) Make yourself the admin  (run AFTER you have signed up in the app once)
 --    Replace the email in ALL THREE queries below with the one you signed up
 --    with, then run just this block. It tells you exactly what happened:
 --    - Query 1 returns no rows  -> you haven't signed up in the app yet with

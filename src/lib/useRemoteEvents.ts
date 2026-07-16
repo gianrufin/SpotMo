@@ -104,6 +104,24 @@ export function useRemoteEvents(session: Session | null, isAdmin: boolean) {
     void refresh();
   }, [refresh]);
 
+  // Live sync: anyone with the app open sees approvals/edits/new submissions
+  // instantly, without a manual refresh.
+  useEffect(() => {
+    if (!supabase) return;
+    const client = supabase;
+    const channel = client
+      .channel('events-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'events' },
+        () => void refresh(),
+      )
+      .subscribe();
+    return () => {
+      void client.removeChannel(channel);
+    };
+  }, [refresh]);
+
   const add = useCallback(
     async (
       event: SpotEvent,

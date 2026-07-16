@@ -31,6 +31,24 @@ export function useOrganizersAdmin(isAdmin: boolean) {
     void refresh();
   }, [refresh]);
 
+  // Live sync: new requests and approve/revoke/edit actions from any admin
+  // session show up instantly, without a manual refresh.
+  useEffect(() => {
+    if (!supabase || !isAdmin) return;
+    const client = supabase;
+    const channel = client
+      .channel('organizers-admin-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'organizers' },
+        () => void refresh(),
+      )
+      .subscribe();
+    return () => {
+      void client.removeChannel(channel);
+    };
+  }, [isAdmin, refresh]);
+
   const addOrganizer = useCallback(
     async (email: string, orgName: string): Promise<Result> => {
       if (!supabase) return { ok: false, error: 'Backend not configured.' };

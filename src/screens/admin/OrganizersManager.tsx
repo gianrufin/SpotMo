@@ -9,6 +9,8 @@ import {
   Plus,
   Inbox,
   AlertCircle,
+  ShieldPlus,
+  ShieldMinus,
 } from 'lucide-react';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
@@ -25,6 +27,12 @@ interface OrganizersManagerProps {
   onUpdateName: (id: string, orgName: string) => Promise<Result>;
   onRemove: (id: string) => Promise<Result>;
   onAdd: (email: string, orgName: string) => Promise<Result>;
+  /** Whether the given user_id currently holds admin access. */
+  isAdminUser: (userId: string) => boolean;
+  /** Whether the given user_id is allowed to be demoted (not you, not the founder). */
+  canDemote: (userId: string) => boolean;
+  onPromote: (userId: string) => Promise<Result>;
+  onDemote: (userId: string) => Promise<Result>;
 }
 
 type Filter = 'pending' | 'approved' | 'revoked' | 'all';
@@ -43,6 +51,10 @@ export function OrganizersManager({
   onUpdateName,
   onRemove,
   onAdd,
+  isAdminUser,
+  canDemote,
+  onPromote,
+  onDemote,
 }: OrganizersManagerProps) {
   const [filter, setFilter] = useState<Filter>('pending');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -170,6 +182,16 @@ export function OrganizersManager({
                         {o.org_name || 'No name set yet'}
                       </p>
                     )}
+                    {o.request_note && (
+                      <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">
+                        “{o.request_note}”
+                      </p>
+                    )}
+                    {o.user_id && isAdminUser(o.user_id) && (
+                      <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-ink px-2 py-0.5 text-[10px] text-onink">
+                        <ShieldPlus size={11} strokeWidth={2.2} /> Admin
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -235,6 +257,30 @@ export function OrganizersManager({
                     </>
                   )}
                 </div>
+
+                {o.status === 'approved' && o.user_id && editingId !== o.id && (
+                  <div className="mt-2 border-t border-hairline pt-2">
+                    {isAdminUser(o.user_id) ? (
+                      canDemote(o.user_id) && (
+                        <button
+                          onClick={() => runAction(o.id, () => onDemote(o.user_id as string))}
+                          disabled={busyId === o.id}
+                          className="flex w-full items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-muted disabled:opacity-50"
+                        >
+                          <ShieldMinus size={14} strokeWidth={1.9} /> Remove admin
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        onClick={() => runAction(o.id, () => onPromote(o.user_id as string))}
+                        disabled={busyId === o.id}
+                        className="flex w-full items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-ink"
+                      >
+                        <ShieldPlus size={14} strokeWidth={1.9} /> Make admin
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -14,7 +14,7 @@ interface RequestAccessProps {
 type Phase =
   | { kind: 'form' }
   | { kind: 'checking' }
-  | { kind: 'confirm-request'; email: string }
+  | { kind: 'confirm-request'; email: string; note: string }
   | { kind: 'pending'; email: string }
   | { kind: 'revoked'; email: string }
   | { kind: 'approved'; email: string; hasAccount: boolean };
@@ -26,6 +26,7 @@ type Phase =
  */
 export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps) {
   const [email, setEmail] = useState('');
+  const [note, setNote] = useState('');
   const [phase, setPhase] = useState<Phase>({ kind: 'form' });
   const [error, setError] = useState('');
 
@@ -39,7 +40,7 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
     setPhase({ kind: 'checking' });
     const result = await checkOrganizerStatus(trimmed);
     if (result.status === 'none') {
-      setPhase({ kind: 'confirm-request', email: trimmed });
+      setPhase({ kind: 'confirm-request', email: trimmed, note });
     } else if (result.status === 'pending') {
       setPhase({ kind: 'pending', email: trimmed });
     } else if (result.status === 'revoked') {
@@ -49,9 +50,9 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
     }
   }
 
-  async function submitRequest(targetEmail: string) {
+  async function submitRequest(targetEmail: string, targetNote: string) {
     setPhase({ kind: 'checking' });
-    const result = await requestOrganizerAccess(targetEmail);
+    const result = await requestOrganizerAccess(targetEmail, targetNote);
     if (!result.ok) {
       setError(result.error ?? 'Something went wrong.');
       setPhase({ kind: 'form' });
@@ -90,7 +91,7 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
         >
           <ArrowLeft size={19} strokeWidth={1.9} />
         </button>
-        <p className="font-serif text-xl text-ink">Organizer access</p>
+        <p className="font-serif text-xl text-ink">Want to be an organizer?</p>
       </header>
 
       <div className="flex flex-1 flex-col px-6 pt-8">
@@ -100,7 +101,7 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
               <Store size={26} strokeWidth={1.8} />
             </div>
             <h2 className="font-serif text-[26px] leading-tight text-ink">
-              Request organizer access
+              Want to be an organizer?
             </h2>
             <p className="mt-1.5 text-[14px] leading-relaxed text-muted">
               Enter your email. We'll review your request, and you'll create
@@ -115,6 +116,18 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
                 className="input"
+              />
+            </label>
+            <label className="mt-4 block">
+              <span className="mb-1.5 block text-[12.5px] text-muted">
+                What will you be listing events for? (optional)
+              </span>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="e.g. saGuijo Presents — indie gigs around Poblacion"
+                rows={3}
+                className="input resize-none"
               />
             </label>
             {error && <p className="mt-2 text-[13px] text-red-500">{error}</p>}
@@ -143,7 +156,7 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
               <span className="text-ink">{phase.email}</span>.
             </p>
             <div className="mt-6 space-y-3">
-              <PrimaryButton full onClick={() => submitRequest(phase.email)}>
+              <PrimaryButton full onClick={() => submitRequest(phase.email, phase.note)}>
                 Send request
               </PrimaryButton>
               <button onClick={reset} className="w-full py-2 text-[14px] text-muted">

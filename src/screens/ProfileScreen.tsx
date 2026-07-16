@@ -170,8 +170,8 @@ export function ProfileScreen({
             <>
               <Row
                 icon={<Store size={19} strokeWidth={1.8} />}
-                title="Sign in as organizer"
-                subtitle="Add and manage your own events"
+                title="Want to be an organizer?"
+                subtitle="Submit your email for admin approval"
                 onClick={onOpenOrganizer}
               />
               <Row
