@@ -19,6 +19,7 @@ interface OrganizerDashboardProps {
   submissions: Submission[];
   onBack: () => void;
   onCreate: () => void;
+  onSignOut?: () => void;
 }
 
 // Deterministic pseudo-metrics per event id, so numbers are stable across renders
@@ -54,6 +55,7 @@ export function OrganizerDashboard({
   organizerName,
   onBack,
   onCreate,
+  onSignOut,
 }: OrganizerDashboardProps) {
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -112,12 +114,20 @@ export function OrganizerDashboard({
         >
           <ArrowLeft size={19} strokeWidth={1.9} />
         </button>
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="text-[12px] text-muted">SpotMo for Organizers</p>
-          <p className="font-serif text-xl leading-none text-ink">
+          <p className="truncate font-serif text-xl leading-none text-ink">
             {greeting}, {organizerName}
           </p>
         </div>
+        {onSignOut && (
+          <button
+            onClick={onSignOut}
+            className="shrink-0 rounded-full bg-surface px-3 py-1.5 text-[12.5px] text-muted transition active:scale-95"
+          >
+            Sign out
+          </button>
+        )}
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 pb-28 pt-4">

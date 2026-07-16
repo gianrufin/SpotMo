@@ -14,6 +14,8 @@ import { CreateEventFlow } from './screens/organizer/CreateEventFlow';
 import { SubmissionStatus } from './screens/organizer/SubmissionStatus';
 import { AdminQueue } from './screens/admin/AdminQueue';
 import { AdminGate } from './screens/admin/AdminGate';
+import { NotAdmin } from './screens/admin/NotAdmin';
+import { AuthPanel } from './screens/auth/AuthPanel';
 import { EventDetail } from './components/event/EventDetail';
 import { EVENTS } from './data/events';
 import { EMPTY_FILTERS, applyFilters } from './lib/filters';
@@ -25,6 +27,9 @@ import { useInstallPrompt } from './lib/useInstallPrompt';
 import { useTheme } from './lib/useTheme';
 import { useOrganizer } from './lib/useOrganizer';
 import { useAdmin } from './lib/useAdmin';
+import { useAuth } from './lib/useAuth';
+import { useRemoteEvents } from './lib/useRemoteEvents';
+import { isSupabaseEnabled } from './lib/supabase';
 import { haversineKm, formatDistance } from './lib/format';
 
 type Overlay =
@@ -37,13 +42,33 @@ type Overlay =
 export default function App() {
   const { seen, complete, reset } = useOnboarding();
   const { savedIds, isSaved, toggle } = useSavedEvents();
-  const { submissions, approved, add, setStatus, remove, update } = useSubmissions();
   const location = useUserLocation();
   const install = useInstallPrompt();
   const theme = useTheme();
-  const { organizer, signUp } = useOrganizer();
-  const admin = useAdmin();
-  const organizerName = organizer?.name ?? 'You';
+
+  // Data + auth: Supabase-backed when configured, else on-device local mode.
+  const remoteMode = isSupabaseEnabled;
+  const auth = useAuth();
+  const local = useSubmissions();
+  const localOrg = useOrganizer();
+  const localAdmin = useAdmin();
+  const remote = useRemoteEvents(auth.session, auth.isAdmin);
+
+  // Unified data surface (same shape regardless of backend)
+  const approved = remoteMode ? remote.approved : local.approved;
+  const organizerName = remoteMode
+    ? auth.name ?? auth.email ?? 'You'
+    : localOrg.organizer?.name ?? 'You';
+  const mySubmissions = remoteMode
+    ? remote.mine
+    : local.submissions.filter((s) => s.submittedBy === organizerName);
+  const allSubmissions = remoteMode ? remote.all : local.submissions;
+  const addSubmission = remoteMode ? remote.add : local.add;
+  const setStatus = remoteMode ? remote.setStatus : local.setStatus;
+  const remove = remoteMode ? remote.remove : local.remove;
+  const update = remoteMode ? remote.update : local.update;
+
+  const isSignedInOrganizer = remoteMode ? !!auth.session : !!localOrg.organizer;
 
   const [tab, setTab] = useState<Tab>('map');
   const [filters, setFilters] = useState<EventFilters>(EMPTY_FILTERS);
@@ -86,6 +111,11 @@ export default function App() {
   }, []);
 
   const goBack = () => window.history.back();
+
+  async function handleSignOut() {
+    await auth.signOut();
+    setOverlay({ kind: 'none' });
+  }
 
   // Live map data = curated events + approved submissions
   const allEvents = useMemo<SpotEvent[]>(
@@ -193,8 +223,8 @@ export default function App() {
         {tab === 'profile' && (
           <ProfileScreen
             savedCount={savedIds.length}
-            submissionCount={submissions.length}
-            pendingCount={submissions.filter((s) => s.status === 'pending').length}
+            submissionCount={mySubmissions.length}
+            pendingCount={allSubmissions.filter((s) => s.status === 'pending').length}
             onOpenOrganizer={() => setOverlay({ kind: 'organizer' })}
             onOpenAdmin={() => setOverlay({ kind: 'admin' })}
             onResetOnboarding={reset}
@@ -244,24 +274,30 @@ export default function App() {
             transition={{ type: 'spring', damping: 34, stiffness: 320 }}
           >
             {overlay.kind === 'organizer' &&
-              (organizer ? (
+              (isSignedInOrganizer ? (
                 <OrganizerDashboard
-                  organizerName={organizer.name}
-                  submissions={submissions.filter(
-                    (s) => s.submittedBy === organizer.name,
-                  )}
+                  organizerName={organizerName}
+                  submissions={mySubmissions}
                   onBack={goBack}
                   onCreate={() => setOverlay({ kind: 'create' })}
+                  onSignOut={remoteMode ? handleSignOut : undefined}
+                />
+              ) : remoteMode ? (
+                <AuthPanel
+                  variant="organizer"
+                  onBack={goBack}
+                  onSignIn={auth.signIn}
+                  onSignUp={auth.signUp}
                 />
               ) : (
-                <OrganizerAuth onBack={goBack} onSignUp={signUp} />
+                <OrganizerAuth onBack={goBack} onSignUp={localOrg.signUp} />
               ))}
             {overlay.kind === 'create' && (
               <CreateEventFlow
                 dark={theme.isDark}
                 onCancel={goBack}
-                onSubmit={(event) => {
-                  add(event, organizerName);
+                onSubmit={async (event) => {
+                  await addSubmission(event, organizerName);
                   setOverlay({ kind: 'submitted', event });
                 }}
               />
@@ -277,9 +313,33 @@ export default function App() {
               />
             )}
             {overlay.kind === 'admin' &&
-              (admin.unlocked ? (
+              (remoteMode ? (
+                !auth.session ? (
+                  <AuthPanel
+                    variant="admin"
+                    onBack={goBack}
+                    onSignIn={auth.signIn}
+                    onSignUp={auth.signUp}
+                  />
+                ) : !auth.isAdmin ? (
+                  <NotAdmin
+                    email={auth.email}
+                    onBack={goBack}
+                    onSignOut={handleSignOut}
+                  />
+                ) : (
+                  <AdminQueue
+                    submissions={allSubmissions}
+                    onBack={goBack}
+                    onSetStatus={setStatus}
+                    onRemove={remove}
+                    onUpdate={update}
+                    dark={theme.isDark}
+                  />
+                )
+              ) : localAdmin.unlocked ? (
                 <AdminQueue
-                  submissions={submissions}
+                  submissions={allSubmissions}
                   onBack={goBack}
                   onSetStatus={setStatus}
                   onRemove={remove}
@@ -288,10 +348,10 @@ export default function App() {
                 />
               ) : (
                 <AdminGate
-                  hasPin={admin.hasPin}
+                  hasPin={localAdmin.hasPin}
                   onBack={goBack}
-                  onSetPin={admin.setPin}
-                  onUnlock={admin.unlock}
+                  onSetPin={localAdmin.setPin}
+                  onUnlock={localAdmin.unlock}
                 />
               ))}
           </motion.div>

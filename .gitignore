@@ -23,3 +23,7 @@ npm-debug.log*
 
 # TS build info
 *.tsbuildinfo
+
+# Supabase env
+.env
+.env.local
