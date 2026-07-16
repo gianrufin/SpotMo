@@ -19,6 +19,7 @@ import { useSavedEvents } from './lib/useSavedEvents';
 import { useOnboarding } from './lib/useOnboarding';
 import { useSubmissions } from './lib/useSubmissions';
 import { useUserLocation, type Coords } from './lib/useUserLocation';
+import { useInstallPrompt } from './lib/useInstallPrompt';
 import { haversineKm, formatDistance } from './lib/format';
 
 type Overlay =
@@ -33,6 +34,7 @@ export default function App() {
   const { savedIds, isSaved, toggle } = useSavedEvents();
   const { submissions, approved, add, setStatus, remove, update } = useSubmissions();
   const location = useUserLocation();
+  const install = useInstallPrompt();
 
   const [tab, setTab] = useState<Tab>('map');
   const [filters, setFilters] = useState<EventFilters>(EMPTY_FILTERS);
@@ -150,6 +152,9 @@ export default function App() {
             onOpenOrganizer={() => setOverlay({ kind: 'organizer' })}
             onOpenAdmin={() => setOverlay({ kind: 'admin' })}
             onResetOnboarding={reset}
+            canInstall={install.canInstall}
+            installed={install.installed}
+            onInstall={install.promptInstall}
           />
         )}
       </div>

@@ -6,6 +6,8 @@ import {
   Info,
   ChevronRight,
   RotateCcw,
+  Download,
+  CheckCircle2,
 } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
 
@@ -16,6 +18,9 @@ interface ProfileScreenProps {
   onOpenOrganizer: () => void;
   onOpenAdmin: () => void;
   onResetOnboarding: () => void;
+  canInstall: boolean;
+  installed: boolean;
+  onInstall: () => void;
 }
 
 export function ProfileScreen({
@@ -25,6 +30,9 @@ export function ProfileScreen({
   onOpenOrganizer,
   onOpenAdmin,
   onResetOnboarding,
+  canInstall,
+  installed,
+  onInstall,
 }: ProfileScreenProps) {
   return (
     <div className="flex h-full flex-col">
@@ -57,6 +65,33 @@ export function ProfileScreen({
             <p className="text-[12px] text-muted">Your submissions</p>
           </div>
         </div>
+
+        {/* Install prompt */}
+        {canInstall && (
+          <button
+            onClick={onInstall}
+            className="mt-4 flex w-full items-center gap-4 rounded-3xl bg-brand p-4 text-left text-white shadow-card transition active:scale-[0.99]"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+              <Download size={20} strokeWidth={1.9} />
+            </span>
+            <span className="flex-1">
+              <span className="block font-serif text-lg leading-tight">
+                Install SpotMo
+              </span>
+              <span className="block text-[12.5px] text-white/80">
+                Add it to your home screen for one-tap access
+              </span>
+            </span>
+            <ChevronRight size={18} className="shrink-0 text-white/80" />
+          </button>
+        )}
+        {installed && (
+          <div className="mt-4 flex items-center gap-3 rounded-3xl bg-brand-50 p-4 text-brand-700">
+            <CheckCircle2 size={20} strokeWidth={1.9} />
+            <span className="text-[13.5px]">SpotMo is installed on this device.</span>
+          </div>
+        )}
 
         {/* Organizer / admin */}
         <div className="mt-6 space-y-2.5">
