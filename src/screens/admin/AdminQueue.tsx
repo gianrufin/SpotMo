@@ -19,7 +19,7 @@ type Filter = 'pending' | 'approved' | 'rejected';
 
 const STATUS_STYLE: Record<SubmissionStatus, string> = {
   pending: 'bg-amber-100 text-amber-700',
-  approved: 'bg-brand-50 text-brand-700',
+  approved: 'bg-brandsoft text-brandsoftfg',
   rejected: 'bg-red-100 text-red-600',
 };
 
@@ -36,7 +36,7 @@ export function AdminQueue({
   const pendingCount = submissions.filter((s) => s.status === 'pending').length;
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-bg">
       <header className="flex items-center gap-3 border-b border-hairline px-4 py-4">
         <button
           onClick={onBack}
@@ -83,7 +83,7 @@ export function AdminQueue({
         ) : (
           <div className="space-y-3 pt-1">
             {list.map((s) => (
-              <div key={s.id} className="overflow-hidden rounded-3xl bg-white shadow-soft">
+              <div key={s.id} className="overflow-hidden rounded-3xl bg-card shadow-soft">
                 <div className="flex gap-3 p-3">
                   <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl">
                     <img
@@ -119,7 +119,7 @@ export function AdminQueue({
                   {s.status !== 'approved' && (
                     <button
                       onClick={() => onSetStatus(s.id, 'approved')}
-                      className="flex flex-1 items-center justify-center gap-1.5 py-3 text-[13px] text-brand transition active:bg-brand-50"
+                      className="flex flex-1 items-center justify-center gap-1.5 py-3 text-[13px] text-brand transition active:bg-brandsoft"
                     >
                       <Check size={16} strokeWidth={2.2} /> Approve
                     </button>

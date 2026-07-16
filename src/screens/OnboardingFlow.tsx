@@ -20,7 +20,7 @@ export function OnboardingFlow({ onDone, onAllowLocation }: OnboardingFlowProps)
   }
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-white">
+    <div className="relative flex h-full flex-col overflow-hidden bg-bg">
       <AnimatePresence mode="wait">
         {step === 'splash' && <SplashStep key="splash" />}
         {step === 'welcome' && (
@@ -113,7 +113,7 @@ function WelcomeStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => voi
           transition={{ type: 'spring', damping: 16, stiffness: 200, delay: 0.1 }}
           className="relative mb-10"
         >
-          <div className="flex h-40 w-40 items-center justify-center rounded-full bg-brand-50">
+          <div className="flex h-40 w-40 items-center justify-center rounded-full bg-brandsoft">
             <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brand shadow-float">
               <MapPin size={44} className="text-white" fill="white" strokeWidth={1.5} />
             </div>
@@ -188,7 +188,7 @@ function FeaturesStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => vo
               transition={{ delay: 0.1 + i * 0.12 }}
               className="flex items-center gap-4"
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brandsoft text-brand">
                 <f.icon size={22} strokeWidth={1.9} />
               </span>
               <div>
@@ -230,9 +230,9 @@ function LocationStep({
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', damping: 16, stiffness: 200 }}
-          className="mb-10 flex h-40 w-40 items-center justify-center rounded-full bg-brand-50"
+          className="mb-10 flex h-40 w-40 items-center justify-center rounded-full bg-brandsoft"
         >
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-float">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-card shadow-float">
             <Navigation size={40} className="text-brand" fill="#10B981" strokeWidth={1.2} />
           </div>
         </motion.div>

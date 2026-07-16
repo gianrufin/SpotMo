@@ -10,6 +10,7 @@ import {
 import type { Category, SpotEvent } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { Logo } from '../../components/common/Logo';
+import { VenueAutocomplete } from '../../components/common/VenueAutocomplete';
 import { CATEGORIES } from '../../data/categories';
 import { MANILA } from '../../lib/useUserLocation';
 
@@ -30,6 +31,8 @@ interface Draft {
   description: string;
   price: string;
   ticketUrl: string;
+  lat: number | null;
+  lng: number | null;
 }
 
 const EMPTY_DRAFT: Draft = {
@@ -44,6 +47,8 @@ const EMPTY_DRAFT: Draft = {
   description: '',
   price: '',
   ticketUrl: '',
+  lat: null,
+  lng: null,
 };
 
 const STOCK_POSTERS = [
@@ -80,9 +85,9 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
       title: draft.title.trim(),
       category: draft.category,
       posterUrl: draft.poster ?? STOCK_POSTERS[0],
-      // jitter around Manila so submitted pins don't stack exactly
-      lat: MANILA.lat + (Math.random() - 0.5) * 0.06,
-      lng: MANILA.lng + (Math.random() - 0.5) * 0.06,
+      // real coordinates from the picked place; small jitter near Manila if none
+      lat: draft.lat ?? MANILA.lat + (Math.random() - 0.5) * 0.06,
+      lng: draft.lng ?? MANILA.lng + (Math.random() - 0.5) * 0.06,
       venue: draft.venue.trim(),
       address: draft.address.trim() || draft.city,
       city: draft.city.trim(),
@@ -99,7 +104,7 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
   }
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-bg">
       {/* header */}
       <header className="flex items-center justify-between border-b border-hairline px-4 py-4">
         <button
@@ -195,7 +200,7 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
                     onClick={() => set('category', c.id)}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[13px] transition ${
                       draft.category === c.id
-                        ? 'bg-ink text-white'
+                        ? 'bg-ink text-onink'
                         : 'bg-surface text-ink'
                     }`}
                   >
@@ -207,11 +212,24 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
             </Field>
 
             <Field label="Venue" icon={<MapPin size={15} />}>
-              <input
+              <VenueAutocomplete
                 value={draft.venue}
-                onChange={(e) => set('venue', e.target.value)}
-                placeholder="e.g. saGuijo Café + Bar"
-                className="input"
+                onChangeText={(text) => {
+                  set('venue', text);
+                  set('lat', null);
+                  set('lng', null);
+                }}
+                onSelectPlace={(place) => {
+                  setDraft((d) => ({
+                    ...d,
+                    venue: place.name,
+                    address: place.address,
+                    city: place.city || d.city,
+                    lat: place.lat,
+                    lng: place.lng,
+                  }));
+                }}
+                placeholder="Search a venue or address"
               />
             </Field>
 
@@ -219,7 +237,7 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
               <input
                 value={draft.address}
                 onChange={(e) => set('address', e.target.value)}
-                placeholder="Street, city"
+                placeholder="Auto-fills from the venue, or type it"
                 className="input"
               />
             </Field>
@@ -310,7 +328,7 @@ export function CreateEventFlow({ onCancel, onSubmit }: CreateEventFlowProps) {
       </div>
 
       {/* footer action */}
-      <div className="absolute inset-x-0 bottom-0 border-t border-hairline bg-white/90 p-4 pb-5 backdrop-blur">
+      <div className="absolute inset-x-0 bottom-0 border-t border-hairline bg-card/90 p-4 pb-5 backdrop-blur">
         {step < 3 ? (
           <PrimaryButton
             full

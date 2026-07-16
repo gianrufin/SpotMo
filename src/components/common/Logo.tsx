@@ -12,7 +12,8 @@ interface LogoProps {
  * rendered as a location pin. Uses Instrument Serif per brand guidelines.
  */
 export function Logo({ size = 34, variant = 'default', className = '' }: LogoProps) {
-  const inkColor = variant === 'light' ? '#FFFFFF' : '#111827';
+  // theme-aware ink; `light` forces white (for use over images / dark heroes)
+  const inkColor = variant === 'light' ? '#FFFFFF' : 'rgb(var(--c-fg))';
   return (
     <span
       className={`inline-flex items-end font-serif leading-none ${className}`}
@@ -34,7 +35,7 @@ export function Logo({ size = 34, variant = 'default', className = '' }: LogoPro
 export function LogoMark({ size = 40 }: { size?: number }) {
   return (
     <span
-      className="inline-flex items-center justify-center rounded-2xl bg-white shadow-soft"
+      className="inline-flex items-center justify-center rounded-2xl bg-card shadow-soft"
       style={{ width: size, height: size }}
     >
       <MapPin

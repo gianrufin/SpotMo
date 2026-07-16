@@ -20,6 +20,7 @@ import { useOnboarding } from './lib/useOnboarding';
 import { useSubmissions } from './lib/useSubmissions';
 import { useUserLocation, type Coords } from './lib/useUserLocation';
 import { useInstallPrompt } from './lib/useInstallPrompt';
+import { useTheme } from './lib/useTheme';
 import { haversineKm, formatDistance } from './lib/format';
 
 type Overlay =
@@ -35,6 +36,7 @@ export default function App() {
   const { submissions, approved, add, setStatus, remove, update } = useSubmissions();
   const location = useUserLocation();
   const install = useInstallPrompt();
+  const theme = useTheme();
 
   const [tab, setTab] = useState<Tab>('map');
   const [filters, setFilters] = useState<EventFilters>(EMPTY_FILTERS);
@@ -126,6 +128,7 @@ export default function App() {
             onLocate={handleLocate}
             center={center}
             flyToken={flyToken}
+            dark={theme.isDark}
           />
         )}
 
@@ -157,6 +160,8 @@ export default function App() {
             canInstall={install.canInstall}
             installed={install.installed}
             onInstall={install.promptInstall}
+            themePref={theme.pref}
+            onSetTheme={theme.setPref}
           />
         )}
       </div>

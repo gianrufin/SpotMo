@@ -7,7 +7,41 @@
 @layer base {
   :root {
     --brand: #10b981;
-    --ink: #111827;
+    /* Light theme tokens (space-separated RGB for Tailwind alpha support) */
+    --c-bg: 255 255 255;
+    --c-card: 255 255 255;
+    --c-surface: 241 245 249;
+    --c-fg: 17 24 39;
+    --c-on-fg: 255 255 255;
+    --c-muted: 107 114 128;
+    --c-line: 229 231 235;
+    --c-brand-soft: 236 253 245;
+    --c-brand-soft-fg: 4 120 87;
+    /* frame + glass */
+    --c-frame: 233 237 241;
+    --glass-bg: 255 255 255;
+    --glass-alpha: 0.72;
+    --glass-border: 255 255 255;
+    --glass-border-alpha: 0.6;
+    color-scheme: light;
+  }
+
+  .dark {
+    --c-bg: 15 19 24;
+    --c-card: 25 30 38;
+    --c-surface: 33 39 49;
+    --c-fg: 236 240 245;
+    --c-on-fg: 15 19 24;
+    --c-muted: 151 162 176;
+    --c-line: 47 55 68;
+    --c-brand-soft: 6 43 33;
+    --c-brand-soft-fg: 110 231 183;
+    --c-frame: 8 10 13;
+    --glass-bg: 25 30 38;
+    --glass-alpha: 0.72;
+    --glass-border: 255 255 255;
+    --glass-border-alpha: 0.08;
+    color-scheme: dark;
   }
 
   html,
@@ -20,8 +54,8 @@
     margin: 0;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-weight: 300;
-    color: var(--ink);
-    background: #e9edf1;
+    color: rgb(var(--c-fg));
+    background: rgb(var(--c-frame));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -36,12 +70,12 @@
 }
 
 @layer components {
-  /* Soft glass panel used across the app */
+  /* Soft glass panel used across the app (theme-aware) */
   .glass {
-    background: rgba(255, 255, 255, 0.72);
+    background: rgb(var(--glass-bg) / var(--glass-alpha));
     backdrop-filter: blur(20px) saturate(140%);
     -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
   }
 
   .glass-dark {
@@ -64,30 +98,30 @@
     letter-spacing: 0.22em;
   }
 
-  /* Form input used across the organizer flow */
+  /* Form input used across the organizer flow (theme-aware) */
   .input {
     width: 100%;
     border-radius: 1rem;
-    background: #f1f5f9;
+    background: rgb(var(--c-surface));
     padding: 0.75rem 1rem;
     font-size: 14px;
-    color: #111827;
+    color: rgb(var(--c-fg));
     border: 1px solid transparent;
     transition: border-color 0.15s, background 0.15s;
   }
   .input::placeholder {
-    color: #9ca3af;
+    color: rgb(var(--c-muted));
   }
   .input:focus {
     outline: none;
-    background: #fff;
+    background: rgb(var(--c-card));
     border-color: #10b981;
   }
 }
 
 /* ---- Leaflet overrides for a clean, premium map ---- */
 .leaflet-container {
-  background: #eef1f4;
+  background: rgb(var(--c-surface));
   font-family: 'Inter', sans-serif;
   font-weight: 300;
   outline: none;
@@ -95,14 +129,14 @@
 
 .leaflet-control-attribution {
   font-size: 9px !important;
-  background: rgba(255, 255, 255, 0.6) !important;
-  color: #9ca3af !important;
+  background: rgb(var(--c-card) / 0.6) !important;
+  color: rgb(var(--c-muted)) !important;
   backdrop-filter: blur(4px);
   border-radius: 8px 0 0 0;
   padding: 1px 6px !important;
 }
 .leaflet-control-attribution a {
-  color: #6b7280 !important;
+  color: rgb(var(--c-muted)) !important;
 }
 
 /* Custom poster pin marker */
@@ -142,6 +176,26 @@
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-top: 9px solid var(--pin);
+}
+
+.spotmo-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #10b981;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 16px -4px rgba(17, 24, 39, 0.45);
+  color: #fff;
+  font-weight: 500;
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.spotmo-cluster span {
+  font-size: 15px;
+  line-height: 1;
+}
+.spotmo-cluster:hover {
+  transform: scale(1.06);
 }
 
 .spotmo-user-dot {

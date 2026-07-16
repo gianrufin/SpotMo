@@ -53,7 +53,7 @@ export function EventDetail({
   }
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-bg">
       {/* Poster hero */}
       <div className="relative h-[46%] shrink-0">
         <PosterImage
@@ -62,7 +62,7 @@ export function EventDetail({
           category={event.category}
           className="h-full w-full"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-ink/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
 
         {/* top controls */}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 pt-5">
@@ -164,7 +164,7 @@ export function EventDetail({
                   <ul className="mt-3 space-y-2">
                     {event.highlights.map((h) => (
                       <li key={h} className="flex items-center gap-2.5 text-[14px] text-ink/80">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-50 text-brand">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brandsoft text-brand">
                           <Check size={13} strokeWidth={2.4} />
                         </span>
                         {h}
@@ -244,14 +244,14 @@ export function EventDetail({
       </div>
 
       {/* Sticky action bar */}
-      <div className="absolute inset-x-0 bottom-0 border-t border-hairline bg-white/90 p-4 pb-5 backdrop-blur">
+      <div className="absolute inset-x-0 bottom-0 border-t border-hairline bg-card/90 p-4 pb-5 backdrop-blur">
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleSave}
             className={`flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border transition active:scale-95 ${
               saved
-                ? 'border-brand bg-brand-50 text-brand'
-                : 'border-hairline bg-white text-ink'
+                ? 'border-brand bg-brandsoft text-brand'
+                : 'border-hairline bg-card text-ink'
             }`}
             aria-label={saved ? 'Saved' : 'Save event'}
           >

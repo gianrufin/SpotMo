@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { LocateFixed, SlidersHorizontal, X } from 'lucide-react';
 import type { SpotEvent, EventFilters, DateFilter, Category } from '../types';
 import type { Coords } from '../lib/useUserLocation';
@@ -19,6 +20,7 @@ interface MapScreenProps {
   onLocate: () => void;
   center: Coords;
   flyToken: number;
+  dark: boolean;
 }
 
 const DATE_CHIPS: { value: DateFilter; label: string }[] = [
@@ -39,7 +41,11 @@ export function MapScreen(props: MapScreenProps) {
     onLocate,
     center,
     flyToken,
+    dark,
   } = props;
+
+  // Hide the top search/chips while the user pans or zooms; reveal when idle.
+  const [interacting, setInteracting] = useState(false);
 
   function toggleDate(value: DateFilter) {
     setFilters({ ...filters, date: filters.date === value ? null : value });
@@ -67,11 +73,17 @@ export function MapScreen(props: MapScreenProps) {
           userCoords={userCoords}
           showUser={showUser}
           flyToken={flyToken}
+          dark={dark}
+          onInteractingChange={setInteracting}
         />
       </div>
 
-      {/* Top overlay: logo + search + chips */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 space-y-2.5 p-4 pt-5">
+      {/* Top overlay: logo + search + chips — fades out while panning */}
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-0 z-20 space-y-2.5 p-4 pt-5 transition-all duration-300 ${
+          interacting ? '-translate-y-3 opacity-0' : 'translate-y-0 opacity-100'
+        }`}
+      >
         <div className="pointer-events-auto flex items-center justify-between">
           <Logo size={24} />
           <span className="glass rounded-full px-3 py-1 text-[11px] text-muted shadow-soft">
@@ -115,7 +127,7 @@ export function MapScreen(props: MapScreenProps) {
               onClick={() =>
                 setFilters({ ...filters, category: null, price: null })
               }
-              className="inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-[12px] text-white shadow-soft"
+              className="inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-[12px] text-onink shadow-soft"
             >
               <X size={13} /> Clear {activeFilterCount} filter
               {activeFilterCount > 1 ? 's' : ''}
@@ -144,7 +156,7 @@ export function MapScreen(props: MapScreenProps) {
         </button>
         <button
           onClick={onLocate}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-white shadow-card transition active:scale-90"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-onink shadow-card transition active:scale-90"
           aria-label="Find my location"
         >
           <LocateFixed size={20} strokeWidth={1.9} />

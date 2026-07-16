@@ -11,7 +11,7 @@ interface PrimaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANTS: Record<Variant, string> = {
   // ink black pill — the brand's primary CTA
-  primary: 'bg-ink text-white hover:bg-black active:scale-[0.98] shadow-soft',
+  primary: 'bg-ink text-onink hover:opacity-90 active:scale-[0.98] shadow-soft',
   brand: 'bg-brand text-white hover:bg-brand-600 active:scale-[0.98] shadow-soft',
   soft: 'bg-surface text-ink hover:bg-hairline active:scale-[0.98]',
   ghost: 'bg-transparent text-ink hover:bg-surface active:scale-[0.98]',

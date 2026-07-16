@@ -74,10 +74,10 @@ export function SavedScreen({
             {venues.map((v) => (
               <div
                 key={v.venue}
-                className="rounded-3xl bg-white p-4 shadow-soft"
+                className="rounded-3xl bg-card p-4 shadow-soft"
               >
                 <div className="flex items-center gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brandsoft text-brand">
                     <MapPin size={17} strokeWidth={1.9} />
                   </span>
                   <div>

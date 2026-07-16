@@ -22,7 +22,7 @@ export function BottomSheet({
       {open && (
         <>
           <motion.div
-            className="absolute inset-0 z-40 bg-ink/30"
+            className="absolute inset-0 z-40 bg-black/45"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -30,7 +30,7 @@ export function BottomSheet({
             onClick={onClose}
           />
           <motion.div
-            className={`absolute inset-x-0 bottom-0 z-50 overflow-hidden bg-white shadow-float ${
+            className={`absolute inset-x-0 bottom-0 z-50 overflow-hidden bg-card shadow-float ${
               full ? 'top-0 rounded-none' : 'rounded-t-[2rem]'
             } ${className}`}
             initial={{ y: '100%' }}

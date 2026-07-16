@@ -1,10 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // SpotMo brand palette
+        // SpotMo brand palette (emerald — static across themes)
         brand: {
           DEFAULT: '#10B981', // emerald accent
           50: '#ECFDF5',
@@ -16,10 +17,16 @@ export default {
           600: '#059669',
           700: '#047857',
         },
-        ink: '#111827', // near-black text / primary buttons
-        muted: '#6B7280', // gray
-        surface: '#F1F5F9', // light surface
-        hairline: '#E5E7EB', // borders
+        // Theme-aware semantic tokens (flip in dark mode via CSS variables)
+        ink: 'rgb(var(--c-fg) / <alpha-value>)', // primary text + inverse pill bg
+        onink: 'rgb(var(--c-on-fg) / <alpha-value>)', // text/icons on an ink surface
+        muted: 'rgb(var(--c-muted) / <alpha-value>)', // secondary text
+        surface: 'rgb(var(--c-surface) / <alpha-value>)', // subtle fill
+        hairline: 'rgb(var(--c-line) / <alpha-value>)', // borders
+        card: 'rgb(var(--c-card) / <alpha-value>)', // elevated surface
+        bg: 'rgb(var(--c-bg) / <alpha-value>)', // screen background
+        brandsoft: 'rgb(var(--c-brand-soft) / <alpha-value>)', // tinted brand fill
+        brandsoftfg: 'rgb(var(--c-brand-soft-fg) / <alpha-value>)', // text on tint
       },
       fontFamily: {
         serif: ['"Instrument Serif"', 'Georgia', 'serif'],

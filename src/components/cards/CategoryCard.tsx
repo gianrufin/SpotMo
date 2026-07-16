@@ -19,7 +19,7 @@ export function CategoryCard({ category, count, onClick }: CategoryCardProps) {
         loading="lazy"
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
       <div className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-ink backdrop-blur">
         <Icon size={16} strokeWidth={1.9} />
       </div>

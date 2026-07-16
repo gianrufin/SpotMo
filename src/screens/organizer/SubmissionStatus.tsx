@@ -15,12 +15,12 @@ export function SubmissionStatus({
   onCreateAnother,
 }: SubmissionStatusProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center bg-white px-8 text-center">
+    <div className="flex h-full flex-col items-center justify-center bg-bg px-8 text-center">
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', damping: 14, stiffness: 200 }}
-        className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-brand-50"
+        className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-brandsoft"
       >
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand text-white shadow-float">
           <Check size={34} strokeWidth={2.4} />

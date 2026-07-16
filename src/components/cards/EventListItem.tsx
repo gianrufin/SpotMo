@@ -13,7 +13,7 @@ export function EventListItem({ event, onClick }: EventListItemProps) {
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-3.5 rounded-3xl bg-white p-2.5 text-left shadow-soft transition-all duration-150 hover:shadow-card active:scale-[0.99]"
+      className="flex w-full items-center gap-3.5 rounded-3xl bg-card p-2.5 text-left shadow-soft transition-all duration-150 hover:shadow-card active:scale-[0.99]"
     >
       <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl">
         <PosterImage

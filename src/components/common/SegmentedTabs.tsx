@@ -25,7 +25,7 @@ export function SegmentedTabs<T extends string>({
             aria-selected={active}
             onClick={() => onChange(opt.value)}
             className={`rounded-full px-5 py-2 text-[14px] transition-all duration-150 ${
-              active ? 'bg-white text-ink shadow-soft' : 'text-muted hover:text-ink'
+              active ? 'bg-card text-ink shadow-soft' : 'text-muted hover:text-ink'
             }`}
           >
             {opt.label}

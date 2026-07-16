@@ -42,7 +42,7 @@ function metricsFor(s: Submission) {
 
 const STATUS_STYLE: Record<SubmissionStatus, string> = {
   pending: 'bg-amber-100 text-amber-700',
-  approved: 'bg-brand-50 text-brand-700',
+  approved: 'bg-brandsoft text-brandsoftfg',
   rejected: 'bg-red-100 text-red-600',
 };
 
@@ -101,8 +101,8 @@ export function OrganizerDashboard({
   }, [totals.views]);
 
   return (
-    <div className="flex h-full flex-col bg-surface">
-      <header className="flex items-center gap-3 border-b border-hairline bg-white px-4 py-4">
+    <div className="flex h-full flex-col bg-bg">
+      <header className="flex items-center gap-3 border-b border-hairline bg-card px-4 py-4">
         <button
           onClick={onBack}
           className="flex h-9 w-9 items-center justify-center rounded-full bg-surface text-ink transition active:scale-90"
@@ -127,13 +127,13 @@ export function OrganizerDashboard({
         </div>
 
         {/* Analytics */}
-        <div className="mt-4 rounded-3xl bg-white p-5 shadow-soft">
+        <div className="mt-4 rounded-3xl bg-card p-5 shadow-soft">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="font-serif text-xl text-ink">Performance</p>
               <p className="text-[12px] text-muted">Last 7 days</p>
             </div>
-            <span className="flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-[12px] text-brand-700">
+            <span className="flex items-center gap-1 rounded-full bg-brandsoft px-2.5 py-1 text-[12px] text-brandsoftfg">
               <TrendingUp size={13} strokeWidth={2} /> Live
             </span>
           </div>
@@ -196,7 +196,7 @@ export function OrganizerDashboard({
               return (
                 <div
                   key={s.id}
-                  className="flex items-center gap-3 rounded-3xl bg-white p-2.5 shadow-soft"
+                  className="flex items-center gap-3 rounded-3xl bg-card p-2.5 shadow-soft"
                 >
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
                     <img
@@ -239,7 +239,7 @@ export function OrganizerDashboard({
       </div>
 
       {/* Sticky create button */}
-      <div className="absolute inset-x-0 bottom-0 border-t border-hairline bg-white/90 p-4 pb-5 backdrop-blur">
+      <div className="absolute inset-x-0 bottom-0 border-t border-hairline bg-card/90 p-4 pb-5 backdrop-blur">
         <PrimaryButton
           full
           icon={<Plus size={18} strokeWidth={2.2} />}
@@ -264,12 +264,12 @@ function StatTile({
   return (
     <div
       className={`rounded-3xl p-4 shadow-soft ${
-        accent ? 'bg-ink text-white' : 'bg-white text-ink'
+        accent ? 'bg-ink text-onink' : 'bg-card text-ink'
       }`}
     >
       <p className="font-serif text-3xl leading-none">{value}</p>
       <p
-        className={`mt-1 text-[12px] ${accent ? 'text-white/60' : 'text-muted'}`}
+        className={`mt-1 text-[12px] ${accent ? 'text-onink/60' : 'text-muted'}`}
       >
         {label}
       </p>

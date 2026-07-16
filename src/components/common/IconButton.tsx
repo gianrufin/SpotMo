@@ -7,9 +7,9 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANTS = {
-  glass: 'glass text-ink hover:bg-white/90 shadow-soft',
-  ink: 'bg-ink text-white hover:bg-black shadow-soft',
-  plain: 'bg-white text-ink hover:bg-surface shadow-soft',
+  glass: 'glass text-ink hover:bg-card shadow-soft',
+  ink: 'bg-ink text-onink hover:opacity-90 shadow-soft',
+  plain: 'bg-card text-ink hover:bg-surface shadow-soft',
 };
 
 export function IconButton({

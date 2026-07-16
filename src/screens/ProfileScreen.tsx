@@ -8,8 +8,18 @@ import {
   RotateCcw,
   Download,
   CheckCircle2,
+  Sun,
+  Moon,
+  SunMoon,
 } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
+import type { ThemePref } from '../lib/useTheme';
+
+const THEME_OPTIONS: { value: ThemePref; label: string; icon: typeof Sun }[] = [
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'system', label: 'Auto', icon: SunMoon },
+];
 
 interface ProfileScreenProps {
   savedCount: number;
@@ -21,6 +31,8 @@ interface ProfileScreenProps {
   canInstall: boolean;
   installed: boolean;
   onInstall: () => void;
+  themePref: ThemePref;
+  onSetTheme: (pref: ThemePref) => void;
 }
 
 export function ProfileScreen({
@@ -33,6 +45,8 @@ export function ProfileScreen({
   canInstall,
   installed,
   onInstall,
+  themePref,
+  onSetTheme,
 }: ProfileScreenProps) {
   return (
     <div className="flex h-full flex-col">
@@ -41,8 +55,8 @@ export function ProfileScreen({
       </header>
 
       <div className="flex-1 overflow-y-auto px-5 pb-28">
-        {/* Guest card */}
-        <div className="mt-3 flex items-center gap-4 rounded-3xl bg-ink p-5 text-white shadow-card">
+        {/* Guest card — fixed premium dark gradient (same in both themes) */}
+        <div className="mt-3 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-[#1b2431] to-[#0e1520] p-5 text-white shadow-card ring-1 ring-white/5">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-2xl">
             🎧
           </div>
@@ -56,11 +70,11 @@ export function ProfileScreen({
 
         {/* Stats */}
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-3xl bg-white p-4 shadow-soft">
+          <div className="rounded-3xl bg-card p-4 shadow-soft">
             <p className="font-serif text-3xl text-ink">{savedCount}</p>
             <p className="text-[12px] text-muted">Saved events</p>
           </div>
-          <div className="rounded-3xl bg-white p-4 shadow-soft">
+          <div className="rounded-3xl bg-card p-4 shadow-soft">
             <p className="font-serif text-3xl text-ink">{submissionCount}</p>
             <p className="text-[12px] text-muted">Your submissions</p>
           </div>
@@ -87,11 +101,36 @@ export function ProfileScreen({
           </button>
         )}
         {installed && (
-          <div className="mt-4 flex items-center gap-3 rounded-3xl bg-brand-50 p-4 text-brand-700">
+          <div className="mt-4 flex items-center gap-3 rounded-3xl bg-brandsoft p-4 text-brandsoftfg">
             <CheckCircle2 size={20} strokeWidth={1.9} />
             <span className="text-[13.5px]">SpotMo is installed on this device.</span>
           </div>
         )}
+
+        {/* Appearance */}
+        <div className="mt-6">
+          <p className="px-1 pb-2.5 text-[12px] uppercase tracking-wide text-muted">
+            Appearance
+          </p>
+          <div className="flex gap-1.5 rounded-full bg-surface p-1">
+            {THEME_OPTIONS.map((opt) => {
+              const active = themePref === opt.value;
+              const Icon = opt.icon;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => onSetTheme(opt.value)}
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-[13px] transition ${
+                    active ? 'bg-card text-ink shadow-soft' : 'text-muted'
+                  }`}
+                >
+                  <Icon size={16} strokeWidth={1.9} />
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Organizer / admin */}
         <div className="mt-6 space-y-2.5">
@@ -177,7 +216,7 @@ function Row({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex w-full items-center gap-3.5 rounded-3xl bg-white p-4 text-left shadow-soft transition ${
+      className={`flex w-full items-center gap-3.5 rounded-3xl bg-card p-4 text-left shadow-soft transition ${
         disabled ? 'opacity-55' : 'active:scale-[0.99] hover:shadow-card'
       }`}
     >
