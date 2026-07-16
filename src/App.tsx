@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { Tab, EventFilters, Category, SpotEvent } from './types';
+import type {
+  Tab,
+  EventFilters,
+  Category,
+  SpotEvent,
+  SubmissionStatus as EventStatus,
+} from './types';
 import { PhoneFrame } from './layout/PhoneFrame';
 import { BottomNav } from './layout/BottomNav';
 import { OnboardingFlow } from './screens/OnboardingFlow';
@@ -72,9 +78,26 @@ export default function App() {
     ? remote.mine
     : local.submissions.filter((s) => s.submittedBy === organizerName);
   const allSubmissions = remoteMode ? remote.all : local.submissions;
-  const setStatus = remoteMode ? remote.setStatus : local.setStatus;
-  const remove = remoteMode ? remote.remove : local.remove;
-  const update = remoteMode ? remote.update : local.update;
+
+  type MutationResult = { ok: boolean; error?: string };
+  async function setStatus(id: string, status: EventStatus): Promise<MutationResult> {
+    if (remoteMode) return remote.setStatus(id, status);
+    local.setStatus(id, status);
+    return { ok: true };
+  }
+  async function removeEvent(id: string): Promise<MutationResult> {
+    if (remoteMode) return remote.remove(id);
+    local.remove(id);
+    return { ok: true };
+  }
+  async function updateEvent(
+    id: string,
+    patch: Partial<SpotEvent>,
+  ): Promise<MutationResult> {
+    if (remoteMode) return remote.update(id, patch);
+    local.update(id, patch);
+    return { ok: true };
+  }
 
   async function submitEvent(
     event: SpotEvent,
@@ -84,9 +107,9 @@ export default function App() {
     return { ok: true };
   }
 
-  // Organizer access state — separate from admin-ness entirely. In remote
-  // mode, "approved" requires BOTH a signed-in session AND an approved row
-  // in the organizers roster (server-enforced, not just this check).
+  // Organizer access state — separate from admin-ness entirely, EXCEPT that
+  // an admin can always add/edit their own events too (they don't need a
+  // separate organizers-roster row for that).
   type OrganizerAccessState =
     | 'not-signed-in'
     | 'loading'
@@ -97,18 +120,52 @@ export default function App() {
   const organizerAccessState: OrganizerAccessState = !remoteMode
     ? localOrg.organizer
       ? 'approved'
-      : 'not-signed-in'
+      : localAdmin.unlocked
+        ? 'approved'
+        : 'not-signed-in'
     : !auth.session
       ? 'not-signed-in'
-      : myProfile.loading
-        ? 'loading'
-        : myProfile.profile?.status === 'approved'
-          ? 'approved'
-          : myProfile.profile?.status === 'pending'
-            ? 'pending'
-            : myProfile.profile?.status === 'revoked'
-              ? 'revoked'
-              : 'not-requested';
+      : auth.isAdmin
+        ? 'approved'
+        : myProfile.loading
+          ? 'loading'
+          : myProfile.profile?.status === 'approved'
+            ? 'approved'
+            : myProfile.profile?.status === 'pending'
+              ? 'pending'
+              : myProfile.profile?.status === 'revoked'
+                ? 'revoked'
+                : 'not-requested';
+
+  // Unified role for the Profile screen's sign-in section — one clear
+  // "signed in as X" state instead of scattered role checks.
+  type ProfileRole =
+    | 'signed-out'
+    | 'loading'
+    | 'admin'
+    | 'organizer'
+    | 'pending'
+    | 'revoked'
+    | 'not-requested';
+  const profileRole: ProfileRole = !remoteMode
+    ? localAdmin.unlocked
+      ? 'admin'
+      : localOrg.organizer
+        ? 'organizer'
+        : 'signed-out'
+    : !auth.session
+      ? 'signed-out'
+      : auth.isAdmin
+        ? 'admin'
+        : myProfile.loading
+          ? 'loading'
+          : myProfile.profile?.status === 'approved'
+            ? 'organizer'
+            : myProfile.profile?.status === 'pending'
+              ? 'pending'
+              : myProfile.profile?.status === 'revoked'
+                ? 'revoked'
+                : 'not-requested';
 
   const [tab, setTab] = useState<Tab>('map');
   const [filters, setFilters] = useState<EventFilters>(EMPTY_FILTERS);
@@ -155,6 +212,15 @@ export default function App() {
   async function handleSignOut() {
     await auth.signOut();
     setOverlay({ kind: 'none' });
+  }
+
+  function signOutOfProfile() {
+    if (remoteMode) {
+      void handleSignOut();
+    } else {
+      localAdmin.lock();
+      localOrg.signOut();
+    }
   }
 
   // Live map data = curated events + approved submissions
@@ -262,6 +328,9 @@ export default function App() {
 
         {tab === 'profile' && (
           <ProfileScreen
+            role={profileRole}
+            email={remoteMode ? auth.email : localOrg.organizer?.email ?? null}
+            organizerName={organizerName}
             savedCount={savedIds.length}
             submissionCount={mySubmissions.length}
             pendingCount={allSubmissions.filter((s) => s.status === 'pending').length}
@@ -270,6 +339,7 @@ export default function App() {
             onOpenOrganizersManager={
               remoteMode ? () => setOverlay({ kind: 'organizers-manager' }) : undefined
             }
+            onSignOut={signOutOfProfile}
             onResetOnboarding={reset}
             canInstall={install.canInstall}
             installed={install.installed}
@@ -324,7 +394,11 @@ export default function App() {
                   onBack={goBack}
                   onCreate={() => setOverlay({ kind: 'create' })}
                   onSignOut={remoteMode ? handleSignOut : undefined}
-                  onEditName={remoteMode ? myProfile.updateOrgName : undefined}
+                  onEditName={
+                    remoteMode && myProfile.profile ? myProfile.updateOrgName : undefined
+                  }
+                  onUpdate={remoteMode ? updateEvent : undefined}
+                  dark={theme.isDark}
                 />
               ) : organizerAccessState === 'loading' ? (
                 <div className="flex h-full items-center justify-center bg-bg text-[14px] text-muted">
@@ -398,8 +472,8 @@ export default function App() {
                     submissions={allSubmissions}
                     onBack={goBack}
                     onSetStatus={setStatus}
-                    onRemove={remove}
-                    onUpdate={update}
+                    onRemove={removeEvent}
+                    onUpdate={updateEvent}
                     dark={theme.isDark}
                   />
                 )
@@ -408,8 +482,8 @@ export default function App() {
                   submissions={allSubmissions}
                   onBack={goBack}
                   onSetStatus={setStatus}
-                  onRemove={remove}
-                  onUpdate={update}
+                  onRemove={removeEvent}
+                  onUpdate={updateEvent}
                   dark={theme.isDark}
                 />
               ) : (

@@ -8,13 +8,17 @@ import {
   TrendingUp,
   Pencil,
   Check,
+  AlertCircle,
 } from 'lucide-react';
-import type { Submission, SubmissionStatus } from '../../types';
+import type { Submission, SubmissionStatus, SpotEvent } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
 import { formatShortDate } from '../../lib/format';
 import { categoryLabel } from '../../data/categories';
+import { EditSubmission } from '../admin/EditSubmission';
+
+type Result = { ok: boolean; error?: string };
 
 interface OrganizerDashboardProps {
   organizerName: string;
@@ -25,6 +29,10 @@ interface OrganizerDashboardProps {
   /** When set, shows a pencil icon letting the organizer rename themselves
    * (their venue/production/organizer name — shown on their events). */
   onEditName?: (name: string) => void;
+  /** Edit one of your own events. Only offered while it's still pending —
+   * once approved, only the admin can edit it (server-enforced by RLS). */
+  onUpdate?: (id: string, patch: Partial<SpotEvent>) => Promise<Result>;
+  dark?: boolean;
 }
 
 // Deterministic pseudo-metrics per event id, so numbers are stable across renders
@@ -62,10 +70,14 @@ export function OrganizerDashboard({
   onCreate,
   onSignOut,
   onEditName,
+  onUpdate,
+  dark = false,
 }: OrganizerDashboardProps) {
   const [filter, setFilter] = useState<Filter>('all');
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(organizerName);
+  const [editing, setEditing] = useState<Submission | null>(null);
+  const [error, setError] = useState('');
 
   const counts = useMemo(() => {
     return {
@@ -217,6 +229,12 @@ export function OrganizerDashboard({
         <div className="mt-6 flex items-center justify-between">
           <h2 className="font-serif text-xl text-ink">My Events</h2>
         </div>
+        {error && (
+          <div className="mt-3 flex items-start gap-2 rounded-2xl bg-red-50 p-3 text-[12.5px] text-red-600">
+            <AlertCircle size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
         <div className="mt-3">
           <SegmentedTabs
             value={filter}
@@ -284,6 +302,18 @@ export function OrganizerDashboard({
                       </span>
                     </div>
                   </div>
+                  {onUpdate && s.status === 'pending' && (
+                    <button
+                      onClick={() => {
+                        setError('');
+                        setEditing(s);
+                      }}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface text-ink"
+                      aria-label="Edit event"
+                    >
+                      <Pencil size={15} strokeWidth={1.9} />
+                    </button>
+                  )}
                 </div>
               );
             })
@@ -301,6 +331,20 @@ export function OrganizerDashboard({
           Create Event
         </PrimaryButton>
       </div>
+
+      {editing && onUpdate && (
+        <EditSubmission
+          submission={editing}
+          dark={dark}
+          onCancel={() => setEditing(null)}
+          onSave={async (patch) => {
+            const id = editing.id;
+            setEditing(null);
+            const result = await onUpdate(id, patch);
+            if (!result.ok) setError(result.error ?? 'Something went wrong.');
+          }}
+        />
+      )}
     </div>
   );
 }

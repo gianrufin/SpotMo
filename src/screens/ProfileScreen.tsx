@@ -12,6 +12,10 @@ import {
   Sun,
   Moon,
   SunMoon,
+  Store,
+  Clock,
+  ShieldAlert,
+  LogOut,
 } from 'lucide-react';
 import { Logo } from '../components/common/Logo';
 import type { ThemePref } from '../lib/useTheme';
@@ -22,13 +26,26 @@ const THEME_OPTIONS: { value: ThemePref; label: string; icon: typeof Sun }[] = [
   { value: 'system', label: 'Auto', icon: SunMoon },
 ];
 
+export type ProfileRole =
+  | 'signed-out'
+  | 'loading'
+  | 'admin'
+  | 'organizer'
+  | 'pending'
+  | 'revoked'
+  | 'not-requested';
+
 interface ProfileScreenProps {
+  role: ProfileRole;
+  email: string | null;
+  organizerName: string;
   savedCount: number;
   submissionCount: number;
   pendingCount: number;
   onOpenOrganizer: () => void;
   onOpenAdmin: () => void;
   onOpenOrganizersManager?: () => void;
+  onSignOut: () => void;
   onResetOnboarding: () => void;
   canInstall: boolean;
   installed: boolean;
@@ -38,12 +55,16 @@ interface ProfileScreenProps {
 }
 
 export function ProfileScreen({
+  role,
+  email,
+  organizerName,
   savedCount,
   submissionCount,
   pendingCount,
   onOpenOrganizer,
   onOpenAdmin,
   onOpenOrganizersManager,
+  onSignOut,
   onResetOnboarding,
   canInstall,
   installed,
@@ -135,35 +156,124 @@ export function ProfileScreen({
           </div>
         </div>
 
-        {/* Organizer / admin */}
+        {/* Organizer / admin — one clear sign-in section per role */}
         <div className="mt-6 space-y-2.5">
           <p className="px-1 text-[12px] uppercase tracking-wide text-muted">
-            For Organizers
+            {role === 'admin'
+              ? 'Admin'
+              : role === 'organizer'
+                ? 'Organizer'
+                : 'Organizers & Admins'}
           </p>
-          <Row
-            icon={<PlusCircle size={19} strokeWidth={1.8} />}
-            title="Organizer dashboard"
-            subtitle="Manage your events, track performance, submit new ones"
-            onClick={onOpenOrganizer}
-          />
-          <Row
-            icon={<ShieldCheck size={19} strokeWidth={1.8} />}
-            title="Moderation queue"
-            subtitle={
-              pendingCount > 0
-                ? `${pendingCount} awaiting review`
-                : 'Review submitted events'
-            }
-            badge={pendingCount > 0 ? pendingCount : undefined}
-            onClick={onOpenAdmin}
-          />
-          {onOpenOrganizersManager && (
-            <Row
-              icon={<Users size={19} strokeWidth={1.8} />}
-              title="Manage organizers"
-              subtitle="Approve requests, add, edit, or remove organizers"
-              onClick={onOpenOrganizersManager}
-            />
+
+          {(role === 'signed-out' || role === 'loading') && (
+            <>
+              <Row
+                icon={<Store size={19} strokeWidth={1.8} />}
+                title="Sign in as organizer"
+                subtitle="Add and manage your own events"
+                onClick={onOpenOrganizer}
+              />
+              <Row
+                icon={<ShieldCheck size={19} strokeWidth={1.8} />}
+                title="Sign in as admin"
+                subtitle="Approve events and manage organizers"
+                onClick={onOpenAdmin}
+              />
+            </>
+          )}
+
+          {role === 'admin' && (
+            <>
+              <p className="px-1 text-[12px] text-muted">
+                Signed in{email ? ` as ${email}` : ''}
+              </p>
+              <Row
+                icon={<ShieldCheck size={19} strokeWidth={1.8} />}
+                title="Moderation queue"
+                subtitle={
+                  pendingCount > 0
+                    ? `${pendingCount} awaiting review`
+                    : 'Approve, edit, or decline submitted events'
+                }
+                badge={pendingCount > 0 ? pendingCount : undefined}
+                onClick={onOpenAdmin}
+              />
+              {onOpenOrganizersManager && (
+                <Row
+                  icon={<Users size={19} strokeWidth={1.8} />}
+                  title="Manage organizers"
+                  subtitle="Approve, decline, revoke, add, or edit organizers"
+                  onClick={onOpenOrganizersManager}
+                />
+              )}
+              <Row
+                icon={<PlusCircle size={19} strokeWidth={1.8} />}
+                title="My events"
+                subtitle="Add and edit your own events"
+                onClick={onOpenOrganizer}
+              />
+              <Row
+                icon={<LogOut size={19} strokeWidth={1.8} />}
+                title="Sign out"
+                subtitle={organizerName}
+                onClick={onSignOut}
+              />
+            </>
+          )}
+
+          {role === 'organizer' && (
+            <>
+              <Row
+                icon={<PlusCircle size={19} strokeWidth={1.8} />}
+                title="Organizer dashboard"
+                subtitle="Add, edit, and track your events"
+                onClick={onOpenOrganizer}
+              />
+              <Row
+                icon={<LogOut size={19} strokeWidth={1.8} />}
+                title="Sign out"
+                subtitle={organizerName}
+                onClick={onSignOut}
+              />
+            </>
+          )}
+
+          {(role === 'pending' || role === 'revoked' || role === 'not-requested') && (
+            <>
+              <Row
+                icon={
+                  role === 'pending' ? (
+                    <Clock size={19} strokeWidth={1.8} />
+                  ) : role === 'revoked' ? (
+                    <ShieldAlert size={19} strokeWidth={1.8} />
+                  ) : (
+                    <Store size={19} strokeWidth={1.8} />
+                  )
+                }
+                title="Organizer access"
+                subtitle={
+                  role === 'pending'
+                    ? 'Your request is awaiting admin review'
+                    : role === 'revoked'
+                      ? 'Your organizer access was revoked'
+                      : "You haven't requested organizer access yet"
+                }
+                onClick={onOpenOrganizer}
+              />
+              <Row
+                icon={<ShieldCheck size={19} strokeWidth={1.8} />}
+                title="Sign in as admin"
+                subtitle="Approve events and manage organizers"
+                onClick={onOpenAdmin}
+              />
+              <Row
+                icon={<LogOut size={19} strokeWidth={1.8} />}
+                title="Sign out"
+                subtitle={email ?? 'Sign out of this account'}
+                onClick={onSignOut}
+              />
+            </>
           )}
         </div>
 

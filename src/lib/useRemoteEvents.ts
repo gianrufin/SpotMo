@@ -133,28 +133,31 @@ export function useRemoteEvents(session: Session | null, isAdmin: boolean) {
   );
 
   const setStatus = useCallback(
-    async (id: string, status: SubmissionStatus) => {
-      if (!supabase) return;
-      await supabase.from('events').update({ status }).eq('id', id);
+    async (id: string, status: SubmissionStatus): Promise<{ ok: boolean; error?: string }> => {
+      if (!supabase) return { ok: false, error: 'Backend not configured.' };
+      const { error } = await supabase.from('events').update({ status }).eq('id', id);
       await refresh();
+      return error ? { ok: false, error: error.message } : { ok: true };
     },
     [refresh],
   );
 
   const remove = useCallback(
-    async (id: string) => {
-      if (!supabase) return;
-      await supabase.from('events').delete().eq('id', id);
+    async (id: string): Promise<{ ok: boolean; error?: string }> => {
+      if (!supabase) return { ok: false, error: 'Backend not configured.' };
+      const { error } = await supabase.from('events').delete().eq('id', id);
       await refresh();
+      return error ? { ok: false, error: error.message } : { ok: true };
     },
     [refresh],
   );
 
   const update = useCallback(
-    async (id: string, patch: Partial<SpotEvent>) => {
-      if (!supabase) return;
-      await supabase.from('events').update(eventToRow(patch)).eq('id', id);
+    async (id: string, patch: Partial<SpotEvent>): Promise<{ ok: boolean; error?: string }> => {
+      if (!supabase) return { ok: false, error: 'Backend not configured.' };
+      const { error } = await supabase.from('events').update(eventToRow(patch)).eq('id', id);
       await refresh();
+      return error ? { ok: false, error: error.message } : { ok: true };
     },
     [refresh],
   );

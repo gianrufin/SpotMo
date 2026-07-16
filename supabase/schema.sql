@@ -167,15 +167,14 @@ as $$
   );
 $$;
 
--- Re-gate event submission: only an *approved* organizer's account may
--- submit events (the admin retains full override access via the events
--- policies above, unaffected by this change).
+-- Re-gate event submission: only an *approved* organizer's account, or the
+-- admin (who can also add/edit their own events), may submit events.
 drop policy if exists "insert own pending" on public.events;
 create policy "insert own pending" on public.events
   for insert with check (
     auth.uid() = organizer_id
     and status = 'pending'
-    and public.is_approved_organizer()
+    and (public.is_admin() or public.is_approved_organizer())
   );
 
 -- ============================================================================

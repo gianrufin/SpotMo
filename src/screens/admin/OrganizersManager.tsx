@@ -8,20 +8,23 @@ import {
   Trash2,
   Plus,
   Inbox,
+  AlertCircle,
 } from 'lucide-react';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
 import type { OrganizerRow } from '../../lib/organizerTypes';
 
+type Result = { ok: boolean; error?: string };
+
 interface OrganizersManagerProps {
   organizers: OrganizerRow[];
   onBack: () => void;
-  onApprove: (id: string) => void;
-  onRevoke: (id: string) => void;
-  onUpdateName: (id: string, orgName: string) => void;
-  onRemove: (id: string) => void;
-  onAdd: (email: string, orgName: string) => void;
+  onApprove: (id: string) => Promise<Result>;
+  onRevoke: (id: string) => Promise<Result>;
+  onUpdateName: (id: string, orgName: string) => Promise<Result>;
+  onRemove: (id: string) => Promise<Result>;
+  onAdd: (email: string, orgName: string) => Promise<Result>;
 }
 
 type Filter = 'pending' | 'approved' | 'revoked' | 'all';
@@ -47,22 +50,37 @@ export function OrganizersManager({
   const [adding, setAdding] = useState(false);
   const [addEmail, setAddEmail] = useState('');
   const [addName, setAddName] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   const list =
     filter === 'all' ? organizers : organizers.filter((o) => o.status === filter);
   const pendingCount = organizers.filter((o) => o.status === 'pending').length;
 
+  async function runAction(id: string, action: () => Promise<Result>) {
+    setBusyId(id);
+    setError('');
+    const result = await action();
+    setBusyId(null);
+    if (!result.ok) setError(result.error ?? 'Something went wrong.');
+  }
+
   function startEdit(o: OrganizerRow) {
     setEditingId(o.id);
     setEditName(o.org_name ?? '');
   }
-  function saveEdit(id: string) {
-    onUpdateName(id, editName);
+  async function saveEdit(id: string) {
+    await runAction(id, () => onUpdateName(id, editName));
     setEditingId(null);
   }
-  function submitAdd() {
+  async function submitAdd() {
     if (!/.+@.+\..+/.test(addEmail)) return;
-    onAdd(addEmail, addName);
+    setError('');
+    const result = await onAdd(addEmail, addName);
+    if (!result.ok) {
+      setError(result.error ?? 'Something went wrong.');
+      return;
+    }
     setAddEmail('');
     setAddName('');
     setAdding(false);
@@ -97,6 +115,13 @@ export function OrganizersManager({
           ]}
         />
       </div>
+
+      {error && (
+        <div className="mx-4 mb-2 flex items-start gap-2 rounded-2xl bg-red-50 p-3 text-[12.5px] text-red-600">
+          <AlertCircle size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto px-4 pb-28">
         {organizers.length === 0 ? (
@@ -153,7 +178,8 @@ export function OrganizersManager({
                     <>
                       <button
                         onClick={() => saveEdit(o.id)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-ink py-2 text-[13px] text-onink"
+                        disabled={busyId === o.id}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-ink py-2 text-[13px] text-onink disabled:opacity-50"
                       >
                         <Check size={14} strokeWidth={2.2} /> Save
                       </button>
@@ -168,24 +194,27 @@ export function OrganizersManager({
                     <>
                       {o.status === 'pending' && (
                         <button
-                          onClick={() => onApprove(o.id)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-brand"
+                          onClick={() => runAction(o.id, () => onApprove(o.id))}
+                          disabled={busyId === o.id}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-brand disabled:opacity-50"
                         >
                           <Check size={15} strokeWidth={2.2} /> Approve
                         </button>
                       )}
                       {o.status === 'approved' && (
                         <button
-                          onClick={() => onRevoke(o.id)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-muted"
+                          onClick={() => runAction(o.id, () => onRevoke(o.id))}
+                          disabled={busyId === o.id}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-muted disabled:opacity-50"
                         >
                           <X size={15} strokeWidth={2.2} /> Revoke
                         </button>
                       )}
                       {o.status === 'revoked' && (
                         <button
-                          onClick={() => onApprove(o.id)}
-                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-brand"
+                          onClick={() => runAction(o.id, () => onApprove(o.id))}
+                          disabled={busyId === o.id}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-brand disabled:opacity-50"
                         >
                           <Check size={15} strokeWidth={2.2} /> Re-approve
                         </button>
@@ -197,8 +226,9 @@ export function OrganizersManager({
                         <Pencil size={13} strokeWidth={1.9} /> Edit name
                       </button>
                       <button
-                        onClick={() => onRemove(o.id)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-red-500"
+                        onClick={() => runAction(o.id, () => onRemove(o.id))}
+                        disabled={busyId === o.id}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-red-500 disabled:opacity-50"
                       >
                         <Trash2 size={15} strokeWidth={1.9} /> Delete
                       </button>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Check, X, Trash2, ShieldCheck, Inbox, Pencil } from 'lucide-react';
+import { ArrowLeft, Check, X, Trash2, ShieldCheck, Inbox, Pencil, AlertCircle } from 'lucide-react';
 import type { Submission, SubmissionStatus, SpotEvent } from '../../types';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -7,12 +7,14 @@ import { formatShortDate } from '../../lib/format';
 import { categoryLabel } from '../../data/categories';
 import { EditSubmission } from './EditSubmission';
 
+type Result = { ok: boolean; error?: string };
+
 interface AdminQueueProps {
   submissions: Submission[];
   onBack: () => void;
-  onSetStatus: (id: string, status: SubmissionStatus) => void;
-  onRemove: (id: string) => void;
-  onUpdate: (id: string, patch: Partial<SpotEvent>) => void;
+  onSetStatus: (id: string, status: SubmissionStatus) => Promise<Result>;
+  onRemove: (id: string) => Promise<Result>;
+  onUpdate: (id: string, patch: Partial<SpotEvent>) => Promise<Result>;
   dark: boolean;
 }
 
@@ -34,8 +36,18 @@ export function AdminQueue({
 }: AdminQueueProps) {
   const [filter, setFilter] = useState<Filter>('pending');
   const [editing, setEditing] = useState<Submission | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const list = submissions.filter((s) => s.status === filter);
   const pendingCount = submissions.filter((s) => s.status === 'pending').length;
+
+  async function runAction(id: string, action: () => Promise<Result>) {
+    setBusyId(id);
+    setError('');
+    const result = await action();
+    setBusyId(null);
+    if (!result.ok) setError(result.error ?? 'Something went wrong.');
+  }
 
   return (
     <div className="flex h-full flex-col bg-bg">
@@ -68,6 +80,13 @@ export function AdminQueue({
           ]}
         />
       </div>
+
+      {error && (
+        <div className="mx-4 mb-2 flex items-start gap-2 rounded-2xl bg-red-50 p-3 text-[12.5px] text-red-600">
+          <AlertCircle size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto px-4 pb-8">
         {submissions.length === 0 ? (
@@ -120,16 +139,18 @@ export function AdminQueue({
                 <div className="flex border-t border-hairline">
                   {s.status !== 'approved' && (
                     <button
-                      onClick={() => onSetStatus(s.id, 'approved')}
-                      className="flex flex-1 items-center justify-center gap-1.5 py-3 text-[13px] text-brand transition active:bg-brandsoft"
+                      onClick={() => runAction(s.id, () => onSetStatus(s.id, 'approved'))}
+                      disabled={busyId === s.id}
+                      className="flex flex-1 items-center justify-center gap-1.5 py-3 text-[13px] text-brand transition active:bg-brandsoft disabled:opacity-50"
                     >
                       <Check size={16} strokeWidth={2.2} /> Approve
                     </button>
                   )}
                   {s.status !== 'rejected' && (
                     <button
-                      onClick={() => onSetStatus(s.id, 'rejected')}
-                      className="flex flex-1 items-center justify-center gap-1.5 border-l border-hairline py-3 text-[13px] text-muted transition active:bg-surface"
+                      onClick={() => runAction(s.id, () => onSetStatus(s.id, 'rejected'))}
+                      disabled={busyId === s.id}
+                      className="flex flex-1 items-center justify-center gap-1.5 border-l border-hairline py-3 text-[13px] text-muted transition active:bg-surface disabled:opacity-50"
                     >
                       <X size={16} strokeWidth={2.2} /> Reject
                     </button>
@@ -141,8 +162,9 @@ export function AdminQueue({
                     <Pencil size={15} strokeWidth={1.9} /> Edit
                   </button>
                   <button
-                    onClick={() => onRemove(s.id)}
-                    className="flex flex-1 items-center justify-center gap-1.5 border-l border-hairline py-3 text-[13px] text-red-500 transition active:bg-red-50"
+                    onClick={() => runAction(s.id, () => onRemove(s.id))}
+                    disabled={busyId === s.id}
+                    className="flex flex-1 items-center justify-center gap-1.5 border-l border-hairline py-3 text-[13px] text-red-500 transition active:bg-red-50 disabled:opacity-50"
                   >
                     <Trash2 size={16} strokeWidth={1.9} /> Remove
                   </button>
@@ -158,9 +180,10 @@ export function AdminQueue({
           submission={editing}
           dark={dark}
           onCancel={() => setEditing(null)}
-          onSave={(patch) => {
-            onUpdate(editing.id, patch);
+          onSave={async (patch) => {
+            const id = editing.id;
             setEditing(null);
+            await runAction(id, () => onUpdate(id, patch));
           }}
         />
       )}
