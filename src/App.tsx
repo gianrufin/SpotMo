@@ -430,7 +430,7 @@ export default function App() {
                   onEditName={
                     remoteMode && myProfile.profile ? myProfile.updateOrgName : undefined
                   }
-                  onUpdate={remoteMode ? updateEvent : undefined}
+                  onUpdate={updateEvent}
                   dark={theme.isDark}
                 />
               ) : organizerAccessState === 'loading' ? (

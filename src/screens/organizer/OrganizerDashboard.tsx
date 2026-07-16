@@ -20,8 +20,9 @@ interface OrganizerDashboardProps {
   /** When set, shows a pencil icon letting the organizer rename themselves
    * (their venue/production/organizer name — shown on their events). */
   onEditName?: (name: string) => void;
-  /** Edit one of your own events. Only offered while it's still pending —
-   * once approved, only the admin can edit it (server-enforced by RLS). */
+  /** Edit one of your own events, at any status. Editing can never change
+   * the event's approval status itself — that's admin-only, server-enforced
+   * regardless of what a request sends (see schema.sql's status trigger). */
   onUpdate?: (id: string, patch: Partial<SpotEvent>) => Promise<Result>;
   dark?: boolean;
 }
@@ -209,7 +210,7 @@ export function OrganizerDashboard({
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2">
-                  {onUpdate && s.status === 'pending' && (
+                  {onUpdate && (
                     <button
                       onClick={() => {
                         setError('');

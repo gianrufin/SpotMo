@@ -92,16 +92,41 @@ drop policy if exists "insert own pending" on public.events;
 create policy "insert own pending" on public.events
   for insert with check (auth.uid() = organizer_id and status = 'pending');
 
--- UPDATE: organizers may edit their own event but cannot change its status
--- away from pending; only admins can approve / reject / edit anything.
+-- UPDATE: organizers may edit their own event any time, at any status —
+-- approving/rejecting/reverting the status itself is admin-only, enforced
+-- below by a trigger (not just this policy), so a crafted request can't
+-- sneak a status change past the UI.
 drop policy if exists "update own pending" on public.events;
-create policy "update own pending" on public.events
-  for update using (auth.uid() = organizer_id and status = 'pending')
-  with check (auth.uid() = organizer_id and status = 'pending');
+drop policy if exists "update own event" on public.events;
+create policy "update own event" on public.events
+  for update using (auth.uid() = organizer_id)
+  with check (auth.uid() = organizer_id);
 
 drop policy if exists "admin update" on public.events;
 create policy "admin update" on public.events
   for update using (public.is_admin()) with check (public.is_admin());
+
+-- Belt-and-suspenders: no matter what an update sends, a non-admin can never
+-- change status away from what it already was — only admins can approve,
+-- reject, or otherwise change moderation status.
+create or replace function public.preserve_event_status()
+  returns trigger
+  language plpgsql
+  security definer
+as $$
+begin
+  if not public.is_admin() then
+    new.status := old.status;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_preserve_event_status on public.events;
+create trigger trg_preserve_event_status
+  before update on public.events
+  for each row
+  execute function public.preserve_event_status();
 
 -- DELETE: organizers may remove their own; admins may remove anything (spam)
 drop policy if exists "delete own" on public.events;
