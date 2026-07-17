@@ -26,6 +26,7 @@ import { NotAdmin } from './screens/admin/NotAdmin';
 import { OrganizersManager } from './screens/admin/OrganizersManager';
 import { AuthPanel } from './screens/auth/AuthPanel';
 import { EventDetail } from './components/event/EventDetail';
+import { ConfirmDialog } from './components/common/ConfirmDialog';
 import { EVENTS } from './data/events';
 import { EMPTY_FILTERS, applyFilters } from './lib/filters';
 import { useSavedEvents } from './lib/useSavedEvents';
@@ -35,6 +36,7 @@ import { useUserLocation, type Coords } from './lib/useUserLocation';
 import { useInstallPrompt } from './lib/useInstallPrompt';
 import { useTheme } from './lib/useTheme';
 import { useSavedReminders } from './lib/useSavedReminders';
+import { useAdminNotifications } from './lib/useAdminNotifications';
 import { useOrganizer } from './lib/useOrganizer';
 import { useAdmin } from './lib/useAdmin';
 import { useAuth } from './lib/useAuth';
@@ -244,6 +246,13 @@ export default function App() {
     }
   }
 
+  // Every "Sign out" button routes through here first — one confirm dialog,
+  // regardless of which screen/role triggered it.
+  const [pendingSignOut, setPendingSignOut] = useState<(() => void) | null>(null);
+  function confirmSignOut(action: () => void) {
+    setPendingSignOut(() => action);
+  }
+
   // Live map data = curated events + approved submissions
   // Public-facing views only ever show events that haven't ended yet — an
   // approved-but-past event should quietly disappear rather than clutter the
@@ -262,6 +271,7 @@ export default function App() {
     [savedIds, allEvents],
   );
   const reminders = useSavedReminders(savedEvents);
+  const adminNotifications = useAdminNotifications(auth.isAdmin);
 
   // Shareable event links: a `?event=<id>` URL (see lib/format.ts
   // eventShareUrl) opens straight to that event once it's loaded — the only
@@ -402,7 +412,7 @@ export default function App() {
             onOpenOrganizersManager={
               remoteMode ? () => setOverlay({ kind: 'organizers-manager' }) : undefined
             }
-            onSignOut={signOutOfProfile}
+            onSignOut={() => confirmSignOut(signOutOfProfile)}
             onResetOnboarding={reset}
             canInstall={install.canInstall}
             installed={install.installed}
@@ -413,6 +423,10 @@ export default function App() {
             canNotify={reminders.canNotify}
             onEnableReminders={() => void reminders.enableReminders()}
             onDisableReminders={reminders.disableReminders}
+            adminNotificationsEnabled={adminNotifications.enabled}
+            canAdminNotify={adminNotifications.canNotify}
+            onEnableAdminNotifications={() => void adminNotifications.enableNotifications()}
+            onDisableAdminNotifications={adminNotifications.disableNotifications}
           />
         )}
       </div>
@@ -461,7 +475,7 @@ export default function App() {
                   submissions={mySubmissions}
                   onBack={goBack}
                   onCreate={() => setOverlay({ kind: 'create' })}
-                  onSignOut={remoteMode ? handleSignOut : undefined}
+                  onSignOut={remoteMode ? () => confirmSignOut(handleSignOut) : undefined}
                   onEditName={
                     remoteMode && myProfile.profile ? myProfile.updateOrgName : undefined
                   }
@@ -490,7 +504,7 @@ export default function App() {
                   status={organizerAccessState}
                   email={auth.email}
                   onBack={goBack}
-                  onSignOut={handleSignOut}
+                  onSignOut={() => confirmSignOut(handleSignOut)}
                   onRequestNow={
                     organizerAccessState === 'not-requested'
                       ? async () => {
@@ -536,7 +550,7 @@ export default function App() {
                   <NotAdmin
                     email={auth.email}
                     onBack={goBack}
-                    onSignOut={handleSignOut}
+                    onSignOut={() => confirmSignOut(handleSignOut)}
                   />
                 ) : (
                   <AdminQueue
@@ -577,7 +591,7 @@ export default function App() {
                 <NotAdmin
                   email={auth.email}
                   onBack={goBack}
-                  onSignOut={handleSignOut}
+                  onSignOut={() => confirmSignOut(handleSignOut)}
                 />
               ) : (
                 <OrganizersManager
@@ -597,6 +611,21 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {pendingSignOut && (
+        <ConfirmDialog
+          title="Sign out?"
+          message="You'll need to sign in again to get back to your organizer or admin tools."
+          confirmLabel="Sign out"
+          danger
+          onCancel={() => setPendingSignOut(null)}
+          onConfirm={() => {
+            const action = pendingSignOut;
+            setPendingSignOut(null);
+            action();
+          }}
+        />
+      )}
     </PhoneFrame>
   );
 }

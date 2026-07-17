@@ -3,6 +3,7 @@ import { ArrowLeft, Check, X, Trash2, ShieldCheck, Inbox, Pencil, AlertCircle } 
 import type { Submission, SubmissionStatus, SpotEvent } from '../../types';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { formatShortDate } from '../../lib/format';
 import { categoryLabel } from '../../data/categories';
 import { EditSubmission } from './EditSubmission';
@@ -38,6 +39,7 @@ export function AdminQueue({
   const [editing, setEditing] = useState<Submission | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const list = submissions.filter((s) => s.status === filter);
   const pendingCount = submissions.filter((s) => s.status === 'pending').length;
 
@@ -162,7 +164,7 @@ export function AdminQueue({
                     <Pencil size={15} strokeWidth={1.9} /> Edit
                   </button>
                   <button
-                    onClick={() => runAction(s.id, () => onRemove(s.id))}
+                    onClick={() => setConfirmDeleteId(s.id)}
                     disabled={busyId === s.id}
                     className="flex flex-1 items-center justify-center gap-1.5 border-l border-hairline py-3 text-[13px] text-red-500 transition active:bg-red-50 disabled:opacity-50"
                   >
@@ -184,6 +186,21 @@ export function AdminQueue({
             const id = editing.id;
             setEditing(null);
             await runAction(id, () => onUpdate(id, patch));
+          }}
+        />
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Remove this event?"
+          message="This permanently deletes the submission. This can't be undone."
+          confirmLabel="Remove"
+          danger
+          onCancel={() => setConfirmDeleteId(null)}
+          onConfirm={() => {
+            const id = confirmDeleteId;
+            setConfirmDeleteId(null);
+            void runAction(id, () => onRemove(id));
           }}
         />
       )}

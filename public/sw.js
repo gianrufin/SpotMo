@@ -1,6 +1,6 @@
 // SpotMo service worker — offline-capable app shell + runtime caching.
 // Versioned cache names; bump SHELL_VERSION to force a refresh of cached assets.
-const SHELL_VERSION = 'spotmo-v4';
+const SHELL_VERSION = 'spotmo-v5';
 const SHELL_CACHE = `${SHELL_VERSION}-shell`;
 const RUNTIME_CACHE = `${SHELL_VERSION}-runtime`;
 

@@ -56,6 +56,10 @@ interface ProfileScreenProps {
   canNotify: boolean;
   onEnableReminders: () => void;
   onDisableReminders: () => void;
+  adminNotificationsEnabled: boolean;
+  canAdminNotify: boolean;
+  onEnableAdminNotifications: () => void;
+  onDisableAdminNotifications: () => void;
 }
 
 export function ProfileScreen({
@@ -76,6 +80,10 @@ export function ProfileScreen({
   canNotify,
   onEnableReminders,
   onDisableReminders,
+  adminNotificationsEnabled,
+  canAdminNotify,
+  onEnableAdminNotifications,
+  onDisableAdminNotifications,
   onInstall,
   themePref,
   onSetTheme,
@@ -220,6 +228,26 @@ export function ProfileScreen({
                 title="My events"
                 subtitle="Add and edit your own events"
                 onClick={onOpenOrganizer}
+              />
+              <Row
+                icon={<Bell size={19} strokeWidth={1.8} />}
+                title="Notify me of new submissions"
+                subtitle={
+                  !canAdminNotify
+                    ? 'Not supported on this browser'
+                    : adminNotificationsEnabled
+                      ? 'On — alerts for new events and organizer requests'
+                      : 'Get a notification when someone submits something'
+                }
+                disabled={!canAdminNotify}
+                onClick={
+                  canAdminNotify
+                    ? adminNotificationsEnabled
+                      ? onDisableAdminNotifications
+                      : onEnableAdminNotifications
+                    : undefined
+                }
+                badge={adminNotificationsEnabled ? 'On' : undefined}
               />
               <Row
                 icon={<LogOut size={19} strokeWidth={1.8} />}

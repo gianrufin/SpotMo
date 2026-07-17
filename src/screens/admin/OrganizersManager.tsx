@@ -15,6 +15,7 @@ import {
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import type { OrganizerRow } from '../../lib/organizerTypes';
 
 type Result = { ok: boolean; error?: string };
@@ -64,6 +65,7 @@ export function OrganizersManager({
   const [addName, setAddName] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const list =
     filter === 'all' ? organizers : organizers.filter((o) => o.status === filter);
@@ -248,7 +250,7 @@ export function OrganizersManager({
                         <Pencil size={13} strokeWidth={1.9} /> Edit name
                       </button>
                       <button
-                        onClick={() => runAction(o.id, () => onRemove(o.id))}
+                        onClick={() => setConfirmDeleteId(o.id)}
                         disabled={busyId === o.id}
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[13px] text-red-500 disabled:opacity-50"
                       >
@@ -323,6 +325,21 @@ export function OrganizersManager({
             Add Organizer
           </PrimaryButton>
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Delete this organizer?"
+          message="This removes them from the roster permanently. Their past events won't be affected, but they'll need to request access again to submit new ones."
+          confirmLabel="Delete"
+          danger
+          onCancel={() => setConfirmDeleteId(null)}
+          onConfirm={() => {
+            const id = confirmDeleteId;
+            setConfirmDeleteId(null);
+            void runAction(id, () => onRemove(id));
+          }}
+        />
       )}
     </div>
   );
