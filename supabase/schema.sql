@@ -75,6 +75,16 @@ create table if not exists public.events (
 );
 -- Safe to re-run on a table created before this column existed.
 alter table public.events add column if not exists organizer_instagram text;
+-- `external_uid` + `source` support auto-published imports from external
+-- calendars (e.g. scripts/import-comedymanila.mjs). Organizer-submitted
+-- events leave both null/default; Postgres allows unlimited nulls under a
+-- plain unique constraint, so this never collides with real submissions.
+-- These importers write via the Supabase *service role* key, which bypasses
+-- RLS entirely — that's what lets them insert directly as 'approved'
+-- (auto-published, skipping the admin queue) instead of going through the
+-- normal organizer "insert own pending" policy below.
+alter table public.events add column if not exists external_uid text unique;
+alter table public.events add column if not exists source text not null default 'organizer';
 alter table public.events enable row level security;
 
 -- READ: everyone sees approved events; organizers see their own; admins see all
