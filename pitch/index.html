@@ -1,71 +1,47 @@
 <title>SpotMo — Great Local Events Deserve to Be Discovered</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #15130f;
-    --board: #1e1b15;
-    --board-2: #262117;
-    --ink: #f5f0e6;
-    --ink-dim: #cfc6b3;
-    --muted: #a79c86;
-    --hairline: rgba(245, 240, 230, 0.12);
-    --dot: rgba(245, 240, 230, 0.16);
-    --accent: #3fa372;
-    --accent-ink: #06231a;
-    --warm: #ff7a52;
-    --warm-ink: #2b0f08;
-    --card: #2a2419;
-    --card-2: #322b1e;
-    --shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+    /* Exact SpotMo app tokens (light) */
+    --ink: 17 24 39; --onink: 255 255 255; --muted: 107 114 128; --line: 229 231 235;
+    --bg: 255 255 255; --frame: 233 237 241; --surface: 241 245 249; --card: 255 255 255;
+    --brand: #2f7d5a; --brandsoft: 236 253 245; --brandsoftfg: 4 120 87;
+    --glass-bg: 255 255 255; --glass-alpha: 0.72; --glass-border: 255 255 255; --glass-border-alpha: 0.6;
+    --shadow-soft: 0 4px 24px -8px rgba(17,24,39,0.12);
+    --shadow-card: 0 8px 30px -12px rgba(17,24,39,0.18);
+    --shadow-float: 0 12px 40px -12px rgba(17,24,39,0.25);
 
-    --c-music-a: #7c6cf6; --c-music-b: #6246e5;
-    --c-art-a: #d16ae8;   --c-art-b: #a23bd6;
-    --c-comedy-a: #ffb020; --c-comedy-b: #ff6a5f;
-    --c-market-a: #34c9b8; --c-market-b: #2b9cd6;
-    --c-community-a: #4fbf87; --c-community-b: #2f8f60;
-    --c-food-a: #ff9a4d; --c-food-b: #e2472f;
+    --c-music-a: #2F7D5A; --c-music-b: #1f5540;
+    --c-art-a: #6366f1; --c-art-b: #a855f7;
+    --c-comedy-a: #f59e0b; --c-comedy-b: #ef4444;
+    --c-market-a: #14b8a6; --c-market-b: #0ea5e9;
+    --c-community-a: #2F7D5A; --c-community-b: #256A4C;
+    --c-food-a: #f97316; --c-food-b: #dc2626;
 
-    --font-display: Georgia, 'Iowan Old Style', 'Times New Roman', ui-serif, serif;
-    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
-
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-title: 'Instrument Serif', Georgia, serif;
     --wrap: 1120px;
   }
-
-  :root[data-theme="light"] {
-    --bg: #ede7d6;
-    --board: #e6dfc9;
-    --board-2: #ddd4ba;
-    --ink: #241f14;
-    --ink-dim: #4a4231;
-    --muted: #6b6250;
-    --hairline: rgba(36, 31, 20, 0.14);
-    --dot: rgba(36, 31, 20, 0.18);
-    --accent: #29704f;
-    --accent-ink: #eef8f1;
-    --warm: #d94a26;
-    --warm-ink: #fff1ea;
-    --card: #fdfbf3;
-    --card-2: #f7f1e0;
-    --shadow: 0 18px 36px -20px rgba(36, 31, 20, 0.35);
+  :root[data-theme="dark"] {
+    --ink: 236 240 245; --onink: 15 19 24; --muted: 151 162 176; --line: 47 55 68;
+    --bg: 15 19 24; --frame: 8 10 13; --surface: 33 39 49; --card: 25 30 38;
+    --brandsoft: 6 43 33; --brandsoftfg: 110 231 183;
+    --glass-bg: 25 30 38; --glass-border-alpha: 0.08;
+    --shadow-soft: 0 4px 24px -8px rgba(0,0,0,0.35);
+    --shadow-card: 0 8px 30px -12px rgba(0,0,0,0.45);
+    --shadow-float: 0 12px 40px -12px rgba(0,0,0,0.55);
   }
-
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-      --bg: #ede7d6;
-      --board: #e6dfc9;
-      --board-2: #ddd4ba;
-      --ink: #241f14;
-      --ink-dim: #4a4231;
-      --muted: #6b6250;
-      --hairline: rgba(36, 31, 20, 0.14);
-      --dot: rgba(36, 31, 20, 0.18);
-      --accent: #29704f;
-      --accent-ink: #eef8f1;
-      --warm: #d94a26;
-      --warm-ink: #fff1ea;
-      --card: #fdfbf3;
-      --card-2: #f7f1e0;
-      --shadow: 0 18px 36px -20px rgba(36, 31, 20, 0.35);
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: 236 240 245; --onink: 15 19 24; --muted: 151 162 176; --line: 47 55 68;
+      --bg: 15 19 24; --frame: 8 10 13; --surface: 33 39 49; --card: 25 30 38;
+      --brandsoft: 6 43 33; --brandsoftfg: 110 231 183;
+      --glass-bg: 25 30 38; --glass-border-alpha: 0.08;
+      --shadow-soft: 0 4px 24px -8px rgba(0,0,0,0.35);
+      --shadow-card: 0 8px 30px -12px rgba(0,0,0,0.45);
+      --shadow-float: 0 12px 40px -12px rgba(0,0,0,0.55);
     }
   }
 
@@ -77,451 +53,170 @@
   }
 
   body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--font-body);
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.6px);
-    background-size: 24px 24px;
-  }
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background: radial-gradient(ellipse 90% 60% at 50% -10%, transparent 40%, rgba(0,0,0,0.22) 100%);
+    background: rgb(var(--frame)); color: rgb(var(--ink)); font-family: var(--font-sans); font-weight: 300;
+    line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
   section { position: relative; z-index: 1; }
 
-  .wrap {
-    max-width: var(--wrap);
-    margin: 0 auto;
-    padding: 0 clamp(20px, 5vw, 48px);
-  }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); }
 
-  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; font-weight: 700; }
+  h1, h2, h3 { font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
+  .serifline { font-family: var(--font-title); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
 
   .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    font-family: var(--font-sans); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--brand); display: inline-flex; align-items: center; gap: 8px;
   }
-  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warm); flex-shrink: 0; }
-
-  .lede {
-    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
-    color: var(--ink-dim);
-    max-width: 62ch;
-  }
-
+  .lede { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: rgb(var(--muted)); max-width: 62ch; font-weight: 300; }
   a { color: inherit; }
-
   .pin-icon { flex-shrink: 0; }
 
   /* ---------- Nav dots ---------- */
-  .railnav {
-    position: fixed;
-    right: clamp(10px, 2.5vw, 28px);
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .railnav a {
-    position: relative;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--hairline);
-    display: block;
-    transition: background 0.25s, transform 0.25s;
-  }
-  .railnav a.active { background: var(--warm); transform: scale(1.35); }
+  .railnav { position: fixed; right: clamp(10px, 2.5vw, 28px); top: 50%; transform: translateY(-50%); z-index: 50; display: flex; flex-direction: column; gap: 12px; }
+  .railnav a { position: relative; width: 8px; height: 8px; border-radius: 50%; background: rgb(var(--line)); display: block; transition: background 0.25s, transform 0.25s; }
+  .railnav a.active { background: var(--brand); transform: scale(1.35); }
   .railnav a .tip {
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--card);
-    color: var(--ink);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    padding: 4px 9px;
-    border-radius: 5px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s;
-    box-shadow: var(--shadow);
+    position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+    background: rgb(var(--card)); color: rgb(var(--ink)); font-family: var(--font-sans); font-weight: 500;
+    font-size: 0.72rem; padding: 4px 9px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none;
+    transition: opacity 0.15s; box-shadow: var(--shadow-card);
   }
   .railnav a:hover .tip, .railnav a:focus-visible .tip { opacity: 1; }
   @media (max-width: 860px) { .railnav { display: none; } }
-
-  a:focus-visible, button:focus-visible, .railnav a:focus-visible {
-    outline: 2px solid var(--warm);
-    outline-offset: 3px;
-  }
+  a:focus-visible, button:focus-visible, .railnav a:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 
   /* ---------- Cover ---------- */
-  .cover {
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-top: clamp(60px, 10vh, 100px);
-    padding-bottom: clamp(40px, 8vh, 80px);
-  }
+  .cover { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding-top: clamp(60px, 10vh, 100px); padding-bottom: clamp(40px, 8vh, 80px); }
   .cover .mark { display: flex; align-items: center; gap: 10px; margin-bottom: clamp(28px, 6vh, 56px); }
-  .cover .mark span { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.01em; }
-  .cover h1 {
-    font-size: clamp(2.6rem, 7.4vw, 5.4rem);
-    line-height: 1.04;
-    letter-spacing: -0.015em;
-    max-width: 15ch;
-  }
-  .cover h1 mark {
-    background: none;
-    color: inherit;
-    background-image: linear-gradient(transparent 62%, var(--warm) 62%, var(--warm) 84%, transparent 84%);
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-  }
+  .cover .mark .tile { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 16px; background: rgb(var(--card)); box-shadow: var(--shadow-soft); }
+  .cover .mark span { font-family: var(--font-sans); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.01em; }
+  .cover h1 { font-size: clamp(2.6rem, 7.4vw, 5.4rem); line-height: 1.06; letter-spacing: -0.02em; max-width: 16ch; }
+  .cover h1 .serifline { display: block; color: var(--brand); }
   .cover .lede { margin-top: 22px; }
-  .audiences {
-    margin-top: clamp(36px, 6vh, 56px);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 9px;
-    max-width: 46rem;
-  }
+  .audiences { margin-top: clamp(36px, 6vh, 56px); display: flex; flex-wrap: wrap; gap: 9px; max-width: 46rem; }
   .audiences span {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    letter-spacing: 0.02em;
-    color: var(--ink-dim);
-    border: 1px solid var(--hairline);
-    border-radius: 999px;
-    padding: 6px 13px;
-    transform: rotate(var(--r, 0deg));
+    font-family: var(--font-sans); font-weight: 500; font-size: 0.82rem; color: rgb(var(--ink));
+    background: rgb(var(--glass-bg) / var(--glass-alpha)); backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
+    border-radius: 999px; padding: 7px 15px;
   }
-  .scrollcue {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
+  .scrollcue { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); font-family: var(--font-sans); font-weight: 500; font-size: 0.74rem; letter-spacing: 0.08em; color: rgb(var(--muted)); text-transform: uppercase; }
 
   /* ---------- Section shell ---------- */
-  .panel { padding: clamp(72px, 12vh, 130px) 0; border-top: 1px solid var(--hairline); }
+  .panel { padding: clamp(72px, 12vh, 130px) 0; border-top: 1px solid rgb(var(--line)); }
   .panel-head { max-width: 40rem; margin-bottom: clamp(36px, 6vh, 56px); }
-  .panel-head h2 { font-size: clamp(1.9rem, 4.2vw, 2.9rem); margin-top: 14px; letter-spacing: -0.01em; }
+  .panel-head h2 { font-size: clamp(1.9rem, 4.2vw, 2.9rem); margin-top: 14px; letter-spacing: -0.02em; }
   .panel-head .lede { margin-top: 14px; }
 
   .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
   .reveal.in { opacity: 1; transform: translateY(0); }
 
-  /* ---------- What is SpotMo (mock map) ---------- */
-  .whatgrid {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: clamp(28px, 5vw, 56px);
-    align-items: center;
-  }
+  /* ---------- What is SpotMo (mock map, real teardrop pins) ---------- */
+  .whatgrid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(28px, 5vw, 56px); align-items: center; }
   @media (max-width: 780px) { .whatgrid { grid-template-columns: 1fr; } }
-  .pullquote {
-    font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2.4vw, 1.55rem);
-    line-height: 1.4;
-    color: var(--ink);
-    border-left: 3px solid var(--accent);
-    padding-left: 18px;
-    margin-top: 24px;
-    font-style: italic;
-  }
+  .pullquote { font-family: var(--font-title); font-style: italic; font-size: clamp(1.3rem, 2.4vw, 1.6rem); line-height: 1.42; color: rgb(var(--ink)); margin-top: 24px; }
   .mockphone {
-    justify-self: center;
-    width: min(280px, 100%);
-    aspect-ratio: 9/17.5;
-    border-radius: 34px;
-    border: 6px solid var(--card-2);
-    background: var(--board-2);
-    box-shadow: var(--shadow);
-    position: relative;
-    overflow: hidden;
+    justify-self: center; width: min(280px, 100%); aspect-ratio: 9/17.5; border-radius: 40px;
+    border: 8px solid rgb(var(--surface)); background: rgb(var(--surface)); box-shadow: var(--shadow-float);
+    position: relative; overflow: hidden;
   }
-  .mockphone .mapfill {
-    position: absolute; inset: 0;
-    background-image: radial-gradient(circle, var(--dot) 1.2px, transparent 1.8px);
-    background-size: 16px 16px;
-  }
-  .mockphone .pin {
-    position: absolute;
-    width: 22px; height: 22px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-  }
-  .mockphone .bar {
-    position: absolute; top: 16px; left: 16px; right: 16px;
-    height: 30px; border-radius: 999px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid var(--hairline);
-  }
-  :root[data-theme="light"] .mockphone .bar { background: rgba(255,255,255,0.6); }
+  .mockphone .bar { position: absolute; top: 18px; left: 18px; right: 18px; height: 32px; border-radius: 999px; background: rgb(var(--card) / 0.85); box-shadow: var(--shadow-soft); }
+  .pin-teardrop { position: absolute; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: var(--shadow-soft); }
+  .pin-teardrop::after { content: ''; position: absolute; top: 5px; left: 5px; width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.9); }
 
-  /* ---------- Problem: torn flyers ---------- */
-  .flyers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px 24px; }
-  @media (max-width: 700px) { .flyers { grid-template-columns: 1fr; } }
-  .flyer {
-    background: var(--card);
-    color: var(--ink);
-    padding: 26px 24px 22px;
-    box-shadow: var(--shadow);
-    position: relative;
-    clip-path: polygon(0% 3%, 6% 0%, 18% 1.5%, 30% 0%, 44% 1.8%, 58% 0%, 72% 1.4%, 86% 0%, 100% 2%, 100% 100%, 0% 100%);
-  }
-  .flyer:nth-child(1) { transform: rotate(-1.4deg); }
-  .flyer:nth-child(2) { transform: rotate(1.1deg); }
-  .flyer:nth-child(3) { transform: rotate(0.9deg); }
-  .flyer:nth-child(4) { transform: rotate(-0.8deg); }
-  .flyer .tape {
-    position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-3deg);
-    width: 64px; height: 22px;
-    background: linear-gradient(180deg, rgba(255,224,130,0.55), rgba(255,224,130,0.35));
-    border: 1px solid rgba(255,255,255,0.25);
-  }
-  .flyer h3 { font-size: 1.05rem; font-family: var(--font-body); font-weight: 700; }
-  .flyer p { margin-top: 8px; color: var(--ink-dim); font-size: 0.94rem; }
-  .flyer .num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--warm); }
+  /* ---------- Problem: plain list, no invented flyer motif ---------- */
+  .problemlist { display: flex; flex-direction: column; }
+  .problemlist .item { padding: 24px 0; border-top: 1px solid rgb(var(--line)); display: flex; gap: 20px; align-items: flex-start; }
+  .problemlist .num { font-family: var(--font-sans); font-weight: 700; font-size: 0.85rem; color: var(--brand); flex-shrink: 0; padding-top: 3px; width: 28px; }
+  .problemlist h3 { font-size: 1.1rem; font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.01em; }
+  .problemlist p { margin-top: 6px; color: rgb(var(--muted)); font-size: 0.96rem; font-weight: 300; max-width: 52ch; }
 
   /* ---------- Mission ---------- */
-  .mission-statement {
-    font-family: var(--font-display);
-    font-size: clamp(1.8rem, 4.4vw, 3rem);
-    line-height: 1.18;
-    letter-spacing: -0.01em;
-    max-width: 20ch;
-  }
-  .mission-statement em { color: var(--accent); font-style: normal; }
+  .mission-statement { font-family: var(--font-title); font-style: italic; font-weight: 400; font-size: clamp(1.9rem, 4.6vw, 3.1rem); line-height: 1.24; letter-spacing: -0.01em; max-width: 20ch; }
+  .mission-statement b { color: var(--brand); font-weight: 400; }
   .eventtags { margin-top: clamp(32px, 5vh, 48px); display: flex; flex-wrap: wrap; gap: 10px; }
   .eventtags span {
-    font-size: 0.86rem;
-    padding: 9px 16px;
-    border-radius: 999px;
-    background: var(--card);
-    box-shadow: var(--shadow);
+    font-size: 0.9rem; font-weight: 500; padding: 10px 17px; border-radius: 999px;
+    background: rgb(var(--glass-bg) / var(--glass-alpha)); backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
     display: inline-flex; align-items: center; gap: 8px;
   }
-  .eventtags span::before {
-    content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0;
-  }
+  .eventtags span::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex-shrink: 0; }
 
   /* ---------- Why SpotMo: benefit cards ---------- */
-  .benefitgrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 18px;
-  }
-  .benefit {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 20px 20px 18px;
-    box-shadow: var(--shadow);
-  }
-  .benefit svg { color: var(--accent); }
-  .benefit h4 { font-family: var(--font-body); font-size: 0.98rem; font-weight: 700; margin-top: 14px; }
-  .benefit p { font-size: 0.86rem; color: var(--muted); margin-top: 6px; }
+  .benefitgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; }
+  .benefit { background: rgb(var(--card)); border-radius: 24px; padding: 22px 22px 20px; box-shadow: var(--shadow-soft); }
+  .benefit svg { color: var(--brand); }
+  .benefit h4 { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; margin-top: 14px; letter-spacing: -0.01em; }
+  .benefit p { font-size: 0.88rem; color: rgb(var(--muted)); margin-top: 6px; font-weight: 300; }
 
-  /* ---------- Passes (organizers / venues / production) ---------- */
+  /* ---------- Benefits by role: plain cards, brand-tinted tag (no hole-punch) ---------- */
   .passrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
   @media (max-width: 900px) { .passrow { grid-template-columns: 1fr; } }
-  .pass {
-    position: relative;
-    background: var(--card);
-    border-radius: 18px;
-    padding: 40px 22px 26px;
-    box-shadow: var(--shadow);
-  }
-  .pass::before {
-    content: '';
-    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
-    width: 30px; height: 30px; border-radius: 50%;
-    background: var(--bg);
-    box-shadow: inset 0 0 0 1px var(--hairline);
-  }
+  .pass { position: relative; background: rgb(var(--card)); border-radius: 28px; padding: 28px 24px 26px; box-shadow: var(--shadow-card); }
   .pass .tag {
-    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--pass-color, var(--accent));
-    display: block; margin-bottom: 6px;
+    display: inline-flex; font-family: var(--font-sans); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: rgb(var(--brandsoftfg)); background: rgb(var(--brandsoft)); padding: 6px 12px; border-radius: 999px; margin-bottom: 14px;
   }
-  .pass h3 { font-size: 1.3rem; font-family: var(--font-body); font-weight: 700; }
-  .pass ul { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
-  .pass li { font-size: 0.9rem; color: var(--ink-dim); display: flex; gap: 9px; align-items: flex-start; }
-  .pass li svg { flex-shrink: 0; margin-top: 2px; color: var(--pass-color, var(--accent)); }
-  .pass.p-organizer { --pass-color: var(--accent); }
-  .pass.p-venue { --pass-color: var(--c-comedy-a); }
-  .pass.p-production { --pass-color: var(--c-art-a); }
-  .pass .stub {
-    margin-top: 20px; padding-top: 12px; border-top: 1px dashed var(--hairline);
-    font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.04em;
-  }
+  .pass.p-venue .tag { color: #92400e; background: #fef3c7; }
+  :root[data-theme="dark"] .pass.p-venue .tag { color: #fcd34d; background: #451a03; }
+  .pass.p-production .tag { color: #6d28d9; background: #ede9fe; }
+  :root[data-theme="dark"] .pass.p-production .tag { color: #c4b5fd; background: #2e1065; }
+  .pass h3 { font-size: 1.35rem; font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.015em; }
+  .pass ul { list-style: none; margin-top: 18px; display: flex; flex-direction: column; gap: 11px; }
+  .pass li { font-size: 0.92rem; color: rgb(var(--ink)); display: flex; gap: 9px; align-items: flex-start; font-weight: 400; }
+  .pass li svg { flex-shrink: 0; margin-top: 3px; color: var(--brand); }
+  .pass.p-venue li svg { color: #d97706; }
+  .pass.p-production li svg { color: #7c3aed; }
 
   /* ---------- How to add an event ---------- */
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0;
-    counter-reset: step;
-    position: relative;
-  }
-  .step {
-    counter-increment: step;
-    padding: 20px 16px 8px 0;
-    position: relative;
-  }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0; counter-reset: step; position: relative; }
+  .step { counter-increment: step; padding: 20px 16px 8px 0; position: relative; }
   .step::before {
-    content: counter(step);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--warm);
-    display: flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; border-radius: 50%;
-    border: 1px solid var(--hairline);
-    margin-bottom: 14px;
+    content: counter(step); font-family: var(--font-sans); font-weight: 700; font-size: 0.9rem; color: #fff;
+    display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--brand); margin-bottom: 14px;
   }
-  .step::after {
-    content: '';
-    position: absolute; top: 35px; left: 30px; right: -16px; height: 1px;
-    background: repeating-linear-gradient(90deg, var(--hairline) 0 6px, transparent 6px 11px);
-  }
+  .step::after { content: ''; position: absolute; top: 37px; left: 32px; right: -16px; height: 1px; background: repeating-linear-gradient(90deg, rgb(var(--line)) 0 6px, transparent 6px 11px); }
   .step:last-child::after { display: none; }
-  .step h4 { font-size: 0.98rem; font-family: var(--font-body); font-weight: 700; }
-  .step p { font-size: 0.84rem; color: var(--muted); margin-top: 5px; }
-  @media (max-width: 780px) {
-    .steps { grid-template-columns: 1fr 1fr; }
-    .step::after { display: none; }
-  }
+  .step h4 { font-size: 1rem; font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.01em; }
+  .step p { font-size: 0.86rem; color: rgb(var(--muted)); margin-top: 5px; font-weight: 300; }
+  @media (max-width: 780px) { .steps { grid-template-columns: 1fr 1fr; } .step::after { display: none; } }
 
-  /* ---------- Example events collage ---------- */
-  .collage {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 16px;
-  }
-  .poster {
-    aspect-ratio: 3/3.6;
-    border-radius: 10px;
-    padding: 14px;
-    display: flex; flex-direction: column; justify-content: flex-end;
-    color: #fff;
-    box-shadow: var(--shadow);
-    font-weight: 700;
-  }
-  .poster:nth-child(odd) { transform: rotate(-1.1deg); }
-  .poster:nth-child(even) { transform: rotate(1.2deg); }
-  .poster .cat {
-    font-family: var(--font-mono); font-weight: 400; font-size: 0.62rem;
-    letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.85; margin-bottom: 6px;
-  }
-  .poster .name { font-family: var(--font-display); font-size: 1.05rem; line-height: 1.2; }
-  .cat-music { background: linear-gradient(145deg, var(--c-music-a), var(--c-music-b)); }
-  .cat-art { background: linear-gradient(145deg, var(--c-art-a), var(--c-art-b)); }
-  .cat-comedy { background: linear-gradient(145deg, var(--c-comedy-a), var(--c-comedy-b)); }
-  .cat-market { background: linear-gradient(145deg, var(--c-market-a), var(--c-market-b)); }
-  .cat-community { background: linear-gradient(145deg, var(--c-community-a), var(--c-community-b)); }
-  .cat-food { background: linear-gradient(145deg, var(--c-food-a), var(--c-food-b)); }
+  /* ---------- Example events collage (real category gradients) ---------- */
+  .collage { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
+  .poster { aspect-ratio: 3/3.6; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; box-shadow: var(--shadow-card); }
+  .poster .cat { font-family: var(--font-sans); font-weight: 600; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.88; margin-bottom: 6px; }
+  .poster .name { font-family: var(--font-title); font-style: italic; font-size: 1.2rem; line-height: 1.2; }
+  .cat-music { background: linear-gradient(135deg, var(--c-music-a), var(--c-music-b)); }
+  .cat-art { background: linear-gradient(135deg, var(--c-art-a), var(--c-art-b)); }
+  .cat-comedy { background: linear-gradient(135deg, var(--c-comedy-a), var(--c-comedy-b)); }
+  .cat-market { background: linear-gradient(135deg, var(--c-market-a), var(--c-market-b)); }
+  .cat-community { background: linear-gradient(135deg, var(--c-community-a), var(--c-community-b)); }
+  .cat-food { background: linear-gradient(135deg, var(--c-food-a), var(--c-food-b)); }
 
   /* ---------- Future vision ---------- */
   .roadmap { display: flex; flex-wrap: wrap; gap: 12px; }
-  .roadmap span {
-    font-size: 0.86rem;
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: 1.5px dashed var(--hairline);
-    color: var(--ink-dim);
-  }
-  .roadmap-note { margin-top: 18px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+  .roadmap span { font-size: 0.92rem; font-weight: 500; padding: 11px 18px; border-radius: 14px; background: rgb(var(--surface)); color: rgb(var(--ink)); }
+  .roadmap-note { margin-top: 18px; font-size: 0.84rem; color: rgb(var(--muted)); font-weight: 300; }
 
-  /* ---------- Closing / ticket CTA ---------- */
+  /* ---------- Closing / CTA ---------- */
   .closing { text-align: left; }
-  .closing .statement {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.4rem);
-    line-height: 1.12;
-    letter-spacing: -0.015em;
-    max-width: 18ch;
-  }
-  .ticket {
-    margin-top: clamp(36px, 6vh, 56px);
-    display: grid;
-    grid-template-columns: 1fr auto;
-    background: var(--card);
-    border-radius: 14px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    max-width: 640px;
-  }
-  .ticket .info { padding: 26px 26px; }
-  .ticket .info .eyebrow { margin-bottom: 8px; }
-  .ticket .info h4 { font-family: var(--font-display); font-size: 1.3rem; }
-  .ticket .info p { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
-  .ticket .stubcut {
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-    padding: 26px 22px;
-    border-left: 2px dashed var(--hairline);
-  }
-  .ticket .stubcut::before, .ticket .stubcut::after {
-    content: ''; position: absolute; left: -11px; width: 22px; height: 22px; border-radius: 50%;
-    background: var(--bg);
-  }
-  .ticket .stubcut::before { top: -11px; }
-  .ticket .stubcut::after { bottom: -11px; }
+  .closing .statement { font-family: var(--font-title); font-style: italic; font-weight: 400; font-size: clamp(2.1rem, 5.2vw, 3.5rem); line-height: 1.2; letter-spacing: -0.01em; max-width: 18ch; }
+  .ctacard { margin-top: clamp(36px, 6vh, 56px); background: rgb(var(--card)); border-radius: 28px; box-shadow: var(--shadow-card); padding: 34px 36px; max-width: 640px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .ctacard .info h4 { font-family: var(--font-sans); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; }
+  .ctacard .info p { font-size: 0.9rem; color: rgb(var(--muted)); margin-top: 6px; font-weight: 300; }
   .ctabtn {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    background: var(--warm);
-    color: var(--warm-ink);
-    padding: 12px 18px;
-    border-radius: 8px;
-    text-decoration: none;
-    white-space: nowrap;
-    display: inline-block;
-    font-weight: 700;
+    font-family: var(--font-sans); font-size: 0.98rem; font-weight: 500; background: var(--brand); color: #fff;
+    padding: 15px 24px; border-radius: 999px; text-decoration: none; white-space: nowrap; display: inline-flex;
+    align-items: center; gap: 6px; box-shadow: var(--shadow-soft);
   }
   .footline {
-    margin-top: clamp(48px, 8vh, 72px);
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
-    font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
-    padding-top: 24px; border-top: 1px solid var(--hairline);
+    margin-top: clamp(48px, 8vh, 72px); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    font-size: 0.82rem; color: rgb(var(--muted)); font-weight: 300; padding-top: 24px; border-top: 1px solid rgb(var(--line));
   }
 
-  ::selection { background: var(--warm); color: var(--warm-ink); }
+  ::selection { background: rgb(var(--brandsoft)); color: rgb(var(--brandsoftfg)); }
 
   @media print {
     * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
@@ -538,25 +233,28 @@
 <section class="cover" id="s-cover">
   <div class="wrap" style="position:relative;">
     <div class="mark">
-      <svg width="30" height="30" viewBox="0 0 64 64" fill="none" class="pin-icon" aria-hidden="true">
-        <path d="M26 8c-7.732 0-14 6.02-14 13.44C12 31.2 26 48 26 48s14-16.8 14-26.56C40 14.02 33.732 8 26 8Z" fill="var(--accent)"/>
-        <circle cx="26" cy="21.5" r="5.2" fill="var(--bg)"/>
-      </svg>
+      <span class="tile">
+        <svg width="22" height="22" viewBox="0 0 64 64" fill="none" class="pin-icon" aria-hidden="true">
+          <path d="M26 8c-7.732 0-14 6.02-14 13.44C12 31.2 26 48 26 48s14-16.8 14-26.56C40 14.02 33.732 8 26 8Z" fill="#2F7D5A"/>
+          <circle cx="26" cy="21.5" r="5.2" fill="#FBFAF7"/>
+          <g transform="translate(29 28) scale(0.9)"><path d="M3 11l19-9-9 19-2-8-8-2z" fill="#141B18"/></g>
+        </svg>
+      </span>
       <span>SpotMo</span>
     </div>
-    <p class="eyebrow"><span class="dot"></span> For organizers, artists, venues &amp; collectives</p>
-    <h1 style="margin-top:14px;">Great local events deserve <mark>to be discovered.</mark></h1>
+    <p class="eyebrow">For organizers, artists, venues &amp; collectives</p>
+    <h1 style="margin-top:14px;">Great local events deserve<span class="serifline">to be discovered.</span></h1>
     <p class="lede">SpotMo is the map-based discovery platform built for the independent event scene — the gigs, exhibits, markets and gatherings that mainstream platforms never show.</p>
     <div class="audiences">
-      <span style="--r:-1deg">Independent organizers</span>
-      <span style="--r:0.8deg">Local artists</span>
-      <span style="--r:-0.6deg">Bands</span>
-      <span style="--r:1deg">Production companies</span>
-      <span style="--r:-1deg">Community organizers</span>
-      <span style="--r:0.6deg">Café &amp; bar owners</span>
-      <span style="--r:-0.8deg">Small venues</span>
-      <span style="--r:1.1deg">Creative collectives</span>
-      <span style="--r:-0.4deg">Pop-up organizers</span>
+      <span>Independent organizers</span>
+      <span>Local artists</span>
+      <span>Bands</span>
+      <span>Production companies</span>
+      <span>Community organizers</span>
+      <span>Café &amp; bar owners</span>
+      <span>Small venues</span>
+      <span>Creative collectives</span>
+      <span>Pop-up organizers</span>
     </div>
   </div>
   <p class="scrollcue">Scroll ↓</p>
@@ -566,19 +264,18 @@
   <div class="wrap">
     <div class="whatgrid">
       <div class="reveal">
-        <p class="eyebrow"><span class="dot"></span> 01 — What is SpotMo</p>
+        <p class="eyebrow">01 — What is SpotMo</p>
         <h2>A live map of what's actually happening nearby.</h2>
         <p class="lede" style="margin-top:16px;">SpotMo is a location-based event discovery platform — open it, and see gigs, exhibits, markets and gatherings plotted on a map in real time, the moment they're posted.</p>
-        <p class="pullquote">Built for local communities — not for major entertainment companies.</p>
+        <p class="pullquote">"Built for local communities — not for major entertainment companies."</p>
       </div>
       <div class="reveal">
         <div class="mockphone" aria-hidden="true">
-          <div class="mapfill"></div>
           <div class="bar"></div>
-          <div class="pin" style="left:32%; top:38%; background:var(--c-music-a);"></div>
-          <div class="pin" style="left:58%; top:52%; background:var(--c-food-a);"></div>
-          <div class="pin" style="left:44%; top:66%; background:var(--c-market-a);"></div>
-          <div class="pin" style="left:68%; top:30%; background:var(--c-art-a);"></div>
+          <div class="pin-teardrop" style="left:32%; top:38%; background:var(--c-music-a);"></div>
+          <div class="pin-teardrop" style="left:58%; top:52%; background:var(--c-food-a);"></div>
+          <div class="pin-teardrop" style="left:44%; top:66%; background:var(--c-market-a);"></div>
+          <div class="pin-teardrop" style="left:68%; top:30%; background:var(--c-art-a);"></div>
         </div>
       </div>
     </div>
@@ -588,23 +285,23 @@
 <section class="panel" id="s-problem">
   <div class="wrap">
     <div class="panel-head reveal">
-      <p class="eyebrow"><span class="dot"></span> 02 — The Problem</p>
+      <p class="eyebrow">02 — The Problem</p>
       <h2>Most discovery platforms only show you what already has a marketing budget.</h2>
       <p class="lede">Everything else — the events people would actually love to find — stays invisible.</p>
     </div>
-    <div class="flyers">
-      <div class="flyer reveal"><div class="tape"></div><span class="num">01</span><h3>Small events struggle with visibility</h3><p>A great gig with 40 people deserves to be found as easily as one with 4,000.</p></div>
-      <div class="flyer reveal"><div class="tape"></div><span class="num">02</span><h3>Artists rely on word of mouth alone</h3><p>Independent artists are often left with only social media and whoever happens to share their post.</p></div>
-      <div class="flyer reveal"><div class="tape"></div><span class="num">03</span><h3>Great nights never reach new crowds</h3><p>Venues host amazing, recurring events that only their existing regulars ever hear about.</p></div>
-      <div class="flyer reveal"><div class="tape"></div><span class="num">04</span><h3>Platforms favor the already-famous</h3><p>Existing event platforms usually prioritize ticketed, sponsored, or high-profile listings first.</p></div>
+    <div class="problemlist reveal">
+      <div class="item"><span class="num">01</span><div><h3>Small events struggle with visibility</h3><p>A great gig with 40 people deserves to be found as easily as one with 4,000.</p></div></div>
+      <div class="item"><span class="num">02</span><div><h3>Artists rely on word of mouth alone</h3><p>Independent artists are often left with only social media and whoever happens to share their post.</p></div></div>
+      <div class="item"><span class="num">03</span><div><h3>Great nights never reach new crowds</h3><p>Venues host amazing, recurring events that only their existing regulars ever hear about.</p></div></div>
+      <div class="item"><span class="num">04</span><div><h3>Platforms favor the already-famous</h3><p>Existing event platforms usually prioritize ticketed, sponsored, or high-profile listings first.</p></div></div>
     </div>
   </div>
 </section>
 
 <section class="panel" id="s-mission">
   <div class="wrap">
-    <p class="eyebrow reveal"><span class="dot"></span> 03 — Our Mission</p>
-    <h2 class="mission-statement reveal">Our mission is to give <em>every event</em> a chance to be discovered.</h2>
+    <p class="eyebrow reveal">03 — Our Mission</p>
+    <h2 class="mission-statement reveal">Our mission is to give <b>every event</b> a chance to be discovered.</h2>
     <p class="lede reveal" style="margin-top:18px;">Whether it's —</p>
     <div class="eventtags reveal">
       <span>A local band</span>
@@ -621,7 +318,7 @@
 <section class="panel" id="s-why">
   <div class="wrap">
     <div class="panel-head reveal">
-      <p class="eyebrow"><span class="dot"></span> 04 — Why SpotMo</p>
+      <p class="eyebrow">04 — Why SpotMo</p>
       <h2>What makes it work for the independent scene.</h2>
     </div>
     <div class="benefitgrid">
@@ -639,13 +336,13 @@
 <section class="panel" id="s-organizers">
   <div class="wrap">
     <div class="panel-head reveal">
-      <p class="eyebrow"><span class="dot"></span> 05 — 07 · Benefits by role</p>
+      <p class="eyebrow">05 — 07 · Benefits by role</p>
       <h2>Built differently for who's actually putting on the show.</h2>
     </div>
     <div class="passrow">
       <div class="pass p-organizer reveal">
-        <span class="tag">Access · Organizer</span>
-        <h3>Independent organizers</h3>
+        <span class="tag">Independent organizers</span>
+        <h3>Get seen without a marketing budget</h3>
         <ul>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Reach nearby audiences</li>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Increase attendance</li>
@@ -655,11 +352,10 @@
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Shareable event pages</li>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Visibility beside other local events</li>
         </ul>
-        <p class="stub">ADMIT ONE — TO THE MAP</p>
       </div>
       <div class="pass p-venue reveal">
-        <span class="tag">Access · Venue</span>
-        <h3>Cafés, bars &amp; small venues</h3>
+        <span class="tag">Cafés, bars &amp; small venues</span>
+        <h3>Fill the room on the nights that matter</h3>
         <ul>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Showcase recurring events</li>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Fill quiet nights</li>
@@ -667,11 +363,10 @@
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Attract walk-in customers</li>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Build a loyal local audience</li>
         </ul>
-        <p class="stub">ADMIT ONE — TO THE MAP</p>
       </div>
       <div class="pass p-production reveal">
-        <span class="tag">Access · Production</span>
-        <h3>Production companies</h3>
+        <span class="tag">Production companies</span>
+        <h3>Small teams welcome</h3>
         <ul>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Promote multiple events at once</li>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Manage local event listings</li>
@@ -679,7 +374,6 @@
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Reach audiences organically</li>
           <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg> Discover new communities</li>
         </ul>
-        <p class="stub">EVEN SMALL TEAMS WELCOME</p>
       </div>
     </div>
   </div>
@@ -688,7 +382,7 @@
 <section class="panel" id="s-howto">
   <div class="wrap">
     <div class="panel-head reveal">
-      <p class="eyebrow"><span class="dot"></span> 08 — How to Add an Event</p>
+      <p class="eyebrow">08 — How to Add an Event</p>
       <h2>From blank form to live pin, in seven steps.</h2>
     </div>
     <div class="steps reveal">
@@ -706,7 +400,7 @@
 <section class="panel" id="s-examples">
   <div class="wrap">
     <div class="panel-head reveal">
-      <p class="eyebrow"><span class="dot"></span> 09 — Example Events</p>
+      <p class="eyebrow">09 — Example Events</p>
       <h2>The kind of events SpotMo is built to surface.</h2>
     </div>
     <div class="collage reveal">
@@ -727,7 +421,7 @@
 <section class="panel" id="s-future">
   <div class="wrap">
     <div class="panel-head reveal">
-      <p class="eyebrow"><span class="dot"></span> 10 — Future Vision</p>
+      <p class="eyebrow">10 — Future Vision</p>
       <h2>Where the map is headed next.</h2>
     </div>
     <div class="roadmap reveal">
@@ -741,28 +435,25 @@
       <span>Community collections</span>
       <span>Local business partnerships</span>
     </div>
-    <p class="roadmap-note reveal">Dashed = not built yet — the roadmap, shaped by what organizers ask for first.</p>
+    <p class="roadmap-note reveal">Shaped by what organizers ask for first.</p>
   </div>
 </section>
 
 <section class="panel closing" id="s-cta">
   <div class="wrap">
-    <p class="eyebrow reveal"><span class="dot"></span> SpotMo</p>
+    <p class="eyebrow reveal">SpotMo</p>
     <h2 class="statement reveal">SpotMo exists because great local events deserve to be discovered.</h2>
     <p class="lede reveal" style="margin-top:16px;">We're not here to compete with the platforms already serving major concerts and commercial productions. We're here to fill the gap they leave — for independent artists, grassroots organizers, and the venues that host them.</p>
-    <div class="ticket reveal">
+    <div class="ctacard reveal">
       <div class="info">
-        <p class="eyebrow">Admit · Your event</p>
         <h4>List it on SpotMo</h4>
         <p>Free to submit. Live on the map as soon as it's approved.</p>
       </div>
-      <div class="stubcut">
-        <a class="ctabtn" href="https://gianrufin.github.io/SpotMo/" target="_blank" rel="noopener">Become an organizer →</a>
-      </div>
+      <a class="ctabtn" href="https://gianrufin.github.io/SpotMo/" target="_blank" rel="noopener">Become an organizer →</a>
     </div>
     <div class="footline">
       <span>SpotMo — find it. save it. go to it.</span>
-      <span>gianrufin.github.io/SpotMo</span>
+      <span>gianrufin.github.io/SpotMo · <a href="mobile/" style="text-decoration:underline;">mobile version →</a></span>
     </div>
   </div>
 </section>
