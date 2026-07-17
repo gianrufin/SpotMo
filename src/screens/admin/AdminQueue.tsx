@@ -124,7 +124,7 @@ export function AdminQueue({
                         {s.status}
                       </span>
                     </div>
-                    <h3 className="truncate font-serif text-lg leading-tight text-ink">
+                    <h3 className="truncate font-title text-lg leading-tight text-ink">
                       {s.title}
                     </h3>
                     <p className="truncate text-[12px] text-muted">

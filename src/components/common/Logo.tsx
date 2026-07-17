@@ -1,5 +1,3 @@
-import { MapPin } from 'lucide-react';
-
 interface LogoProps {
   /** overall font size in px for the wordmark */
   size?: number;
@@ -7,27 +5,16 @@ interface LogoProps {
   className?: string;
 }
 
-/**
- * SpotMo wordmark — "Spot" in ink + "Mo" in emerald, with the trailing "o"
- * rendered as a location pin. Uses Instrument Serif per brand guidelines.
- */
+/** SpotMo wordmark — plain text, Inter 300, no icon. */
 export function Logo({ size = 34, variant = 'default', className = '' }: LogoProps) {
   // theme-aware ink; `light` forces white (for use over images / dark heroes)
   const inkColor = variant === 'light' ? '#FFFFFF' : 'rgb(var(--c-fg))';
   return (
     <span
-      className={`inline-flex items-end font-serif leading-none ${className}`}
-      style={{ fontSize: size }}
-      aria-label="SpotMo"
+      className={`inline-block font-sans font-light leading-none ${className}`}
+      style={{ fontSize: size, color: inkColor }}
     >
-      <span style={{ color: inkColor }}>Spot</span>
-      <span style={{ color: '#2F7D5A' }}>M</span>
-      <MapPin
-        size={size * 0.66}
-        strokeWidth={1.5}
-        className="-ml-[0.04em] mb-[0.06em] self-end"
-        style={{ color: '#2F7D5A', fill: '#2F7D5A' }}
-      />
+      SpotMo
     </span>
   );
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import type { OrganizerRow } from './organizerTypes';
+import { normalizeInstagramUrl } from './format';
 
 /**
  * The signed-in user's own row in the `organizers` roster (if any). On first
@@ -88,5 +89,19 @@ export function useMyOrganizerProfile(session: Session | null) {
     [profile],
   );
 
-  return { profile, loading, refresh, updateOrgName };
+  const updateInstagram = useCallback(
+    async (url: string) => {
+      if (!supabase || !profile) return;
+      const { data } = await supabase
+        .from('organizers')
+        .update({ instagram_url: normalizeInstagramUrl(url) })
+        .eq('id', profile.id)
+        .select()
+        .maybeSingle();
+      if (data) setProfile(data as OrganizerRow);
+    },
+    [profile],
+  );
+
+  return { profile, loading, refresh, updateOrgName, updateInstagram };
 }

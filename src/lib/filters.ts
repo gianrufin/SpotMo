@@ -17,12 +17,23 @@ function isThisWeekend(iso: string): boolean {
   return bucket === 'today' || bucket === 'tomorrow' || bucket === 'week';
 }
 
+// The weekend after "this weekend" — shift back exactly a week and re-check
+// the same rule, so it's correct regardless of what day today is.
+function isNextWeekend(iso: string): boolean {
+  const event = new Date(iso);
+  const day = event.getDay();
+  if (day !== 0 && day !== 6) return false;
+  const shifted = new Date(event.getTime() - 7 * 86_400_000);
+  return isThisWeekend(shifted.toISOString());
+}
+
 function matchesDate(event: SpotEvent, filters: EventFilters): boolean {
   if (!filters.date) return true;
   const bucket = dateBucket(event.startsAt);
   if (filters.date === 'today') return bucket === 'today';
   if (filters.date === 'tomorrow') return bucket === 'tomorrow';
   if (filters.date === 'weekend') return isThisWeekend(event.startsAt);
+  if (filters.date === 'nextWeekend') return isNextWeekend(event.startsAt);
   return true;
 }
 

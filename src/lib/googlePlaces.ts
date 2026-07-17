@@ -5,6 +5,35 @@ const KEY = import.meta.env.VITE_GOOGLE_PLACES_KEY as string | undefined;
 /** True when a Google Maps Platform key is configured for Places (New). */
 export const isGooglePlacesEnabled = Boolean(KEY);
 
+export class GooglePlacesError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
+// --- Quota cooldown -----------------------------------------------------
+// If Google's free-tier quota is exhausted, don't keep hammering it on every
+// keystroke — fall back to the free OSM providers for the rest of the day,
+// then automatically try Google again once the quota window has likely
+// reset, with no redeploy or manual step needed.
+const COOLDOWN_KEY = 'spotmo.places.cooldownUntil';
+
+export function isGoogleInCooldown(): boolean {
+  const until = Number(localStorage.getItem(COOLDOWN_KEY) ?? 0);
+  return Date.now() < until;
+}
+
+function startGoogleCooldown() {
+  const nextReset = new Date();
+  nextReset.setUTCHours(24, 0, 0, 0); // next UTC midnight
+  localStorage.setItem(COOLDOWN_KEY, String(nextReset.getTime()));
+}
+
+/** Quota/rate-limit-shaped errors start a cooldown; other errors don't. */
+function maybeStartCooldown(status: number) {
+  if (status === 429 || status === 403) startGoogleCooldown();
+}
+
 /** A lightweight prediction — no coordinates yet (those cost a Place Details
  * call, so we only resolve them once the user actually picks a suggestion). */
 export interface GooglePrediction {
@@ -38,7 +67,10 @@ export async function autocompleteGoogle(
       languageCode: 'en',
     }),
   });
-  if (!res.ok) throw new Error(`Places autocomplete failed: ${res.status}`);
+  if (!res.ok) {
+    maybeStartCooldown(res.status);
+    throw new GooglePlacesError(res.status, `Places autocomplete failed: ${res.status}`);
+  }
   const data = await res.json();
   const suggestions: any[] = data.suggestions ?? [];
   return suggestions
@@ -69,7 +101,10 @@ export async function resolveGooglePlace(
       'X-Goog-FieldMask': 'displayName,formattedAddress,location,addressComponents',
     },
   });
-  if (!res.ok) throw new Error(`Place details failed: ${res.status}`);
+  if (!res.ok) {
+    maybeStartCooldown(res.status);
+    throw new GooglePlacesError(res.status, `Place details failed: ${res.status}`);
+  }
   const data = await res.json();
   const components: any[] = data.addressComponents ?? [];
   const findType = (t: string) =>

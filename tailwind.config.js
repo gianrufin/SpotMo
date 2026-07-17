@@ -29,7 +29,12 @@ export default {
         brandsoftfg: 'rgb(var(--c-brand-soft-fg) / <alpha-value>)', // text on tint
       },
       fontFamily: {
-        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        // Inter is the app-wide default now — `font-serif` intentionally
+        // maps to it too, so every existing heading/label just becomes Inter
+        // without touching each usage. `font-title` is the one deliberate
+        // exception: reserved for event titles only.
+        serif: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        title: ['"Instrument Serif"', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontWeight: {

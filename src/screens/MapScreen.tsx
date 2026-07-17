@@ -1,12 +1,15 @@
+import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { LocateFixed, SlidersHorizontal, X } from 'lucide-react';
-import type { SpotEvent, EventFilters, DateFilter, Category } from '../types';
+import { LocateFixed, SlidersHorizontal } from 'lucide-react';
+import type { SpotEvent, EventFilters, DateFilter } from '../types';
 import type { Coords } from '../lib/useUserLocation';
 import { MapView } from '../components/map/MapView';
 import { SearchBar } from '../components/common/SearchBar';
+import { FilterSheet } from '../components/map/FilterSheet';
+import { PlaceSearchResults } from '../components/map/PlaceSearchResults';
+import { VenueLineupSheet } from '../components/map/VenueLineupSheet';
 import { Chip } from '../components/common/Chip';
 import { Logo } from '../components/common/Logo';
-import { CATEGORIES } from '../data/categories';
 
 interface MapScreenProps {
   events: SpotEvent[];
@@ -24,12 +27,15 @@ interface MapScreenProps {
   center: Coords;
   flyToken: number;
   dark: boolean;
+  searchedPin: Coords | null;
+  onFlyToPlace: (coords: Coords, label: string) => void;
 }
 
 const DATE_CHIPS: { value: DateFilter; label: string }[] = [
   { value: 'today', label: 'Today' },
   { value: 'tomorrow', label: 'Tomorrow' },
   { value: 'weekend', label: 'This Weekend' },
+  { value: 'nextWeekend', label: 'Next Weekend' },
 ];
 
 export function MapScreen(props: MapScreenProps) {
@@ -46,23 +52,22 @@ export function MapScreen(props: MapScreenProps) {
     center,
     flyToken,
     dark,
+    searchedPin,
+    onFlyToPlace,
   } = props;
 
   // Hide the top search/chips while the user pans or zooms; reveal when idle.
   const [interacting, setInteracting] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [venueGroup, setVenueGroup] = useState<SpotEvent[] | null>(null);
 
   function toggleDate(value: DateFilter) {
     setFilters({ ...filters, date: filters.date === value ? null : value });
   }
-  function toggleCategory(value: Category) {
-    setFilters({
-      ...filters,
-      category: filters.category === value ? null : value,
-    });
+  function toggleFree() {
+    setFilters({ ...filters, price: filters.price === 'free' ? null : 'free' });
   }
-
-  const activeFilterCount =
-    (filters.category ? 1 : 0) + (filters.price ? 1 : 0);
 
   return (
     <div className="relative h-full w-full">
@@ -74,8 +79,10 @@ export function MapScreen(props: MapScreenProps) {
           center={center}
           selectedId={selectedId}
           onSelect={onSelectPin}
+          onSelectVenue={setVenueGroup}
           userCoords={userCoords}
           showUser={showUser}
+          searchedPin={searchedPin}
           flyToken={flyToken}
           dark={dark}
           onInteractingChange={setInteracting}
@@ -95,10 +102,22 @@ export function MapScreen(props: MapScreenProps) {
           </span>
         </div>
 
-        <div className="pointer-events-auto">
+        <div className="pointer-events-auto space-y-1.5">
           <SearchBar
             value={filters.query}
             onChange={(query) => setFilters({ ...filters, query })}
+            placeholder="Search events, or a place on the map"
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+          />
+          <PlaceSearchResults
+            query={filters.query}
+            open={searchFocused}
+            onFlyToPlace={(coords, label) => {
+              onFlyToPlace(coords, label);
+              setFilters({ ...filters, query: '' });
+              setSearchFocused(false);
+            }}
           />
         </div>
 
@@ -112,52 +131,22 @@ export function MapScreen(props: MapScreenProps) {
               {c.label}
             </Chip>
           ))}
+          <Chip active={filters.price === 'free'} onClick={toggleFree}>
+            Free
+          </Chip>
           <span className="mx-0.5 my-1 w-px shrink-0 bg-hairline" />
-          {CATEGORIES.map((c) => (
-            <Chip
-              key={c.id}
-              active={filters.category === c.id}
-              onClick={() => toggleCategory(c.id)}
-              icon={<c.icon size={14} strokeWidth={1.9} />}
-            >
-              {c.label}
-            </Chip>
-          ))}
+          <Chip
+            active={Boolean(filters.category)}
+            onClick={() => setShowFilters(true)}
+            icon={<SlidersHorizontal size={14} strokeWidth={1.9} />}
+          >
+            Filters
+          </Chip>
         </div>
-
-        {activeFilterCount > 0 && (
-          <div className="pointer-events-auto flex">
-            <button
-              onClick={() =>
-                setFilters({ ...filters, category: null, price: null })
-              }
-              className="inline-flex items-center gap-1 rounded-full bg-ink px-3 py-1.5 text-[12px] text-onink shadow-soft"
-            >
-              <X size={13} /> Clear {activeFilterCount} filter
-              {activeFilterCount > 1 ? 's' : ''}
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* Price quick filter + locate button (right rail) */}
+      {/* Locate button (right rail) */}
       <div className="absolute bottom-[104px] right-4 z-20 flex flex-col gap-2.5">
-        <button
-          onClick={() =>
-            setFilters({
-              ...filters,
-              price: filters.price === 'free' ? null : 'free',
-            })
-          }
-          className={`flex h-11 items-center gap-1.5 rounded-full px-3.5 text-[12px] shadow-card transition active:scale-95 ${
-            filters.price === 'free'
-              ? 'bg-brand text-white'
-              : 'glass text-ink'
-          }`}
-        >
-          <SlidersHorizontal size={15} strokeWidth={1.9} />
-          Free
-        </button>
         <button
           onClick={onLocate}
           className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-onink shadow-card transition active:scale-90"
@@ -189,6 +178,26 @@ export function MapScreen(props: MapScreenProps) {
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {showFilters && (
+          <FilterSheet
+            category={filters.category}
+            onChangeCategory={(category) => setFilters({ ...filters, category })}
+            onClose={() => setShowFilters(false)}
+          />
+        )}
+        {venueGroup && (
+          <VenueLineupSheet
+            events={venueGroup}
+            onOpen={(id) => {
+              setVenueGroup(null);
+              onSelectPin(id);
+            }}
+            onClose={() => setVenueGroup(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

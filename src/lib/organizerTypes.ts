@@ -11,6 +11,7 @@ export interface OrganizerRow {
   reviewed_at: string | null;
   created_by: 'request' | 'admin';
   request_note: string | null;
+  instagram_url: string | null;
 }
 
 export interface OrganizerStatusCheck {

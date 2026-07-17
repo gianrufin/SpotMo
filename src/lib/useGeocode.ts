@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   isGooglePlacesEnabled,
+  isGoogleInCooldown,
   autocompleteGoogle,
   newSessionToken,
 } from './googlePlaces';
@@ -90,7 +91,7 @@ export async function searchPlaces(
   const q = query.trim();
   if (q.length < 2) return [];
 
-  if (isGooglePlacesEnabled && sessionToken) {
+  if (isGooglePlacesEnabled && sessionToken && !isGoogleInCooldown()) {
     try {
       const predictions = await autocompleteGoogle(q, sessionToken, signal);
       if (predictions.length > 0) {

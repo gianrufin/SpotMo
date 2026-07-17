@@ -109,7 +109,7 @@ export function EventDetail({
             <span className="rounded-full bg-brand px-2.5 py-1 text-[11px] font-medium text-white">
               {categoryLabel(event.category)}
             </span>
-            <span className="rounded-full bg-white/85 px-2.5 py-1 text-[11px] text-ink backdrop-blur">
+            <span className="rounded-full bg-card/90 px-2.5 py-1 text-[11px] text-ink backdrop-blur">
               {relativeDayLabel(event.startsAt)}
             </span>
             {isHappeningNow(event) && (
@@ -119,7 +119,7 @@ export function EventDetail({
               </span>
             )}
           </div>
-          <h1 className="font-serif text-[38px] leading-[1.05] text-white drop-shadow-sm">
+          <h1 className="font-title text-[38px] leading-[1.05] text-white drop-shadow-sm">
             {event.title}
           </h1>
         </div>
@@ -214,7 +214,18 @@ export function EventDetail({
               {event.organizer && (
                 <p className="mt-6 text-[13px] text-muted">
                   Organized by{' '}
-                  <span className="text-ink">{event.organizer}</span>
+                  {event.organizerInstagram ? (
+                    <a
+                      href={event.organizerInstagram}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brand underline underline-offset-2"
+                    >
+                      {event.organizer}
+                    </a>
+                  ) : (
+                    <span className="text-ink">{event.organizer}</span>
+                  )}
                 </p>
               )}
             </div>
@@ -248,7 +259,7 @@ export function EventDetail({
                     }}
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[12px] text-ink shadow-soft backdrop-blur">
+                    <span className="flex items-center gap-1.5 rounded-full bg-card/90 px-3 py-1.5 text-[12px] text-ink shadow-soft backdrop-blur">
                       <ExternalLink size={13} /> Open in Maps
                     </span>
                   </div>

@@ -145,7 +145,7 @@ export function DiscoverScreen({
                           className="h-full w-full object-cover"
                         />
                       </div>
-                      <p className="mt-1.5 truncate font-serif text-[16px] leading-tight text-ink">
+                      <p className="mt-1.5 truncate font-title text-[16px] leading-tight text-ink">
                         {e.title}
                       </p>
                       <p className="truncate text-[12px] text-muted">{e.venue}</p>

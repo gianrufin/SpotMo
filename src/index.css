@@ -81,8 +81,15 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Instrument Serif is only ~400/italic; used for titles + emotional highlights */
+  /* font-serif now maps to Inter (see tailwind.config.js) — a touch heavier
+     and tighter than the 300 body default, for headings/labels. */
   .font-serif {
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Instrument Serif is only ~400/italic; reserved for event titles only. */
+  .font-title {
     font-weight: 400;
     letter-spacing: -0.01em;
   }
@@ -188,6 +195,46 @@
   display: block;
 }
 
+/* Stacked-poster pin for multiple events at the same venue */
+.spotmo-venue-stack {
+  position: relative;
+}
+.spotmo-venue-stack-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 3px solid;
+  background: rgb(var(--c-card));
+  box-shadow: 0 2px 6px rgba(17, 24, 39, 0.18);
+}
+.spotmo-venue-stack-layer-2 {
+  transform: rotate(9deg) translate(3px, -2px);
+  opacity: 0.55;
+}
+.spotmo-venue-stack-layer-1 {
+  transform: rotate(-6deg) translate(-2px, -1px);
+  opacity: 0.8;
+}
+.spotmo-venue-stack .spotmo-pin-poster {
+  position: relative;
+}
+.spotmo-venue-stack-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+  border: 2px solid #fff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 15px;
+  text-align: center;
+}
+
 .spotmo-pin-tail {
   width: 0;
   height: 0;
@@ -236,6 +283,40 @@
   height: 8px;
   border-radius: 50%;
   background: #fff;
+}
+
+/* Temporary marker for a searched location — same teardrop shape as the
+   organizer drag-pin, but ink-colored to read as "you searched here", not
+   "you're placing an event here". */
+.spotmo-search-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #141b18;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px -3px rgba(17, 24, 39, 0.5);
+  animation: spotmo-search-pin-drop 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.spotmo-search-pin::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+}
+@keyframes spotmo-search-pin-drop {
+  from {
+    transform: rotate(-45deg) translateY(-14px);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-45deg) translateY(0);
+    opacity: 1;
+  }
 }
 
 .spotmo-user-dot {

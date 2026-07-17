@@ -31,6 +31,9 @@ export interface SpotEvent {
   /** external ticket link (optional) */
   ticketUrl?: string;
   organizer?: string;
+  /** Organizer's Instagram (or other social) link — "Organized by X" links to
+   * this on the event detail screen, if set. */
+  organizerInstagram?: string;
 }
 
 export type SubmissionStatus = 'pending' | 'approved' | 'rejected';
@@ -44,7 +47,7 @@ export interface Submission extends SpotEvent {
 export type Tab = 'map' | 'saved' | 'discover' | 'profile';
 
 /** Date quick-filter chips shown on the map (distinct from pin date buckets). */
-export type DateFilter = 'today' | 'tomorrow' | 'weekend';
+export type DateFilter = 'today' | 'tomorrow' | 'weekend' | 'nextWeekend';
 
 export interface EventFilters {
   query: string;

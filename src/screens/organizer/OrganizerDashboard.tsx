@@ -13,6 +13,7 @@ type Result = { ok: boolean; error?: string };
 
 interface OrganizerDashboardProps {
   organizerName: string;
+  instagramUrl?: string | null;
   submissions: Submission[];
   onBack: () => void;
   onCreate: () => void;
@@ -20,6 +21,8 @@ interface OrganizerDashboardProps {
   /** When set, shows a pencil icon letting the organizer rename themselves
    * (their venue/production/organizer name — shown on their events). */
   onEditName?: (name: string) => void;
+  /** Instagram handle/link shown as "Organized by X" on event detail. */
+  onEditInstagram?: (url: string) => void;
   /** Edit one of your own events, at any status. Editing can never change
    * the event's approval status itself — that's admin-only, server-enforced
    * regardless of what a request sends (see schema.sql's status trigger). */
@@ -38,16 +41,19 @@ type Filter = 'all' | 'approved' | 'pending';
 export function OrganizerDashboard({
   submissions,
   organizerName,
+  instagramUrl,
   onBack,
   onCreate,
   onSignOut,
   onEditName,
+  onEditInstagram,
   onUpdate,
   dark = false,
 }: OrganizerDashboardProps) {
   const [filter, setFilter] = useState<Filter>('all');
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(organizerName);
+  const [instagramDraft, setInstagramDraft] = useState(instagramUrl ?? '');
   const [editing, setEditing] = useState<Submission | null>(null);
   const [qrEvent, setQrEvent] = useState<Submission | null>(null);
   const [error, setError] = useState('');
@@ -88,23 +94,35 @@ export function OrganizerDashboard({
         <div className="min-w-0 flex-1">
           <p className="text-[12px] text-muted">SpotMo for Organizers</p>
           {editingName ? (
-            <div className="mt-1 flex items-center gap-1.5">
-              <input
-                value={nameDraft}
-                onChange={(e) => setNameDraft(e.target.value)}
-                className="input py-1.5 text-[14px]"
-                autoFocus
-              />
-              <button
-                onClick={() => {
-                  onEditName?.(nameDraft.trim() || organizerName);
-                  setEditingName(false);
-                }}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-onink"
-                aria-label="Save name"
-              >
-                <Check size={14} strokeWidth={2.2} />
-              </button>
+            <div className="mt-1 space-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <input
+                  value={nameDraft}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  placeholder="Organizer / venue name"
+                  className="input py-1.5 text-[14px]"
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    onEditName?.(nameDraft.trim() || organizerName);
+                    onEditInstagram?.(instagramDraft);
+                    setEditingName(false);
+                  }}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-onink"
+                  aria-label="Save name"
+                >
+                  <Check size={14} strokeWidth={2.2} />
+                </button>
+              </div>
+              {onEditInstagram && (
+                <input
+                  value={instagramDraft}
+                  onChange={(e) => setInstagramDraft(e.target.value)}
+                  placeholder="Instagram handle or link (optional)"
+                  className="input py-1.5 text-[13px]"
+                />
+              )}
             </div>
           ) : (
             <p className="flex items-center gap-1.5 truncate font-serif text-xl leading-none text-ink">
@@ -113,6 +131,7 @@ export function OrganizerDashboard({
                 <button
                   onClick={() => {
                     setNameDraft(organizerName);
+                    setInstagramDraft(instagramUrl ?? '');
                     setEditingName(true);
                   }}
                   className="shrink-0 text-muted"
@@ -202,7 +221,7 @@ export function OrganizerDashboard({
                       {s.status}
                     </span>
                   </div>
-                  <h3 className="truncate font-serif text-[17px] leading-tight text-ink">
+                  <h3 className="truncate font-title text-[17px] leading-tight text-ink">
                     {s.title}
                   </h3>
                   <p className="truncate text-[11.5px] text-muted">

@@ -49,7 +49,7 @@ export function PosterImage({
       {(failed || showLabel) && (
         <div className="absolute inset-0 flex items-center justify-center p-3">
           {failed && (
-            <span className="text-center font-serif text-lg leading-tight text-white/90">
+            <span className="text-center font-title text-lg leading-tight text-white/90">
               {alt}
             </span>
           )}

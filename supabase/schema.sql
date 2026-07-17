@@ -67,11 +67,14 @@ create table if not exists public.events (
   highlights  text[],
   ticket_url  text,
   organizer   text,
+  organizer_instagram text,
   organizer_id uuid references auth.users (id) on delete cascade,
   status      text not null default 'pending'
               check (status in ('pending', 'approved', 'rejected')),
   created_at  timestamptz not null default now()
 );
+-- Safe to re-run on a table created before this column existed.
+alter table public.events add column if not exists organizer_instagram text;
 alter table public.events enable row level security;
 
 -- READ: everyone sees approved events; organizers see their own; admins see all
@@ -153,10 +156,12 @@ create table if not exists public.organizers (
   reviewed_at  timestamptz,
   created_by   text not null default 'request'
                check (created_by in ('request', 'admin')),
-  request_note text
+  request_note text,
+  instagram_url text
 );
--- Safe to re-run on a table created before this column existed.
+-- Safe to re-run on a table created before these columns existed.
 alter table public.organizers add column if not exists request_note text;
+alter table public.organizers add column if not exists instagram_url text;
 create unique index if not exists organizers_email_key
   on public.organizers (lower(email));
 alter table public.organizers enable row level security;

@@ -27,7 +27,7 @@ export function EventListItem({ event, onClick }: EventListItemProps) {
         <p className="text-[11px] uppercase tracking-wide text-brand">
           {categoryLabel(event.category)}
         </p>
-        <h3 className="truncate font-serif text-[19px] leading-tight text-ink">
+        <h3 className="truncate font-title text-[19px] leading-tight text-ink">
           {event.title}
         </h3>
         <p className="mt-0.5 truncate text-[12.5px] text-muted">

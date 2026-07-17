@@ -77,6 +77,7 @@ export default function App() {
   const organizerName = remoteMode
     ? myProfile.profile?.org_name || auth.name || auth.email || 'You'
     : localOrg.organizer?.name ?? 'You';
+  const organizerInstagram = remoteMode ? myProfile.profile?.instagram_url ?? undefined : undefined;
   const mySubmissions = remoteMode
     ? remote.mine
     : local.submissions.filter((s) => s.submittedBy === organizerName);
@@ -105,8 +106,8 @@ export default function App() {
   async function submitEvent(
     event: SpotEvent,
   ): Promise<{ ok: boolean; error?: string }> {
-    if (remoteMode) return remote.add(event, organizerName);
-    local.add(event, organizerName);
+    if (remoteMode) return remote.add(event, organizerName, organizerInstagram);
+    local.add({ ...event, organizerInstagram }, organizerName);
     return { ok: true };
   }
 
@@ -177,6 +178,23 @@ export default function App() {
   const [overlay, setOverlay] = useState<Overlay>({ kind: 'none' });
   const [center, setCenter] = useState<Coords>(location.coords);
   const [flyToken, setFlyToken] = useState(0);
+  const [searchedPin, setSearchedPin] = useState<Coords | null>(null);
+
+  // The home screen defaults to the user's real location — request it right
+  // away on launch (the browser's native permission prompt, not gated behind
+  // an in-app tap) rather than waiting for the onboarding step. Falls back to
+  // Makati (see useUserLocation's MANILA constant) if denied/unavailable.
+  useEffect(() => {
+    location.locate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (location.status === 'granted') {
+      setCenter(location.coords);
+      setFlyToken((t) => t + 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.status]);
 
   // ---- In-app back navigation ----
   // Keep the latest UI-layer state in refs so a single popstate listener can
@@ -284,6 +302,20 @@ export default function App() {
     setFlyToken((t) => t + 1);
   }
 
+  // A place picked from the map's location search — fly there and drop a
+  // temporary marker so it's clear why the map moved (cleared after a bit,
+  // or as soon as the user searches somewhere else).
+  function handleFlyToPlace(coords: Coords) {
+    setCenter(coords);
+    setFlyToken((t) => t + 1);
+    setSearchedPin(coords);
+    setTimeout(() => {
+      setSearchedPin((current) =>
+        current && current.lat === coords.lat && current.lng === coords.lng ? null : current,
+      );
+    }, 20_000);
+  }
+
   function openDetail(id: string) {
     setDetailId(id);
   }
@@ -333,6 +365,8 @@ export default function App() {
             onLocate={handleLocate}
             center={center}
             flyToken={flyToken}
+            searchedPin={searchedPin}
+            onFlyToPlace={handleFlyToPlace}
             dark={theme.isDark}
           />
         )}
@@ -423,12 +457,16 @@ export default function App() {
               (organizerAccessState === 'approved' ? (
                 <OrganizerDashboard
                   organizerName={organizerName}
+                  instagramUrl={myProfile.profile?.instagram_url}
                   submissions={mySubmissions}
                   onBack={goBack}
                   onCreate={() => setOverlay({ kind: 'create' })}
                   onSignOut={remoteMode ? handleSignOut : undefined}
                   onEditName={
                     remoteMode && myProfile.profile ? myProfile.updateOrgName : undefined
+                  }
+                  onEditInstagram={
+                    remoteMode && myProfile.profile ? myProfile.updateInstagram : undefined
                   }
                   onUpdate={updateEvent}
                   dark={theme.isDark}

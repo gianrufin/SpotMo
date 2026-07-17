@@ -5,6 +5,7 @@ interface SearchBarProps {
   onChange: (value: string) => void;
   placeholder?: string;
   onFocus?: () => void;
+  onBlur?: () => void;
   autoFocus?: boolean;
   className?: string;
 }
@@ -14,6 +15,7 @@ export function SearchBar({
   onChange,
   placeholder = 'Search events, venues, artists',
   onFocus,
+  onBlur,
   autoFocus,
   className = '',
 }: SearchBarProps) {
@@ -26,6 +28,7 @@ export function SearchBar({
         value={value}
         autoFocus={autoFocus}
         onFocus={onFocus}
+        onBlur={onBlur}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full bg-transparent text-[14px] text-ink placeholder:text-muted focus:outline-none"

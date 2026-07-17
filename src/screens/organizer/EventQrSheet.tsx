@@ -59,7 +59,7 @@ export function EventQrSheet({ event, onClose }: EventQrSheetProps) {
           </div>
         </div>
 
-        <p className="mt-4 truncate text-center text-[15px] leading-tight text-ink">
+        <p className="mt-4 truncate text-center font-title text-[15px] leading-tight text-ink">
           {event.title}
         </p>
         <p className="mt-1 text-center text-[12.5px] text-muted">

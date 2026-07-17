@@ -150,6 +150,18 @@ export function isHappeningNow(event: SpotEvent): boolean {
   return new Date(event.startsAt).getTime() <= now && now <= eventEndMoment(event).getTime();
 }
 
+/** Accepts a bare handle ("@name" / "name"), a partial ("instagram.com/name")
+ * or a full URL, and always returns a clickable https://instagram.com/... link. */
+export function normalizeInstagramUrl(input: string): string | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  const handleMatch = trimmed.match(/instagram\.com\/([^/?#\s]+)/i);
+  if (handleMatch) return `https://instagram.com/${handleMatch[1]}`;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const handle = trimmed.replace(/^@/, '');
+  return `https://instagram.com/${handle}`;
+}
+
 /** Google Maps directions deep link (opens native maps app on mobile) */
 export function directionsUrl(event: SpotEvent): string {
   const q = encodeURIComponent(`${event.venue}, ${event.address}`);

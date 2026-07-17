@@ -24,6 +24,7 @@ function rowToEvent(r: any): SpotEvent {
     highlights: r.highlights ?? undefined,
     ticketUrl: r.ticket_url ?? undefined,
     organizer: r.organizer ?? undefined,
+    organizerInstagram: r.organizer_instagram ?? undefined,
   };
 }
 
@@ -55,6 +56,7 @@ function eventToRow(e: Partial<SpotEvent>): Record<string, unknown> {
   if (e.highlights !== undefined) row.highlights = e.highlights;
   if (e.ticketUrl !== undefined) row.ticket_url = e.ticketUrl;
   if (e.organizer !== undefined) row.organizer = e.organizer;
+  if (e.organizerInstagram !== undefined) row.organizer_instagram = e.organizerInstagram;
   return row;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -126,11 +128,13 @@ export function useRemoteEvents(session: Session | null, isAdmin: boolean) {
     async (
       event: SpotEvent,
       name: string,
+      instagram?: string,
     ): Promise<{ ok: boolean; error?: string }> => {
       if (!supabase || !session) return { ok: false, error: 'Not signed in.' };
       const { error } = await supabase.from('events').insert({
         ...eventToRow(event),
         organizer: name,
+        organizer_instagram: instagram ?? null,
         organizer_id: session.user.id,
         status: 'pending',
       });
