@@ -1,7 +1,9 @@
+import { createPortal } from 'react-dom';
 import { X, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Category } from '../../types';
 import { CATEGORIES } from '../../data/categories';
+import { useOverlayRoot } from '../../layout/PhoneFrame';
 
 interface FilterSheetProps {
   category: Category | null;
@@ -9,18 +11,23 @@ interface FilterSheetProps {
   onClose: () => void;
 }
 
-/** Category filter, opened from the map's "Filters" button. */
+/** Category filter, opened from the map's "Filters" button. Portals above
+ * the bottom nav (see useOverlayRoot) since this is rendered from inside the
+ * map's isolated tab-content container. */
 export function FilterSheet({ category, onChangeCategory, onClose }: FilterSheetProps) {
-  return (
+  const overlayRoot = useOverlayRoot();
+  if (!overlayRoot) return null;
+
+  return createPortal(
     <motion.div
-      className="absolute inset-0 z-40 flex flex-col justify-end bg-black/40"
+      className="pointer-events-auto absolute inset-0 flex flex-col justify-end bg-black/40"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="rounded-t-3xl bg-card p-5 pb-8"
+        className="max-h-[70%] overflow-y-auto rounded-t-3xl bg-card p-5 pb-8"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
@@ -66,6 +73,7 @@ export function FilterSheet({ category, onChangeCategory, onClose }: FilterSheet
           </button>
         )}
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    overlayRoot,
   );
 }
