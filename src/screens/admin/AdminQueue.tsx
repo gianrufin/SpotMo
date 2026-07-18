@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Check, X, Trash2, ShieldCheck, Inbox, Pencil, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Check, X, Trash2, ShieldCheck, Inbox, Pencil, AlertCircle, Eye, Heart } from 'lucide-react';
 import type { Submission, SubmissionStatus, SpotEvent } from '../../types';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -135,6 +135,14 @@ export function AdminQueue({
                     <p className="truncate text-[12px] text-muted">
                       {s.venue} · by {s.submittedBy}
                     </p>
+                    <div className="mt-1 flex items-center gap-2.5 text-[11px] text-muted">
+                      <span className="flex items-center gap-1">
+                        <Eye size={11} strokeWidth={1.9} /> {s.viewCount ?? 0}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Heart size={11} strokeWidth={1.9} /> {s.saveCount ?? 0}
+                      </span>
+                    </div>
                   </div>
                 </div>
 

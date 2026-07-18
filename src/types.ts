@@ -34,6 +34,9 @@ export interface SpotEvent {
   /** Organizer's Instagram (or other social) link — "Organized by X" links to
    * this on the event detail screen, if set. */
   organizerInstagram?: string;
+  /** Real, server-tracked counts — see lib/engagement.ts. */
+  viewCount?: number;
+  saveCount?: number;
 }
 
 export type SubmissionStatus = 'pending' | 'approved' | 'rejected';

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { ArrowLeft, Plus, Pencil, Check, AlertCircle, QrCode as QrCodeIcon, Instagram } from 'lucide-react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ArrowLeft, Plus, Pencil, Check, AlertCircle, QrCode as QrCodeIcon, Instagram, Eye, Heart } from 'lucide-react';
 import type { Submission, SubmissionStatus, SpotEvent } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
@@ -64,6 +64,8 @@ export function OrganizerDashboard({
       total: submissions.length,
       approved: submissions.filter((s) => s.status === 'approved').length,
       pending: submissions.filter((s) => s.status === 'pending').length,
+      views: submissions.reduce((sum, s) => sum + (s.viewCount ?? 0), 0),
+      saves: submissions.reduce((sum, s) => sum + (s.saveCount ?? 0), 0),
     };
   }, [submissions]);
 
@@ -185,6 +187,10 @@ export function OrganizerDashboard({
           <StatTile label="Approved" value={counts.approved} />
           <StatTile label="Pending" value={counts.pending} />
         </div>
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <StatTile label="Total views" value={counts.views} icon={<Eye size={15} strokeWidth={1.9} />} />
+          <StatTile label="Total saves" value={counts.saves} icon={<Heart size={15} strokeWidth={1.9} />} />
+        </div>
 
         {/* My events */}
         <div className="mt-6 flex items-center justify-between">
@@ -252,6 +258,14 @@ export function OrganizerDashboard({
                   <p className="truncate text-[11.5px] text-muted">
                     {formatShortDate(s.startsAt)}
                   </p>
+                  <div className="mt-1 flex items-center gap-2.5 text-[11px] text-muted">
+                    <span className="flex items-center gap-1">
+                      <Eye size={11} strokeWidth={1.9} /> {s.viewCount ?? 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Heart size={11} strokeWidth={1.9} /> {s.saveCount ?? 0}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex shrink-0 flex-col gap-2">
                   {onUpdate && (
@@ -316,10 +330,12 @@ function StatTile({
   label,
   value,
   accent,
+  icon,
 }: {
   label: string;
   value: number;
   accent?: boolean;
+  icon?: ReactNode;
 }) {
   return (
     <div
@@ -329,8 +345,9 @@ function StatTile({
     >
       <p className="font-serif text-3xl leading-none">{value}</p>
       <p
-        className={`mt-1 text-[12px] ${accent ? 'text-onink/60' : 'text-muted'}`}
+        className={`mt-1 flex items-center gap-1 text-[12px] ${accent ? 'text-onink/60' : 'text-muted'}`}
       >
+        {icon}
         {label}
       </p>
     </div>

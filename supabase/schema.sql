@@ -243,7 +243,74 @@ create policy "insert own pending" on public.events
     and (public.is_admin() or public.is_approved_organizer())
   );
 
--- 4) Realtime — so admin approvals / organizer changes show up live for
+-- 4) Event engagement — real view/save counts, surfaced to organizers (and
+--    admin) as a concrete metric for pitching a future paid partnership.
+alter table public.events add column if not exists view_count integer not null default 0;
+alter table public.events add column if not exists save_count integer not null default 0;
+
+-- Anonymous per-device saves. A device can only ever hold one save row per
+-- event (primary key), so save_count below is always an accurate count of
+-- distinct devices that currently have it saved — not an inflatable running
+-- total that a repeated save/unsave toggle could drift.
+create table if not exists public.event_saves (
+  event_id   uuid not null references public.events(id) on delete cascade,
+  device_id  text not null,
+  created_at timestamptz not null default now(),
+  primary key (event_id, device_id)
+);
+alter table public.event_saves enable row level security;
+
+-- Saving is anonymous and device-scoped, not identity-scoped (the Saved tab
+-- works with no sign-in), so device_id is self-asserted rather than verified
+-- against auth — an acceptable trade-off for a vanity engagement metric,
+-- not an access-control boundary.
+drop policy if exists "anyone can save" on public.event_saves;
+create policy "anyone can save" on public.event_saves
+  for insert with check (true);
+drop policy if exists "anyone can unsave" on public.event_saves;
+create policy "anyone can unsave" on public.event_saves
+  for delete using (true);
+drop policy if exists "saves are publicly countable" on public.event_saves;
+create policy "saves are publicly countable" on public.event_saves
+  for select using (true);
+
+create or replace function public.sync_event_save_count()
+  returns trigger
+  language plpgsql
+  security definer
+as $$
+begin
+  update public.events
+  set save_count = (
+    select count(*) from public.event_saves
+    where event_id = coalesce(new.event_id, old.event_id)
+  )
+  where id = coalesce(new.event_id, old.event_id);
+  return null;
+end;
+$$;
+
+drop trigger if exists trg_sync_save_count on public.event_saves;
+create trigger trg_sync_save_count
+  after insert or delete on public.event_saves
+  for each row
+  execute function public.sync_event_save_count();
+
+-- View counts are a plain incrementing counter — the client dedupes repeat
+-- views within one browser session before calling this, so it stays a
+-- meaningful "who actually looked at this" number rather than inflating on
+-- every re-open. SECURITY DEFINER so any visitor (not just the organizer/
+-- admin who can UPDATE events) can bump it.
+create or replace function public.increment_view_count(p_event_id uuid)
+  returns void
+  language sql
+  security definer
+as $$
+  update public.events set view_count = view_count + 1 where id = p_event_id;
+$$;
+grant execute on function public.increment_view_count(uuid) to anon, authenticated;
+
+-- 5) Realtime — so admin approvals / organizer changes show up live for
 --    everyone with the app open, with no manual refresh needed.
 do $$
 begin
@@ -258,7 +325,7 @@ exception when duplicate_object then null;
 end $$;
 
 -- ============================================================================
--- 5) Make yourself the admin  (run AFTER you have signed up in the app once)
+-- 6) Make yourself the admin  (run AFTER you have signed up in the app once)
 --    Replace the email in ALL THREE queries below with the one you signed up
 --    with, then run just this block. It tells you exactly what happened:
 --    - Query 1 returns no rows  -> you haven't signed up in the app yet with

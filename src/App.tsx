@@ -45,6 +45,7 @@ import { useMyOrganizerProfile } from './lib/useMyOrganizerProfile';
 import { useOrganizersAdmin } from './lib/useOrganizersAdmin';
 import { useAdminsRoster } from './lib/useAdminsRoster';
 import { requestOrganizerAccess } from './lib/organizerAccess';
+import { recordEventView } from './lib/engagement';
 import { isSupabaseEnabled } from './lib/supabase';
 import { haversineKm, formatTravelEstimate, hasEventEnded } from './lib/format';
 
@@ -296,6 +297,13 @@ export default function App() {
   const detailEvent = detailId
     ? allEvents.find((e) => e.id === detailId) ?? null
     : null;
+
+  // A real, server-tracked view count — recorded once per event per browser
+  // session (see lib/engagement.ts), regardless of how the detail was opened
+  // (pin tap, search result, shared link).
+  useEffect(() => {
+    if (detailId) recordEventView(detailId);
+  }, [detailId]);
 
   const showUser = location.status === 'granted';
 

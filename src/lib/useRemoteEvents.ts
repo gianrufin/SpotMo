@@ -25,6 +25,8 @@ function rowToEvent(r: any): SpotEvent {
     ticketUrl: r.ticket_url ?? undefined,
     organizer: r.organizer ?? undefined,
     organizerInstagram: r.organizer_instagram ?? undefined,
+    viewCount: r.view_count ?? 0,
+    saveCount: r.save_count ?? 0,
   };
 }
 
