@@ -45,8 +45,13 @@ function matchesQuery(event: SpotEvent, query: string): boolean {
     event.venue,
     event.city,
     event.address,
+    event.description,
+    event.organizer,
+    event.category,
     ...(event.lineup ?? []),
+    ...(event.highlights ?? []),
   ]
+    .filter(Boolean)
     .join(' ')
     .toLowerCase();
   return haystack.includes(q);

@@ -7,6 +7,7 @@ import { MapView } from '../components/map/MapView';
 import { SearchBar } from '../components/common/SearchBar';
 import { FilterSheet } from '../components/map/FilterSheet';
 import { PlaceSearchResults } from '../components/map/PlaceSearchResults';
+import { EventSearchResults } from '../components/map/EventSearchResults';
 import { VenueLineupSheet } from '../components/map/VenueLineupSheet';
 import { Chip } from '../components/common/Chip';
 import { Logo } from '../components/common/Logo';
@@ -109,6 +110,16 @@ export function MapScreen(props: MapScreenProps) {
             placeholder="Search events, or a place on the map"
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+          />
+          <EventSearchResults
+            events={events}
+            query={filters.query}
+            open={searchFocused}
+            onSelect={(id) => {
+              onSelectPin(id);
+              setFilters({ ...filters, query: '' });
+              setSearchFocused(false);
+            }}
           />
           <PlaceSearchResults
             query={filters.query}
