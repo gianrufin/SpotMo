@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Plus, Pencil, Check, AlertCircle, QrCode as QrCodeIcon } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Check, AlertCircle, QrCode as QrCodeIcon, Instagram } from 'lucide-react';
 import type { Submission, SubmissionStatus, SpotEvent } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
@@ -53,6 +53,7 @@ export function OrganizerDashboard({
   const [filter, setFilter] = useState<Filter>('all');
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(organizerName);
+  const [editingInstagram, setEditingInstagram] = useState(false);
   const [instagramDraft, setInstagramDraft] = useState(instagramUrl ?? '');
   const [editing, setEditing] = useState<Submission | null>(null);
   const [qrEvent, setQrEvent] = useState<Submission | null>(null);
@@ -94,35 +95,24 @@ export function OrganizerDashboard({
         <div className="min-w-0 flex-1">
           <p className="text-[12px] text-muted">SpotMo for Organizers</p>
           {editingName ? (
-            <div className="mt-1 space-y-1.5">
-              <div className="flex items-center gap-1.5">
-                <input
-                  value={nameDraft}
-                  onChange={(e) => setNameDraft(e.target.value)}
-                  placeholder="Organizer / venue name"
-                  className="input py-1.5 text-[14px]"
-                  autoFocus
-                />
-                <button
-                  onClick={() => {
-                    onEditName?.(nameDraft.trim() || organizerName);
-                    onEditInstagram?.(instagramDraft);
-                    setEditingName(false);
-                  }}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-onink"
-                  aria-label="Save name"
-                >
-                  <Check size={14} strokeWidth={2.2} />
-                </button>
-              </div>
-              {onEditInstagram && (
-                <input
-                  value={instagramDraft}
-                  onChange={(e) => setInstagramDraft(e.target.value)}
-                  placeholder="Instagram handle or link (optional)"
-                  className="input py-1.5 text-[13px]"
-                />
-              )}
+            <div className="mt-1 flex items-center gap-1.5">
+              <input
+                value={nameDraft}
+                onChange={(e) => setNameDraft(e.target.value)}
+                placeholder="Organizer / venue name"
+                className="input py-1.5 text-[14px]"
+                autoFocus
+              />
+              <button
+                onClick={() => {
+                  onEditName?.(nameDraft.trim() || organizerName);
+                  setEditingName(false);
+                }}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-onink"
+                aria-label="Save name"
+              >
+                <Check size={14} strokeWidth={2.2} />
+              </button>
             </div>
           ) : (
             <p className="flex items-center gap-1.5 truncate font-serif text-xl leading-none text-ink">
@@ -131,7 +121,6 @@ export function OrganizerDashboard({
                 <button
                   onClick={() => {
                     setNameDraft(organizerName);
-                    setInstagramDraft(instagramUrl ?? '');
                     setEditingName(true);
                   }}
                   className="shrink-0 text-muted"
@@ -142,6 +131,42 @@ export function OrganizerDashboard({
               )}
             </p>
           )}
+
+          {onEditInstagram &&
+            (editingInstagram ? (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <Instagram size={13} strokeWidth={1.9} className="shrink-0 text-muted" />
+                <input
+                  value={instagramDraft}
+                  onChange={(e) => setInstagramDraft(e.target.value)}
+                  placeholder="Instagram handle or link"
+                  className="input py-1 text-[12.5px]"
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    onEditInstagram(instagramDraft.trim());
+                    setEditingInstagram(false);
+                  }}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-onink"
+                  aria-label="Save Instagram"
+                >
+                  <Check size={12} strokeWidth={2.2} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setInstagramDraft(instagramUrl ?? '');
+                  setEditingInstagram(true);
+                }}
+                className="mt-1 flex items-center gap-1.5 text-[12.5px] text-muted"
+              >
+                <Instagram size={13} strokeWidth={1.9} className="shrink-0" />
+                <span className="truncate">{instagramUrl || 'Add Instagram'}</span>
+                <Pencil size={11} strokeWidth={1.9} className="shrink-0" />
+              </button>
+            ))}
         </div>
         {onSignOut && (
           <button
