@@ -95,7 +95,8 @@ function extractPriceLabel(description) {
   return m ? m[1].trim() : null;
 }
 
-async function geocode(query) {
+async function geocodeQuery(query) {
+  await sleep(1100); // be a good Nominatim citizen: max ~1 req/sec
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&q=${encodeURIComponent(query)}`;
   const res = await fetch(url, { headers: { 'User-Agent': NOMINATIM_UA } });
   if (!res.ok) return null;
@@ -105,6 +106,21 @@ async function geocode(query) {
   const addr = hit.address || {};
   const city = addr.city || addr.town || addr.municipality || addr.suburb || addr.city_district || null;
   return { lat: Number(hit.lat), lng: Number(hit.lon), address: hit.display_name, city };
+}
+
+// These listings are often "small venue, inside a bigger building" (e.g.
+// "The KoolPals Bar at Cellar, Century Park Hotel Manila") — Nominatim's free
+// index frequently knows the hotel/mall but not the bar inside it. If the
+// full string doesn't resolve, retry with the leading segment dropped, one
+// comma-separated part at a time, until something resolves or we run out.
+async function geocode(locationText) {
+  const parts = locationText.split(',').map((s) => s.trim()).filter(Boolean);
+  for (let i = 0; i < parts.length; i++) {
+    const candidate = `${parts.slice(i).join(', ')}, Philippines`;
+    const hit = await geocodeQuery(candidate);
+    if (hit) return hit;
+  }
+  return null;
 }
 
 function sleep(ms) {
@@ -154,11 +170,7 @@ async function main() {
     const ticketUrl = ev.URL?.value ?? null;
     const priceLabel = extractPriceLabel(description);
 
-    let geo = null;
-    if (locationText) {
-      geo = await geocode(`${locationText}, Philippines`);
-      await sleep(1100); // be a good Nominatim citizen: max ~1 req/sec
-    }
+    const geo = locationText ? await geocode(locationText) : null;
     if (!geo) {
       console.warn(`Skipping "${title}" — could not geocode venue "${locationText}".`);
       continue;
