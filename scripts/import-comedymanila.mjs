@@ -122,6 +122,12 @@ async function main() {
   });
   if (!res.ok) throw new Error(`Failed to fetch ICS feed: HTTP ${res.status}`);
   const icsText = await res.text();
+  console.log(`Fetched ICS feed: ${icsText.length} bytes, content-type ${res.headers.get('content-type')}`);
+  if (icsText.length < 500) {
+    // Suspiciously small for a real calendar export — likely a bot-mitigation
+    // "soft block" (200 OK but a near-empty body) rather than a real feed.
+    console.log('Response body preview:', icsText.slice(0, 300));
+  }
   const rawEvents = parseVEvents(icsText);
   console.log(`Parsed ${rawEvents.length} VEVENT entries from the feed.`);
 
