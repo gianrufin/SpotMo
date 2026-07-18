@@ -40,7 +40,7 @@ export function VenueLineupSheet({ events, onOpen, onClose }: VenueLineupSheetPr
       >
         <div className="mb-4 flex shrink-0 items-center justify-between px-5">
           <div>
-            <p className="font-serif text-lg text-ink">This week at {venue.venue}</p>
+            <p className="font-serif text-lg text-ink">Upcoming at {venue.venue}</p>
             <p className="text-[12.5px] text-muted">{events.length} events</p>
           </div>
           <button
