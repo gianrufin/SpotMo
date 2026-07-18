@@ -1,4 +1,5 @@
-<title>SpotMo — Live Music Near You</title>
+<meta charset="utf-8">
+<title>SpotMo — Local Events Near You</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +13,7 @@
     --shadow-card: 0 8px 30px -12px rgba(17,24,39,0.18);
     --shadow-float: 0 12px 40px -12px rgba(17,24,39,0.25);
     --c-music-a: #2F7D5A; --c-music-b: #1f5540;
+    --c-comedy-a: #B45309; --c-market-a: #1D4ED8;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-title: 'Instrument Serif', Georgia, serif;
     --wrap: 1080px;
@@ -198,16 +200,16 @@
   <div class="wrap">
     <div class="herogrid">
       <div>
-        <p class="eyebrow">For people who chase live music</p>
-        <h1 style="margin-top:14px;">Live music is happening<span class="serifline">near you right now.</span></h1>
-        <p class="lede">SpotMo is a live map of gigs, band nights, open mics and festivals — the shows your feed never shows you. No ticketing clutter, no algorithm — just what's playing, plotted where it's actually happening.</p>
+        <p class="eyebrow">For people who want to know what's on nearby</p>
+        <h1 style="margin-top:14px;">Local events are happening<span class="serifline">near you right now.</span></h1>
+        <p class="lede">SpotMo is a live map of gigs, stand-up shows, markets and local happenings — the things your feed never shows you. No ticketing clutter, no algorithm — just what's on, plotted where it's actually happening.</p>
         <div class="herobtns">
           <a class="ctabtn" href="https://gianrufin.github.io/SpotMo/" target="_blank" rel="noopener">Open SpotMo →</a>
           <a class="ghostbtn" href="#features">See what it does</a>
         </div>
         <div class="taglist">
-          <span>Indie gigs</span><span>Band nights</span><span>Open mics</span>
-          <span>Acoustic sets</span><span>Battle of the bands</span><span>Festivals</span>
+          <span>Live music</span><span>Comedy nights</span><span>Night markets</span>
+          <span>Art shows</span><span>Community meetups</span><span>Pop-ups</span>
         </div>
       </div>
       <div class="reveal in">
@@ -219,15 +221,15 @@
             </div>
           </div>
           <div class="pin-teardrop" style="left:28%; top:42%; background:var(--c-music-a);"></div>
-          <div class="pin-teardrop" style="left:58%; top:34%; background:var(--c-music-a);"></div>
-          <div class="pin-teardrop" style="left:48%; top:56%; background:var(--c-music-a);"></div>
+          <div class="pin-teardrop" style="left:58%; top:34%; background:var(--c-comedy-a);"></div>
+          <div class="pin-teardrop" style="left:48%; top:56%; background:var(--c-market-a);"></div>
           <div class="pin-teardrop" style="left:68%; top:64%; background:var(--c-music-a);"></div>
           <div class="posterpeek">
-            <div class="thumb"></div>
+            <div class="thumb" style="background:linear-gradient(135deg, var(--c-comedy-a), var(--c-music-b));"></div>
             <div class="txt">
               <span class="badge">Happening now</span>
-              <p class="name">Basement Sessions Vol. 12</p>
-              <p class="meta">191 Cafe Bar · 0.4 km away</p>
+              <p class="name">Comedy Manila: Open Mic Night</p>
+              <p class="meta">The Cellar, Century Park Hotel · 0.6 km away</p>
             </div>
           </div>
         </div>
@@ -246,7 +248,7 @@
       <div class="feature reveal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5M16 4v5"/></svg><h4>A live map, not a list</h4><p>See what's on nearby, plotted where it's actually happening — browse spatially instead of scrolling forever.</p></div>
       <div class="feature reveal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 21s7-7.5 7-12.5A7 7 0 0 0 5 8.5C5 13.5 12 21 12 21Z"/><circle cx="12" cy="8.5" r="2.4"/></svg><h4>Poster-first browsing</h4><p>Tap a pin and see the full flyer — venue, time, price, lineup — before you commit to anything.</p></div>
       <div class="feature reveal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78Z"/></svg><h4>Save for later</h4><p>Bookmark shows you don't want to miss and find them all in one place.</p></div>
-      <div class="feature reveal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><h4>One-tap calendar &amp; directions</h4><p>Add a show straight to your calendar, or get directions the moment you decide to go.</p></div>
+      <div class="feature reveal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg><h4>One-tap calendar &amp; directions</h4><p>Add an event straight to your calendar, or get directions the moment you decide to go.</p></div>
       <div class="feature reveal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><h4>Today / Tomorrow / This Weekend</h4><p>Quick filters built around how people actually decide what to do tonight.</p></div>
       <div class="feature reveal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><h4>"Happening now" badge</h4><p>Know at a glance which shows are already underway, not just listed.</p></div>
     </div>
@@ -257,13 +259,13 @@
   <div class="wrap">
     <div class="panel-head reveal">
       <p class="eyebrow">Built for the local scene</p>
-      <h2>Not just headliners — the shows worth knowing about.</h2>
-      <p class="lede">SpotMo surfaces the gigs that never make it onto a mainstream events app: the small room, the new band, the open mic that's actually good.</p>
+      <h2>Not just headliners — the events worth knowing about.</h2>
+      <p class="lede">SpotMo surfaces the events that never make it onto a mainstream app: the small gig, the stand-up open mic, the weekend market that's actually good.</p>
     </div>
     <div class="scenetags reveal">
-      <span>Indie gigs</span><span>Local band nights</span><span>Coffee shop acoustic sets</span>
-      <span>Open mic nights</span><span>Battle of the bands</span><span>DJ sets</span>
-      <span>Music festivals</span><span>Campus shows</span>
+      <span>Live music</span><span>Stand-up comedy</span><span>Open mic nights</span>
+      <span>Night markets</span><span>Art shows</span><span>Community meetups</span>
+      <span>Pop-up bazaars</span><span>Food festivals</span>
     </div>
   </div>
 </section>
@@ -286,7 +288,7 @@
 <section class="panel closing">
   <div class="wrap">
     <p class="eyebrow reveal">SpotMo</p>
-    <h2 class="statement reveal">Great local music deserves to be found — starting with yours.</h2>
+    <h2 class="statement reveal">Great local events deserve to be found — starting with yours.</h2>
     <div class="ctacard reveal">
       <div class="info">
         <h4>Open SpotMo</h4>
