@@ -114,7 +114,12 @@ function sleep(ms) {
 async function main() {
   console.log(dryRun ? '[dry-run] no SUPABASE_SERVICE_ROLE_KEY set — parsing/geocoding only, no writes' : 'live run — will upsert to Supabase');
 
-  const res = await fetch(ICS_URL);
+  const res = await fetch(ICS_URL, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (compatible; SpotMo-EventImporter/1.0; +https://gianrufin.github.io/SpotMo/)',
+      Accept: 'text/calendar, text/plain, */*',
+    },
+  });
   if (!res.ok) throw new Error(`Failed to fetch ICS feed: HTTP ${res.status}`);
   const icsText = await res.text();
   const rawEvents = parseVEvents(icsText);
