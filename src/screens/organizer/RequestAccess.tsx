@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Store, Clock, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Store, Clock, ShieldAlert, Instagram } from 'lucide-react';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { AuthPanel } from '../auth/AuthPanel';
 import { checkOrganizerStatus, requestOrganizerAccess } from '../../lib/organizerAccess';
@@ -14,33 +14,43 @@ interface RequestAccessProps {
 type Phase =
   | { kind: 'form' }
   | { kind: 'checking' }
-  | { kind: 'confirm-request'; email: string; note: string }
+  | { kind: 'confirm-request'; email: string; note: string; social: string }
   | { kind: 'pending'; email: string }
   | { kind: 'revoked'; email: string }
   | { kind: 'approved'; email: string; hasAccount: boolean };
 
 /**
- * Public entry point for prospective organizers: submit just an email,
- * see its status, and — once the admin has approved it — finish creating
- * a real account. Nothing here can self-approve; that's admin-only.
+ * Public entry point for prospective organizers: submit an email plus a
+ * social link, see its status, and — once the admin has approved it —
+ * finish creating a real account. Nothing here can self-approve; that's
+ * admin-only. The social link is required: it's the strongest signal an
+ * admin has that a request is a real organizer/venue/production, since
+ * almost none of them operate without a public Instagram/Facebook — see
+ * OrganizersManager, which shows it as a clickable link before approving.
  */
 export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps) {
   const [email, setEmail] = useState('');
+  const [social, setSocial] = useState('');
   const [note, setNote] = useState('');
   const [phase, setPhase] = useState<Phase>({ kind: 'form' });
   const [error, setError] = useState('');
 
   async function checkAndContinue() {
     const trimmed = email.trim();
+    const trimmedSocial = social.trim();
     if (!/.+@.+\..+/.test(trimmed)) {
       setError('Enter a valid email address.');
+      return;
+    }
+    if (!trimmedSocial || /\s/.test(trimmedSocial)) {
+      setError('Add a link (or @handle) to your Instagram or Facebook page.');
       return;
     }
     setError('');
     setPhase({ kind: 'checking' });
     const result = await checkOrganizerStatus(trimmed);
     if (result.status === 'none') {
-      setPhase({ kind: 'confirm-request', email: trimmed, note });
+      setPhase({ kind: 'confirm-request', email: trimmed, note, social: trimmedSocial });
     } else if (result.status === 'pending') {
       setPhase({ kind: 'pending', email: trimmed });
     } else if (result.status === 'revoked') {
@@ -50,9 +60,9 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
     }
   }
 
-  async function submitRequest(targetEmail: string, targetNote: string) {
+  async function submitRequest(targetEmail: string, targetSocial: string, targetNote: string) {
     setPhase({ kind: 'checking' });
-    const result = await requestOrganizerAccess(targetEmail, targetNote);
+    const result = await requestOrganizerAccess(targetEmail, targetSocial, targetNote);
     if (!result.ok) {
       setError(result.error ?? 'Something went wrong.');
       setPhase({ kind: 'form' });
@@ -104,8 +114,9 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
               Want to be an organizer?
             </h2>
             <p className="mt-1.5 text-[14px] leading-relaxed text-muted">
-              Enter your email. We'll review your request, and you'll create
-              your account once it's approved.
+              Enter your email and a link to your Instagram or Facebook page.
+              We'll review your request, and you'll create your account once
+              it's approved.
             </p>
             <label className="mt-6 block">
               <span className="mb-1.5 block text-[12.5px] text-muted">Email</span>
@@ -117,6 +128,21 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
                 placeholder="you@email.com"
                 className="input"
               />
+            </label>
+            <label className="mt-4 block">
+              <span className="mb-1.5 flex items-center gap-1.5 text-[12.5px] text-muted">
+                <Instagram size={13} strokeWidth={1.9} /> Instagram or Facebook link
+              </span>
+              <input
+                autoCapitalize="none"
+                value={social}
+                onChange={(e) => setSocial(e.target.value)}
+                placeholder="instagram.com/yourpage or @yourhandle"
+                className="input"
+              />
+              <span className="mt-1 block text-[11.5px] text-muted">
+                This is how we confirm you're a real organizer, venue, or production.
+              </span>
             </label>
             <label className="mt-4 block">
               <span className="mb-1.5 block text-[12.5px] text-muted">
@@ -153,10 +179,14 @@ export function RequestAccess({ onBack, onSignIn, onSignUp }: RequestAccessProps
             </h2>
             <p className="mt-1.5 text-[14px] leading-relaxed text-muted">
               We'll ask the admin to approve organizer access for{' '}
-              <span className="text-ink">{phase.email}</span>.
+              <span className="text-ink">{phase.email}</span>, using{' '}
+              <span className="text-ink">{phase.social}</span> to confirm it's you.
             </p>
             <div className="mt-6 space-y-3">
-              <PrimaryButton full onClick={() => submitRequest(phase.email, phase.note)}>
+              <PrimaryButton
+                full
+                onClick={() => submitRequest(phase.email, phase.social, phase.note)}
+              >
                 Send request
               </PrimaryButton>
               <button onClick={reset} className="w-full py-2 text-[14px] text-muted">

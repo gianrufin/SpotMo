@@ -507,8 +507,8 @@ export default function App() {
                   onSignOut={() => confirmSignOut(handleSignOut)}
                   onRequestNow={
                     organizerAccessState === 'not-requested'
-                      ? async () => {
-                          const result = await requestOrganizerAccess(auth.email!);
+                      ? async (social: string) => {
+                          const result = await requestOrganizerAccess(auth.email!, social);
                           if (result.ok) await myProfile.refresh();
                           return result;
                         }

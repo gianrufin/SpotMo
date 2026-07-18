@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Clock, ShieldAlert, Store } from 'lucide-react';
+import { ArrowLeft, Clock, ShieldAlert, Store, Instagram } from 'lucide-react';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 
 interface OrganizerStatusScreenProps {
@@ -7,8 +7,9 @@ interface OrganizerStatusScreenProps {
   email: string | null;
   onBack: () => void;
   onSignOut: () => void;
-  /** Only provided for 'not-requested' — submits a request for the signed-in email. */
-  onRequestNow?: () => Promise<{ ok: boolean; error?: string }>;
+  /** Only provided for 'not-requested' — submits a request for the signed-in
+   * email, plus a required social link (see RequestAccess for why). */
+  onRequestNow?: (social: string) => Promise<{ ok: boolean; error?: string }>;
 }
 
 const COPY = {
@@ -39,13 +40,19 @@ export function OrganizerStatusScreen({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const [social, setSocial] = useState('');
   const { icon: Icon, title, message } = COPY[status];
 
   async function handleRequest() {
     if (!onRequestNow) return;
+    const trimmed = social.trim();
+    if (!trimmed || /\s/.test(trimmed)) {
+      setError('Add a link (or @handle) to your Instagram or Facebook page.');
+      return;
+    }
     setBusy(true);
     setError('');
-    const result = await onRequestNow();
+    const result = await onRequestNow(trimmed);
     setBusy(false);
     if (result.ok) setSent(true);
     else setError(result.error ?? 'Something went wrong.');
@@ -78,6 +85,20 @@ export function OrganizerStatusScreen({
               ? `${message} (${email})`
               : message}
         </p>
+        {status === 'not-requested' && !sent && (
+          <label className="mt-5 block w-full max-w-xs text-left">
+            <span className="mb-1.5 flex items-center gap-1.5 text-[12.5px] text-muted">
+              <Instagram size={13} strokeWidth={1.9} /> Instagram or Facebook link
+            </span>
+            <input
+              autoCapitalize="none"
+              value={social}
+              onChange={(e) => setSocial(e.target.value)}
+              placeholder="instagram.com/yourpage or @yourhandle"
+              className="input"
+            />
+          </label>
+        )}
         {error && <p className="mt-2 text-[13px] text-red-500">{error}</p>}
 
         <div className="mt-6 w-full max-w-xs space-y-3">

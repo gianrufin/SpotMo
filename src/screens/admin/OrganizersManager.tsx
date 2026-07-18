@@ -11,12 +11,14 @@ import {
   AlertCircle,
   ShieldPlus,
   ShieldMinus,
+  Instagram,
 } from 'lucide-react';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { SegmentedTabs } from '../../components/common/SegmentedTabs';
 import { EmptyState } from '../../components/common/EmptyState';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import type { OrganizerRow } from '../../lib/organizerTypes';
+import { toSocialHref } from '../../lib/organizerAccess';
 
 type Result = { ok: boolean; error?: string };
 
@@ -183,6 +185,18 @@ export function OrganizersManager({
                       <p className="truncate text-[13px] text-muted">
                         {o.org_name || 'No name set yet'}
                       </p>
+                    )}
+                    {o.instagram_url && (
+                      <a
+                        href={toSocialHref(o.instagram_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-brand"
+                      >
+                        <Instagram size={13} strokeWidth={1.9} className="shrink-0" />
+                        <span className="truncate">{o.instagram_url}</span>
+                      </a>
                     )}
                     {o.request_note && (
                       <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">
