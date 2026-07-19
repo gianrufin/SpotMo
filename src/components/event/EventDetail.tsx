@@ -11,6 +11,7 @@ import {
   ExternalLink,
   Check,
   Clock,
+  Eye,
 } from 'lucide-react';
 import type { SpotEvent } from '../../types';
 import { PosterImage } from '../common/PosterImage';
@@ -122,6 +123,14 @@ export function EventDetail({
           <h1 className="font-title text-[38px] leading-[1.05] text-white drop-shadow-sm">
             {event.title}
           </h1>
+          <div className="mt-2 flex items-center gap-3 text-[12.5px] text-white/85">
+            <span className="flex items-center gap-1">
+              <Eye size={13} strokeWidth={1.9} /> {event.viewCount ?? 0} views
+            </span>
+            <span className="flex items-center gap-1">
+              <Heart size={13} strokeWidth={1.9} /> {event.saveCount ?? 0} saved
+            </span>
+          </div>
         </div>
       </div>
 
