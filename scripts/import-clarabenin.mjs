@@ -52,16 +52,45 @@ function isFreeEvent(ticketing) {
   return !value;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Wix's CDN appears to rate-limit/soft-block datacenter IPs (observed: the
+// connection gets cut mid-response after ~40KB of an ~860KB page, rather
+// than an outright refusal) — GitHub Actions runner IPs are a well-known
+// range for this kind of throttling. A full browser-like header set plus a
+// short retry loop is enough to get through in practice.
+async function fetchPage(url, attempts = 4) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      if (html.length < 100_000) throw new Error(`Suspiciously short response (${html.length} bytes) — likely truncated by a CDN block`);
+      return html;
+    } catch (err) {
+      lastErr = err;
+      console.warn(`Fetch attempt ${i + 1}/${attempts} failed: ${err.message}`);
+      if (i < attempts - 1) await sleep(2000 * (i + 1));
+    }
+  }
+  throw lastErr;
+}
+
 async function main() {
   console.log(dryRun ? '[dry-run] no SUPABASE_SERVICE_ROLE_KEY set — parsing only, no writes' : 'live run — will upsert to Supabase');
 
-  const res = await fetch(PAGE_URL, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; SpotMo-EventImporter/1.0; +https://gianrufin.github.io/SpotMo/)',
-    },
-  });
-  if (!res.ok) throw new Error(`Failed to fetch page: HTTP ${res.status}`);
-  const html = await res.text();
+  const html = await fetchPage(PAGE_URL);
+  console.log(`Fetched page: ${html.length} bytes`);
 
   const dataMatch = /<script type="application\/json" id="wix-warmup-data">([\s\S]*?)<\/script>/.exec(html);
   if (!dataMatch) throw new Error('Could not find wix-warmup-data on the page — page structure may have changed.');
