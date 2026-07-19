@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, Check } from 'lucide-react';
+import { X, Check, ImagePlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Submission, SpotEvent, Category } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
+import { PosterCropper } from '../../components/common/PosterCropper';
 import { VenueAutocomplete } from '../../components/common/VenueAutocomplete';
 import { LocationPicker } from '../../components/common/LocationPicker';
 import { CATEGORIES } from '../../data/categories';
@@ -27,6 +28,8 @@ function toTimeInput(iso: string) {
 }
 
 export function EditSubmission({ submission, dark, onCancel, onSave }: EditSubmissionProps) {
+  const [posterUrl, setPosterUrl] = useState(submission.posterUrl);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [title, setTitle] = useState(submission.title);
   const [category, setCategory] = useState<Category>(submission.category);
   const [venue, setVenue] = useState(submission.venue);
@@ -43,10 +46,22 @@ export function EditSubmission({ submission, dark, onCancel, onSave }: EditSubmi
   const [ticketUrl, setTicketUrl] = useState(submission.ticketUrl ?? '');
   const [description, setDescription] = useState(submission.description);
 
+  function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setCropSrc(reader.result);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  }
+
   function handleSave() {
     const startsAt = new Date(`${date}T${time || '19:00'}`).toISOString();
     const isFree = !price.trim() || /free/i.test(price);
     onSave({
+      posterUrl,
       title: title.trim() || submission.title,
       category,
       venue: venue.trim(),
@@ -83,6 +98,30 @@ export function EditSubmission({ submission, dark, onCancel, onSave }: EditSubmi
       </header>
 
       <div className="flex-1 space-y-4 overflow-y-auto px-5 pb-28 pt-4">
+        <Field label="Poster">
+          <div className="relative aspect-[3/4] max-h-[38vh] w-full">
+            <label className="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-hairline bg-surface">
+              <img src={posterUrl} alt="Poster preview" className="h-full w-full object-cover" />
+              <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+            </label>
+            <div className="absolute bottom-3 right-3 flex items-center gap-2">
+              {posterUrl.startsWith('data:') && (
+                <button
+                  onClick={() => setCropSrc(posterUrl)}
+                  className="rounded-full bg-ink/85 px-3.5 py-2 text-[12.5px] text-onink backdrop-blur"
+                >
+                  Adjust crop
+                </button>
+              )}
+              <label className="flex cursor-pointer items-center gap-1.5 rounded-full bg-ink/85 px-3.5 py-2 text-[12.5px] text-onink backdrop-blur">
+                <ImagePlus size={13} strokeWidth={1.9} />
+                Change poster
+                <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+              </label>
+            </div>
+          </div>
+        </Field>
+
         <Field label="Event title">
           <input value={title} onChange={(e) => setTitle(e.target.value)} className="input" />
         </Field>
@@ -188,6 +227,17 @@ export function EditSubmission({ submission, dark, onCancel, onSave }: EditSubmi
           Save changes
         </PrimaryButton>
       </div>
+
+      {cropSrc && (
+        <PosterCropper
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onConfirm={(dataUrl) => {
+            setPosterUrl(dataUrl);
+            setCropSrc(null);
+          }}
+        />
+      )}
     </motion.div>
   );
 }

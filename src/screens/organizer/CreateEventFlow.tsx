@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import type { Category, SpotEvent } from '../../types';
 import { PrimaryButton } from '../../components/common/PrimaryButton';
+import { PosterCropper } from '../../components/common/PosterCropper';
 import { Logo } from '../../components/common/Logo';
 import { VenueAutocomplete } from '../../components/common/VenueAutocomplete';
 import { LocationPicker } from '../../components/common/LocationPicker';
@@ -65,6 +66,7 @@ export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowPro
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [focusToken, setFocusToken] = useState(0);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
@@ -74,12 +76,14 @@ export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowPro
     const file = e.target.files?.[0];
     if (!file) return;
     // Read as a data URL (base64) so the poster persists in localStorage and
-    // stays on the event — a blob: URL would be revoked after reload.
+    // stays on the event — a blob: URL would be revoked after reload. Goes
+    // through the cropper before it becomes the actual poster.
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === 'string') set('poster', reader.result);
+      if (typeof reader.result === 'string') setCropSrc(reader.result);
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
   }
 
   const canNext1 = !!draft.poster;
@@ -176,26 +180,36 @@ export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowPro
               A striking poster is the heart of your listing.
             </p>
 
-            <label className="mt-5 flex aspect-[3/4] max-h-[46vh] w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-hairline bg-surface">
-              {draft.poster ? (
-                <img
-                  src={draft.poster}
-                  alt="Poster preview"
-                  className="h-full w-full object-cover"
+            <div className="relative mt-5 aspect-[3/4] max-h-[46vh] w-full">
+              <label className="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-hairline bg-surface">
+                {draft.poster ? (
+                  <img
+                    src={draft.poster}
+                    alt="Poster preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-muted">
+                    <ImagePlus size={34} strokeWidth={1.5} />
+                    <span className="text-[13px]">Tap to upload (JPG / PNG)</span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleUpload}
                 />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-muted">
-                  <ImagePlus size={34} strokeWidth={1.5} />
-                  <span className="text-[13px]">Tap to upload (JPG / PNG)</span>
-                </div>
+              </label>
+              {draft.poster?.startsWith('data:') && (
+                <button
+                  onClick={() => setCropSrc(draft.poster)}
+                  className="absolute bottom-3 right-3 rounded-full bg-ink/85 px-3.5 py-2 text-[12.5px] text-onink backdrop-blur"
+                >
+                  Adjust crop
+                </button>
               )}
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleUpload}
-              />
-            </label>
+            </div>
 
             <p className="mt-4 mb-2 text-[12px] text-muted">Or pick a sample poster</p>
             <div className="grid grid-cols-4 gap-2">
@@ -406,6 +420,17 @@ export function CreateEventFlow({ onCancel, onSubmit, dark }: CreateEventFlowPro
         <div className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 opacity-0">
           <Logo size={20} />
         </div>
+      )}
+
+      {cropSrc && (
+        <PosterCropper
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onConfirm={(dataUrl) => {
+            set('poster', dataUrl);
+            setCropSrc(null);
+          }}
+        />
       )}
     </div>
   );
