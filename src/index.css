@@ -5,20 +5,40 @@
 @tailwind utilities;
 
 @layer base {
+  /* "Tokyo Neon" — Material 3 tonal color system. Light uses deepened tones
+     of each hue for contrast on white; dark uses the vivid, glowing tones
+     that match the logo mark directly. Same hue family (cyan/blue/rose) in
+     both, per Material's own light/dark tonal-palette convention. */
   :root {
-    --brand: #2f7d5a;
+    --brand: #0b6f73;
     /* Light theme tokens (space-separated RGB for Tailwind alpha support) */
     --c-bg: 255 255 255;
     --c-card: 255 255 255;
-    --c-surface: 241 245 249;
-    --c-fg: 17 24 39;
+    --c-surface: 241 237 249;
+    --c-fg: 28 22 38;
     --c-on-fg: 255 255 255;
-    --c-muted: 107 114 128;
-    --c-line: 229 231 235;
-    --c-brand-soft: 236 253 245;
-    --c-brand-soft-fg: 4 120 87;
+    --c-muted: 79 71 96;
+    --c-line: 224 216 236;
+
+    --c-primary: 11 111 115; /* #0B6F73 deep teal */
+    --c-on-primary: 255 255 255;
+    --c-brand-soft: 182 240 241; /* #B6F0F1 primary-container */
+    --c-brand-soft-fg: 0 32 34; /* #002022 on-primary-container */
+
+    --c-secondary: 69 86 158; /* #45569E */
+    --c-on-secondary: 255 255 255;
+    --c-secondary-container: 220 225 255; /* #DCE1FF */
+    --c-on-secondary-container: 19 26 61; /* #131A3D */
+
+    --c-tertiary: 154 47 73; /* #9A2F49 */
+    --c-on-tertiary: 255 255 255;
+    --c-tertiary-container: 255 217 224; /* #FFD9E0 */
+    --c-on-tertiary-container: 64 0 18; /* #400012 */
+
+    --c-error: 186 26 26; /* #BA1A1A */
+
     /* frame + glass */
-    --c-frame: 233 237 241;
+    --c-frame: 237 233 247;
     --glass-bg: 255 255 255;
     --glass-alpha: 0.72;
     --glass-border: 255 255 255;
@@ -27,17 +47,33 @@
   }
 
   .dark {
-    --c-bg: 15 19 24;
-    --c-card: 25 30 38;
-    --c-surface: 33 39 49;
-    --c-fg: 236 240 245;
-    --c-on-fg: 15 19 24;
-    --c-muted: 151 162 176;
-    --c-line: 47 55 68;
-    --c-brand-soft: 6 43 33;
-    --c-brand-soft-fg: 110 231 183;
-    --c-frame: 8 10 13;
-    --glass-bg: 25 30 38;
+    --c-bg: 20 16 30;
+    --c-card: 47 37 64;
+    --c-surface: 39 30 51;
+    --c-fg: 236 233 245;
+    --c-on-fg: 20 16 30;
+    --c-muted: 172 163 194;
+    --c-line: 73 62 89;
+
+    --c-primary: 46 246 246; /* #2EF6F6 neon cyan — matches the logo mark */
+    --c-on-primary: 6 40 42;
+    --c-brand-soft: 11 69 72; /* primary-container */
+    --c-brand-soft-fg: 125 251 252;
+
+    --c-secondary: 124 143 224; /* #7C8FE0 */
+    --c-on-secondary: 15 23 48;
+    --c-secondary-container: 48 63 122;
+    --c-on-secondary-container: 199 208 255;
+
+    --c-tertiary: 255 107 138; /* #FF6B8A — matches the logo's red dot family */
+    --c-on-tertiary: 58 7 22;
+    --c-tertiary-container: 122 36 56;
+    --c-on-tertiary-container: 255 217 224;
+
+    --c-error: 255 84 73;
+
+    --c-frame: 15 12 22;
+    --glass-bg: 47 37 64;
     --glass-alpha: 0.72;
     --glass-border: 255 255 255;
     --glass-border-alpha: 0.08;
@@ -109,6 +145,22 @@
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Material ripple: the parent needs position:relative + overflow:hidden
+     (see .ripple-host); useRipple() spawns one .ripple-dot per press at the
+     pointer coordinates. */
+  .ripple-host {
+    position: relative;
+    overflow: hidden;
+  }
+  .ripple-dot {
+    position: absolute;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0;
+    pointer-events: none;
+    transform-origin: center;
   }
 
   /* Hide scrollbars for horizontal chip rows */

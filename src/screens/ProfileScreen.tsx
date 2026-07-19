@@ -96,7 +96,7 @@ export function ProfileScreen({
 
       <div className="flex-1 overflow-y-auto px-5 pb-28">
         {/* Guest card — fixed premium dark gradient (same in both themes) */}
-        <div className="mt-3 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-[#1b2431] to-[#0e1520] p-5 text-white shadow-card ring-1 ring-white/5">
+        <div className="mt-3 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-[#2A2140] to-[#14101E] p-5 text-white shadow-card ring-1 ring-white/5">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-2xl">
             🎧
           </div>

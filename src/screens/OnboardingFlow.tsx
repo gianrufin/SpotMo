@@ -119,12 +119,12 @@ function WelcomeStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => voi
             </div>
           </div>
           <motion.span
-            className="absolute -right-1 top-4 h-4 w-4 rounded-full bg-brand-300"
+            className="absolute -right-1 top-4 h-4 w-4 rounded-full bg-secondary/70"
             animate={{ y: [0, -8, 0] }}
             transition={{ repeat: Infinity, duration: 2.4 }}
           />
           <motion.span
-            className="absolute -left-2 bottom-6 h-3 w-3 rounded-full bg-brand-200"
+            className="absolute -left-2 bottom-6 h-3 w-3 rounded-full bg-tertiary/60"
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, duration: 2.8 }}
           />
@@ -233,7 +233,7 @@ function LocationStep({
           className="mb-10 flex h-40 w-40 items-center justify-center rounded-full bg-brandsoft"
         >
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-card shadow-float">
-            <Navigation size={40} className="text-brand" fill="#2F7D5A" strokeWidth={1.2} />
+            <Navigation size={40} className="text-brand" fill="currentColor" strokeWidth={1.2} />
           </div>
         </motion.div>
 

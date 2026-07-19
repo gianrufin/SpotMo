@@ -10,6 +10,7 @@ import { PlaceSearchResults } from '../components/map/PlaceSearchResults';
 import { EventSearchResults } from '../components/map/EventSearchResults';
 import { VenueLineupSheet } from '../components/map/VenueLineupSheet';
 import { Chip } from '../components/common/Chip';
+import { Fab } from '../components/common/Fab';
 import { Logo } from '../components/common/Logo';
 
 interface MapScreenProps {
@@ -156,15 +157,11 @@ export function MapScreen(props: MapScreenProps) {
         </div>
       </div>
 
-      {/* Locate button (right rail) */}
+      {/* Locate FAB (right rail) */}
       <div className="absolute bottom-[104px] right-4 z-20 flex flex-col gap-2.5">
-        <button
-          onClick={onLocate}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-onink shadow-card transition active:scale-90"
-          aria-label="Find my location"
-        >
-          <LocateFixed size={20} strokeWidth={1.9} />
-        </button>
+        <Fab onClick={onLocate} aria-label="Find my location">
+          <LocateFixed size={22} strokeWidth={1.9} />
+        </Fab>
       </div>
 
       {/* Empty state: nothing posted yet vs. filters matching nothing */}

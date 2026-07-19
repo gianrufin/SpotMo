@@ -1,4 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { useRipple } from '../../lib/useRipple';
+import { RippleLayer } from './RippleLayer';
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -17,14 +19,22 @@ export function IconButton({
   variant = 'glass',
   size = 44,
   className = '',
+  onPointerDown,
   ...rest
 }: IconButtonProps) {
+  const { ripples, onPointerDown: fireRipple } = useRipple();
+
   return (
     <button
       {...rest}
+      onPointerDown={(e) => {
+        fireRipple(e);
+        onPointerDown?.(e);
+      }}
       style={{ width: size, height: size }}
-      className={`inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-[0.94] ${VARIANTS[variant]} ${className}`}
+      className={`ripple-host relative inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-[0.94] ${VARIANTS[variant]} ${className}`}
     >
+      <RippleLayer ripples={ripples} />
       {children}
     </button>
   );

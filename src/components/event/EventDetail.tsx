@@ -98,7 +98,7 @@ export function EventDetail({
                 size={19}
                 strokeWidth={1.9}
                 className={saved ? 'text-brand' : 'text-[#111827]'}
-                fill={saved ? '#2F7D5A' : 'none'}
+                fill={saved ? 'currentColor' : 'none'}
               />
             </button>
           </div>
@@ -263,7 +263,7 @@ export function EventDetail({
                     className="h-full w-full object-cover"
                     onError={(e) => {
                       (e.currentTarget.parentElement as HTMLElement).style.background =
-                        '#e8f5ef';
+                        '#7A6F94';
                       e.currentTarget.style.display = 'none';
                     }}
                   />
@@ -296,7 +296,7 @@ export function EventDetail({
             }`}
             aria-label={saved ? 'Saved' : 'Save event'}
           >
-            <Heart size={22} strokeWidth={1.9} fill={saved ? '#2F7D5A' : 'none'} />
+            <Heart size={22} strokeWidth={1.9} fill={saved ? 'currentColor' : 'none'} />
           </button>
 
           <a href={directionsUrl(event)} target="_blank" rel="noreferrer" className="flex-1">

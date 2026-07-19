@@ -16,7 +16,7 @@ export function QrCode({ value, size = 200, className = '' }: QrCodeProps) {
     QRCode.toDataURL(value, {
       width: size,
       margin: 1,
-      color: { dark: '#141B18', light: '#FBFAF7' },
+      color: { dark: '#14101E', light: '#FBFAF7' },
     })
       .then((url) => {
         if (!cancelled) setDataUrl(url);

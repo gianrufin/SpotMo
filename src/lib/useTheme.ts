@@ -32,7 +32,7 @@ export function useTheme() {
     const root = document.documentElement;
     root.classList.toggle('dark', isDark);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', isDark ? '#0F1318' : '#2F7D5A');
+    if (meta) meta.setAttribute('content', isDark ? '#14101E' : '#0B6F73');
   }, [isDark]);
 
   const cycle = useCallback(() => {
