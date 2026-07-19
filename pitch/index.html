@@ -69,7 +69,6 @@
   }
   .lede { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: rgb(var(--muted)); max-width: 62ch; font-weight: 300; }
   a { color: inherit; }
-  .pin-icon { flex-shrink: 0; }
 
   /* ---------- Nav dots ---------- */
   .railnav { position: fixed; right: clamp(10px, 2.5vw, 28px); top: 50%; transform: translateY(-50%); z-index: 50; display: flex; flex-direction: column; gap: 12px; }
@@ -88,7 +87,6 @@
   /* ---------- Cover ---------- */
   .cover { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding-top: clamp(60px, 10vh, 100px); padding-bottom: clamp(40px, 8vh, 80px); }
   .cover .mark { display: flex; align-items: center; gap: 10px; margin-bottom: clamp(28px, 6vh, 56px); }
-  .cover .mark .tile { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 16px; background: rgb(var(--card)); box-shadow: var(--shadow-soft); }
   .cover .mark span { font-family: var(--font-sans); font-weight: 700; font-size: 1.25rem; letter-spacing: -0.01em; }
   .cover h1 { font-size: clamp(2.6rem, 7.4vw, 5.4rem); line-height: 1.06; letter-spacing: -0.02em; max-width: 16ch; }
   .cover h1 .serifline { display: block; color: var(--brand); }
@@ -233,14 +231,7 @@
 <section class="cover" id="s-cover">
   <div class="wrap" style="position:relative;">
     <div class="mark">
-      <span class="tile">
-        <svg width="22" height="22" viewBox="0 0 64 64" fill="none" class="pin-icon" aria-hidden="true">
-          <path d="M35 16.5C31.5 13 26.5 13 23 16.5C19.5 20 19.5 25.5 23 29.5C25.5 32.3 29 36.5 32 40.5C35 36.5 38.5 32.3 41 29.5C41.7 28.7 42.3 27.9 42.8 27.1" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M35 15L47 13.5L45.5 25.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M47 13.5L32 40.5L26.5 34.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="29" cy="24" r="5" fill="#E63462"/>
-        </svg>
-      </span>
+      <img src="../app-icon.png" width="40" height="40" alt="" aria-hidden="true" style="border-radius:16px" />
       <span>SpotMo</span>
     </div>
     <p class="eyebrow">For organizers, artists, venues &amp; collectives</p>
