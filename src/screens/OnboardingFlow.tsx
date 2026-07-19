@@ -114,9 +114,7 @@ function WelcomeStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => voi
           className="relative mb-10"
         >
           <div className="flex h-40 w-40 items-center justify-center rounded-full bg-brandsoft">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-card shadow-float">
-              <AppIconGlyph size={52} />
-            </div>
+            <AppIconGlyph size={88} />
           </div>
           <motion.span
             className="absolute -right-1 top-4 h-4 w-4 rounded-full bg-secondary/70"
