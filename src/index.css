@@ -189,8 +189,12 @@
 }
 
 .spotmo-pin-poster img {
-  width: 100%;
-  height: 100%;
+  /* !important beats Leaflet's own .leaflet-marker-pane img rule (higher
+     specificity, sets width: auto), which otherwise shrinks a
+     non-square poster to its intrinsic aspect ratio instead of filling
+     this square box — undermining object-fit: cover below. */
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover;
   display: block;
 }
