@@ -6,39 +6,39 @@
 <style>
   :root {
     /* Exact SpotMo app tokens (light) */
-    --ink: 17 24 39; --onink: 255 255 255; --muted: 107 114 128; --line: 229 231 235;
-    --bg: 255 255 255; --surface: 241 245 249; --card: 255 255 255;
-    --brand: #2f7d5a; --brandsoft: 236 253 245; --brandsoftfg: 4 120 87;
+    --ink: 28 22 38; --onink: 255 255 255; --muted: 79 71 96; --line: 224 216 236;
+    --bg: 255 255 255; --surface: 241 237 249; --card: 255 255 255;
+    --brand: #0b6f73; --onbrand: 255 255 255; --brandsoft: 182 240 241; --brandsoftfg: 0 32 34;
     --glass-bg: 255 255 255; --glass-alpha: 0.72; --glass-border: 255 255 255; --glass-border-alpha: 0.6;
     --shadow-soft: 0 4px 24px -8px rgba(17,24,39,0.12);
     --shadow-card: 0 8px 30px -12px rgba(17,24,39,0.18);
     --shadow-float: 0 12px 40px -12px rgba(17,24,39,0.25);
 
-    --c-music-a: #2F7D5A; --c-music-b: #1f5540;
+    --c-music-a: #2EF6F6; --c-music-b: #0B4548;
     --c-art-a: #6366f1; --c-art-b: #a855f7;
     --c-comedy-a: #f59e0b; --c-comedy-b: #ef4444;
     --c-market-a: #14b8a6; --c-market-b: #0ea5e9;
-    --c-community-a: #2F7D5A; --c-community-b: #256A4C;
+    --c-community-a: #7C8FE0; --c-community-b: #303F7A;
     --c-food-a: #f97316; --c-food-b: #dc2626;
 
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-title: 'Instrument Serif', Georgia, serif;
   }
   :root[data-theme="dark"] {
-    --ink: 236 240 245; --onink: 15 19 24; --muted: 151 162 176; --line: 47 55 68;
-    --bg: 15 19 24; --surface: 33 39 49; --card: 25 30 38;
-    --brandsoft: 6 43 33; --brandsoftfg: 110 231 183;
-    --glass-bg: 25 30 38; --glass-border-alpha: 0.08;
+    --ink: 236 233 245; --onink: 20 16 30; --muted: 172 163 194; --line: 73 62 89;
+    --bg: 20 16 30; --surface: 39 30 51; --card: 47 37 64;
+    --brand: #2EF6F6; --onbrand: 6 40 42; --brandsoft: 11 69 72; --brandsoftfg: 125 251 252;
+    --glass-bg: 47 37 64; --glass-border-alpha: 0.08;
     --shadow-soft: 0 4px 24px -8px rgba(0,0,0,0.35);
     --shadow-card: 0 8px 30px -12px rgba(0,0,0,0.45);
     --shadow-float: 0 12px 40px -12px rgba(0,0,0,0.55);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ink: 236 240 245; --onink: 15 19 24; --muted: 151 162 176; --line: 47 55 68;
-      --bg: 15 19 24; --surface: 33 39 49; --card: 25 30 38;
-      --brandsoft: 6 43 33; --brandsoftfg: 110 231 183;
-      --glass-bg: 25 30 38; --glass-border-alpha: 0.08;
+      --ink: 236 233 245; --onink: 20 16 30; --muted: 172 163 194; --line: 73 62 89;
+      --bg: 20 16 30; --surface: 39 30 51; --card: 47 37 64;
+      --brand: #2EF6F6; --onbrand: 6 40 42; --brandsoft: 11 69 72; --brandsoftfg: 125 251 252;
+      --glass-bg: 47 37 64; --glass-border-alpha: 0.08;
       --shadow-soft: 0 4px 24px -8px rgba(0,0,0,0.35);
       --shadow-card: 0 8px 30px -12px rgba(0,0,0,0.45);
       --shadow-float: 0 12px 40px -12px rgba(0,0,0,0.55);
@@ -207,7 +207,7 @@
   .ctacard p { font-size: 0.85rem; color: rgb(var(--muted)); margin-top: 6px; font-weight: 300; }
   .ctabtn {
     margin-top: 16px; font-family: var(--font-sans); font-size: 0.92rem; font-weight: 500;
-    background: var(--brand); color: #fff; padding: 14px 18px; border-radius: 999px; text-decoration: none;
+    background: var(--brand); color: rgb(var(--onbrand)); padding: 14px 18px; border-radius: 999px; text-decoration: none;
     display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: var(--shadow-soft);
   }
   .closelinks { margin-top: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 0.76rem; color: rgb(var(--muted)); font-weight: 300; }
@@ -233,9 +233,10 @@
     <div class="brandrow">
       <div class="mark">
         <svg width="16" height="16" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-          <path d="M26 8c-7.732 0-14 6.02-14 13.44C12 31.2 26 48 26 48s14-16.8 14-26.56C40 14.02 33.732 8 26 8Z" fill="#2F7D5A"/>
-          <circle cx="26" cy="21.5" r="5.2" fill="#FBFAF7"/>
-          <g transform="translate(29 28) scale(0.85)"><path d="M3 11l19-9-9 19-2-8-8-2z" fill="#141B18"/></g>
+          <path d="M35 16.5C31.5 13 26.5 13 23 16.5C19.5 20 19.5 25.5 23 29.5C25.5 32.3 29 36.5 32 40.5C35 36.5 38.5 32.3 41 29.5C41.7 28.7 42.3 27.9 42.8 27.1" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M35 15L47 13.5L45.5 25.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M47 13.5L32 40.5L26.5 34.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="29" cy="24" r="5" fill="#E63462"/>
         </svg>
         <span>SpotMo</span>
       </div>
@@ -249,9 +250,10 @@
 <div class="slidebody">      <div class="cover-mark">
         <span class="tile">
           <svg width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-            <path d="M26 8c-7.732 0-14 6.02-14 13.44C12 31.2 26 48 26 48s14-16.8 14-26.56C40 14.02 33.732 8 26 8Z" fill="#2F7D5A"/>
-            <circle cx="26" cy="21.5" r="5.2" fill="#FBFAF7"/>
-            <g transform="translate(29 28) scale(0.85)"><path d="M3 11l19-9-9 19-2-8-8-2z" fill="#141B18"/></g>
+            <path d="M35 16.5C31.5 13 26.5 13 23 16.5C19.5 20 19.5 25.5 23 29.5C25.5 32.3 29 36.5 32 40.5C35 36.5 38.5 32.3 41 29.5C41.7 28.7 42.3 27.9 42.8 27.1" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M35 15L47 13.5L45.5 25.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M47 13.5L32 40.5L26.5 34.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="29" cy="24" r="5" fill="#E63462"/>
           </svg>
         </span>
         <span>SpotMo</span>

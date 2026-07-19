@@ -5,34 +5,35 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: 17 24 39; --onink: 255 255 255; --muted: 107 114 128; --line: 229 231 235;
-    --bg: 255 255 255; --frame: 233 237 241; --surface: 241 245 249; --card: 255 255 255;
-    --brand: #2f7d5a; --brandsoft: 236 253 245; --brandsoftfg: 4 120 87;
+    /* "Tokyo Neon" palette — deep teal in light mode, neon cyan in dark */
+    --ink: 28 22 38; --onink: 255 255 255; --muted: 79 71 96; --line: 224 216 236;
+    --bg: 255 255 255; --frame: 237 233 247; --surface: 241 237 249; --card: 255 255 255;
+    --brand: #0b6f73; --onbrand: 255 255 255; --brandsoft: 182 240 241; --brandsoftfg: 0 32 34;
     --glass-bg: 255 255 255; --glass-alpha: 0.72; --glass-border: 255 255 255; --glass-border-alpha: 0.6;
     --shadow-soft: 0 4px 24px -8px rgba(17,24,39,0.12);
     --shadow-card: 0 8px 30px -12px rgba(17,24,39,0.18);
     --shadow-float: 0 12px 40px -12px rgba(17,24,39,0.25);
-    --c-music-a: #2F7D5A; --c-music-b: #1f5540;
-    --c-comedy-a: #B45309; --c-market-a: #1D4ED8;
+    --c-music-a: #2EF6F6; --c-music-b: #0B4548;
+    --c-comedy-a: #E63462; --c-market-a: #7C8FE0;
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-title: 'Instrument Serif', Georgia, serif;
     --wrap: 1080px;
   }
   :root[data-theme="dark"] {
-    --ink: 236 240 245; --onink: 15 19 24; --muted: 151 162 176; --line: 47 55 68;
-    --bg: 15 19 24; --frame: 8 10 13; --surface: 33 39 49; --card: 25 30 38;
-    --brandsoft: 6 43 33; --brandsoftfg: 110 231 183;
-    --glass-bg: 25 30 38; --glass-border-alpha: 0.08;
+    --ink: 236 233 245; --onink: 20 16 30; --muted: 172 163 194; --line: 73 62 89;
+    --bg: 20 16 30; --frame: 15 12 22; --surface: 39 30 51; --card: 47 37 64;
+    --brand: #2EF6F6; --onbrand: 6 40 42; --brandsoft: 11 69 72; --brandsoftfg: 125 251 252;
+    --glass-bg: 47 37 64; --glass-border-alpha: 0.08;
     --shadow-soft: 0 4px 24px -8px rgba(0,0,0,0.35);
     --shadow-card: 0 8px 30px -12px rgba(0,0,0,0.45);
     --shadow-float: 0 12px 40px -12px rgba(0,0,0,0.55);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --ink: 236 240 245; --onink: 15 19 24; --muted: 151 162 176; --line: 47 55 68;
-      --bg: 15 19 24; --frame: 8 10 13; --surface: 33 39 49; --card: 25 30 38;
-      --brandsoft: 6 43 33; --brandsoftfg: 110 231 183;
-      --glass-bg: 25 30 38; --glass-border-alpha: 0.08;
+      --ink: 236 233 245; --onink: 20 16 30; --muted: 172 163 194; --line: 73 62 89;
+      --bg: 20 16 30; --frame: 15 12 22; --surface: 39 30 51; --card: 47 37 64;
+      --brand: #2EF6F6; --onbrand: 6 40 42; --brandsoft: 11 69 72; --brandsoftfg: 125 251 252;
+      --glass-bg: 47 37 64; --glass-border-alpha: 0.08;
       --shadow-soft: 0 4px 24px -8px rgba(0,0,0,0.35);
       --shadow-card: 0 8px 30px -12px rgba(0,0,0,0.45);
       --shadow-float: 0 12px 40px -12px rgba(0,0,0,0.55);
@@ -69,7 +70,7 @@
   }
   .navbar .mark { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 1.05rem; }
   .navbtn-cta {
-    font-family: var(--font-sans); font-size: 0.88rem; font-weight: 500; background: var(--brand); color: #fff;
+    font-family: var(--font-sans); font-size: 0.88rem; font-weight: 500; background: var(--brand); color: rgb(var(--onbrand));
     padding: 10px 20px; border-radius: 999px; text-decoration: none; box-shadow: var(--shadow-soft);
   }
 
@@ -82,7 +83,7 @@
   .hero .lede { margin-top: 20px; }
   .herobtns { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .ctabtn {
-    font-family: var(--font-sans); font-size: 1rem; font-weight: 500; background: var(--brand); color: #fff;
+    font-family: var(--font-sans); font-size: 1rem; font-weight: 500; background: var(--brand); color: rgb(var(--onbrand));
     padding: 15px 26px; border-radius: 999px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
     box-shadow: var(--shadow-soft);
   }
@@ -115,7 +116,7 @@
     font-size: 0.62rem; font-weight: 500; padding: 5px 10px; border-radius: 999px;
     background: rgb(var(--card) / 0.9); box-shadow: var(--shadow-soft); color: rgb(var(--ink));
   }
-  .mockphone .chiprow span.active { background: var(--brand); color: #fff; }
+  .mockphone .chiprow span.active { background: var(--brand); color: rgb(var(--onbrand)); }
   .pin-teardrop { position: absolute; width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: var(--shadow-soft); z-index: 2; }
   .pin-teardrop::after { content: ''; position: absolute; top: 5px; left: 5px; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.9); }
   .mockphone .posterpeek {
@@ -162,7 +163,7 @@
   .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; counter-reset: step; position: relative; }
   .step { counter-increment: step; padding: 20px 16px 8px 0; position: relative; }
   .step::before {
-    content: counter(step); font-family: var(--font-sans); font-weight: 700; font-size: 0.9rem; color: #fff;
+    content: counter(step); font-family: var(--font-sans); font-weight: 700; font-size: 0.9rem; color: rgb(var(--onbrand));
     display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%;
     background: var(--brand); margin-bottom: 14px;
   }
@@ -186,10 +187,11 @@
 
 <nav class="navbar">
   <div class="mark">
-    <svg width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-      <path d="M26 8c-7.732 0-14 6.02-14 13.44C12 31.2 26 48 26 48s14-16.8 14-26.56C40 14.02 33.732 8 26 8Z" fill="#2F7D5A"/>
-      <circle cx="26" cy="21.5" r="5.2" fill="#FBFAF7"/>
-      <g transform="translate(29 28) scale(0.85)"><path d="M3 11l19-9-9 19-2-8-8-2z" fill="#141B18"/></g>
+    <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <path d="M35 16.5C31.5 13 26.5 13 23 16.5C19.5 20 19.5 25.5 23 29.5C25.5 32.3 29 36.5 32 40.5C35 36.5 38.5 32.3 41 29.5C41.7 28.7 42.3 27.9 42.8 27.1" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M35 15L47 13.5L45.5 25.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M47 13.5L32 40.5L26.5 34.5" stroke="#2EF6F6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="29" cy="24" r="5" fill="#E63462"/>
     </svg>
     <span>SpotMo</span>
   </div>
