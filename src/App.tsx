@@ -105,6 +105,16 @@ export default function App() {
     local.update(id, patch);
     return { ok: true };
   }
+  async function bulkSetStatus(ids: string[], status: EventStatus): Promise<MutationResult> {
+    if (remoteMode) return remote.bulkSetStatus(ids, status);
+    local.bulkSetStatus(ids, status);
+    return { ok: true };
+  }
+  async function bulkRemoveEvents(ids: string[]): Promise<MutationResult> {
+    if (remoteMode) return remote.bulkRemove(ids);
+    local.bulkRemove(ids);
+    return { ok: true };
+  }
 
   async function submitEvent(
     event: SpotEvent,
@@ -567,6 +577,8 @@ export default function App() {
                     onSetStatus={setStatus}
                     onRemove={removeEvent}
                     onUpdate={updateEvent}
+                    onBulkSetStatus={bulkSetStatus}
+                    onBulkRemove={bulkRemoveEvents}
                     dark={theme.isDark}
                   />
                 )
@@ -577,6 +589,8 @@ export default function App() {
                   onSetStatus={setStatus}
                   onRemove={removeEvent}
                   onUpdate={updateEvent}
+                  onBulkSetStatus={bulkSetStatus}
+                  onBulkRemove={bulkRemoveEvents}
                   dark={theme.isDark}
                 />
               ) : (

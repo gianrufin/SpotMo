@@ -186,5 +186,27 @@ export function useRemoteEvents(session: Session | null, isAdmin: boolean) {
     [refresh],
   );
 
-  return { approved, mine, all, add, setStatus, remove, update, refresh };
+  const bulkSetStatus = useCallback(
+    async (ids: string[], status: SubmissionStatus): Promise<{ ok: boolean; error?: string }> => {
+      if (!supabase) return { ok: false, error: 'Backend not configured.' };
+      if (ids.length === 0) return { ok: true };
+      const { error } = await supabase.from('events').update({ status }).in('id', ids);
+      await refresh();
+      return error ? { ok: false, error: error.message } : { ok: true };
+    },
+    [refresh],
+  );
+
+  const bulkRemove = useCallback(
+    async (ids: string[]): Promise<{ ok: boolean; error?: string }> => {
+      if (!supabase) return { ok: false, error: 'Backend not configured.' };
+      if (ids.length === 0) return { ok: true };
+      const { error } = await supabase.from('events').delete().in('id', ids);
+      await refresh();
+      return error ? { ok: false, error: error.message } : { ok: true };
+    },
+    [refresh],
+  );
+
+  return { approved, mine, all, add, setStatus, remove, update, bulkSetStatus, bulkRemove, refresh };
 }

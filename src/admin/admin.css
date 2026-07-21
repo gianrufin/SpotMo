@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Same Material 3 "Tokyo Neon" tokens as the main app (src/index.css), minus
+   the mobile-only bits (no leaflet CSS, no fixed/overscroll body lockdown) —
+   this is a normally-scrolling desktop page. */
+@layer base {
+  :root {
+    --c-bg: 255 255 255;
+    --c-card: 255 255 255;
+    --c-surface: 241 237 249;
+    --c-fg: 28 22 38;
+    --c-on-fg: 255 255 255;
+    --c-muted: 79 71 96;
+    --c-line: 224 216 236;
+
+    --c-primary: 11 111 115;
+    --c-on-primary: 255 255 255;
+    --c-brand-soft: 182 240 241;
+    --c-brand-soft-fg: 0 32 34;
+
+    --c-error: 186 26 26;
+    color-scheme: light;
+  }
+
+  .dark {
+    --c-bg: 20 16 30;
+    --c-card: 47 37 64;
+    --c-surface: 39 30 51;
+    --c-fg: 236 233 245;
+    --c-on-fg: 20 16 30;
+    --c-muted: 172 163 194;
+    --c-line: 73 62 89;
+
+    --c-primary: 46 246 246;
+    --c-on-primary: 6 40 42;
+    --c-brand-soft: 11 69 72;
+    --c-brand-soft-fg: 125 251 252;
+
+    --c-error: 255 84 73;
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: rgb(var(--c-fg));
+    background: rgb(var(--c-surface));
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  .input {
+    width: 100%;
+    border-radius: 0.75rem;
+    background: rgb(var(--c-surface));
+    padding: 0.6rem 0.85rem;
+    font-size: 14px;
+    color: rgb(var(--c-fg));
+    border: 1px solid rgb(var(--c-line));
+    transition: border-color 0.15s;
+  }
+  .input::placeholder {
+    color: rgb(var(--c-muted));
+  }
+  .input:focus {
+    outline: none;
+    border-color: rgb(var(--c-primary));
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

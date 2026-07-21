@@ -46,7 +46,25 @@ export function useSubmissions() {
     [setSubmissions],
   );
 
+  const bulkSetStatus = useCallback(
+    (ids: string[], status: SubmissionStatus) => {
+      const idSet = new Set(ids);
+      setSubmissions((prev) =>
+        prev.map((s) => (idSet.has(s.id) ? { ...s, status } : s)),
+      );
+    },
+    [setSubmissions],
+  );
+
+  const bulkRemove = useCallback(
+    (ids: string[]) => {
+      const idSet = new Set(ids);
+      setSubmissions((prev) => prev.filter((s) => !idSet.has(s.id)));
+    },
+    [setSubmissions],
+  );
+
   const approved = submissions.filter((s) => s.status === 'approved');
 
-  return { submissions, approved, add, setStatus, remove, update };
+  return { submissions, approved, add, setStatus, remove, update, bulkSetStatus, bulkRemove };
 }
