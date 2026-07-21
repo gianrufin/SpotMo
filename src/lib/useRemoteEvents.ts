@@ -72,36 +72,56 @@ export function useRemoteEvents(session: Session | null, isAdmin: boolean) {
   const [approved, setApproved] = useState<SpotEvent[]>([]);
   const [mine, setMine] = useState<Submission[]>([]);
   const [all, setAll] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!supabase) return;
-    const { data: appr } = await supabase
+    setLoading(true);
+    let firstError: string | null = null;
+
+    const { data: appr, error: apprError } = await supabase
       .from('events')
       .select('*')
       .eq('status', 'approved')
       .order('starts_at', { ascending: true });
+    if (apprError) {
+      console.error('Failed to load approved events:', apprError);
+      firstError ??= apprError.message;
+    }
     setApproved((appr ?? []).map(rowToEvent));
 
     if (session) {
-      const { data: own } = await supabase
+      const { data: own, error: ownError } = await supabase
         .from('events')
         .select('*')
         .eq('organizer_id', session.user.id)
         .order('created_at', { ascending: false });
+      if (ownError) {
+        console.error('Failed to load your events:', ownError);
+        firstError ??= ownError.message;
+      }
       setMine((own ?? []).map(rowToSubmission));
     } else {
       setMine([]);
     }
 
     if (isAdmin) {
-      const { data: everything } = await supabase
+      const { data: everything, error: allError } = await supabase
         .from('events')
         .select('*')
         .order('created_at', { ascending: false });
+      if (allError) {
+        console.error('Failed to load all events:', allError);
+        firstError ??= allError.message;
+      }
       setAll((everything ?? []).map(rowToSubmission));
     } else {
       setAll([]);
     }
+
+    setLoadError(firstError);
+    setLoading(false);
   }, [session?.user?.id, isAdmin]);
 
   useEffect(() => {
@@ -208,5 +228,18 @@ export function useRemoteEvents(session: Session | null, isAdmin: boolean) {
     [refresh],
   );
 
-  return { approved, mine, all, add, setStatus, remove, update, bulkSetStatus, bulkRemove, refresh };
+  return {
+    approved,
+    mine,
+    all,
+    loading,
+    loadError,
+    add,
+    setStatus,
+    remove,
+    update,
+    bulkSetStatus,
+    bulkRemove,
+    refresh,
+  };
 }

@@ -18,6 +18,11 @@ interface MapScreenProps {
   /** Whether any event exists at all, before filters — lets the empty state
    * tell "nothing posted yet" apart from "your filter matched nothing". */
   hasAnyEvents: boolean;
+  /** Set when the last fetch from the backend failed — shown instead of the
+   * "nothing posted yet" empty state, which otherwise looks identical to a
+   * real empty result and hides a genuine connection/server problem. */
+  loadError?: string | null;
+  onRetryLoad?: () => void;
   filters: EventFilters;
   setFilters: (f: EventFilters) => void;
   selectedId: string | null;
@@ -44,6 +49,8 @@ export function MapScreen(props: MapScreenProps) {
   const {
     events,
     hasAnyEvents,
+    loadError,
+    onRetryLoad,
     filters,
     setFilters,
     selectedId,
@@ -168,7 +175,22 @@ export function MapScreen(props: MapScreenProps) {
       {events.length === 0 && (
         <div className="pointer-events-none absolute inset-x-0 top-1/2 z-20 flex -translate-y-1/2 justify-center px-8">
           <div className="glass pointer-events-auto rounded-3xl px-6 py-5 text-center shadow-card">
-            {hasAnyEvents ? (
+            {loadError ? (
+              <>
+                <p className="font-serif text-xl text-ink">Couldn't load events</p>
+                <p className="mt-1 text-[13px] text-muted">
+                  Check your connection and try again.
+                </p>
+                {onRetryLoad && (
+                  <button
+                    onClick={onRetryLoad}
+                    className="mt-3 rounded-full bg-ink px-4 py-2 text-[13px] text-onink transition active:scale-95"
+                  >
+                    Retry
+                  </button>
+                )}
+              </>
+            ) : hasAnyEvents ? (
               <>
                 <p className="font-serif text-xl text-ink">No events match</p>
                 <p className="mt-1 text-[13px] text-muted">

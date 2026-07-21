@@ -3,6 +3,7 @@ import { X, Check, ImagePlus } from 'lucide-react';
 import type { Submission, SpotEvent, Category } from '../types';
 import { CATEGORIES } from '../data/categories';
 import { PrimaryButton } from '../components/common/PrimaryButton';
+import { PosterCropper } from '../components/common/PosterCropper';
 
 type Result = { ok: boolean; error?: string };
 
@@ -38,6 +39,7 @@ function toTimeInput(iso?: string) {
  * pulls in map or animation libraries. */
 export function EventFormModal({ mode, initial, onCancel, onSubmit }: EventFormModalProps) {
   const [posterUrl, setPosterUrl] = useState(initial?.posterUrl ?? '');
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [title, setTitle] = useState(initial?.title ?? '');
   const [category, setCategory] = useState<Category>(initial?.category ?? 'community');
   const [venue, setVenue] = useState(initial?.venue ?? '');
@@ -69,9 +71,13 @@ export function EventFormModal({ mode, initial, onCancel, onSubmit }: EventFormM
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Route through the cropper rather than storing the raw upload directly —
+    // an uncompressed camera photo can be several MB, and every poster is
+    // stored inline as a data: URL (no object storage yet), so an
+    // uncompressed one bloats every visitor's map load and every admin page.
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === 'string') setPosterUrl(reader.result);
+      if (typeof reader.result === 'string') setCropSrc(reader.result);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -139,11 +145,22 @@ export function EventFormModal({ mode, initial, onCancel, onSubmit }: EventFormM
                     placeholder="https://…"
                     className="input"
                   />
-                  <label className="inline-flex cursor-pointer items-center gap-1.5 text-[12.5px] text-brand">
-                    <ImagePlus size={13} strokeWidth={1.9} />
-                    Upload instead
-                    <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
-                  </label>
+                  <div className="flex items-center gap-3">
+                    <label className="inline-flex cursor-pointer items-center gap-1.5 text-[12.5px] text-brand">
+                      <ImagePlus size={13} strokeWidth={1.9} />
+                      Upload instead
+                      <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+                    </label>
+                    {posterUrl.startsWith('data:') && (
+                      <button
+                        type="button"
+                        onClick={() => setCropSrc(posterUrl)}
+                        className="text-[12.5px] text-brand underline underline-offset-2"
+                      >
+                        Adjust crop
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </Field>
@@ -276,6 +293,17 @@ export function EventFormModal({ mode, initial, onCancel, onSubmit }: EventFormM
           </div>
         </div>
       </div>
+
+      {cropSrc && (
+        <PosterCropper
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onConfirm={(dataUrl) => {
+            setPosterUrl(dataUrl);
+            setCropSrc(null);
+          }}
+        />
+      )}
     </div>
   );
 }

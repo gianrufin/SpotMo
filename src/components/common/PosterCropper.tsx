@@ -93,7 +93,11 @@ export function PosterCropper({ src, onConfirm, onCancel }: PosterCropperProps) 
     const dx = (OUTPUT_W - outW) / 2 + pan.x * exportScale;
     const dy = (OUTPUT_H - outH) / 2 + pan.y * exportScale;
     ctx.drawImage(imgRef.current, dx, dy, outW, outH);
-    onConfirm(canvas.toDataURL('image/jpeg', 0.9));
+    // 0.72 rather than the ~0.9 default: visually near-identical for a
+    // photographic poster but meaningfully smaller, since every uploaded
+    // poster is stored inline as a data: URL (no object storage yet) and gets
+    // fetched by every visitor's map load and every admin queue page.
+    onConfirm(canvas.toDataURL('image/jpeg', 0.72));
   }
 
   return (

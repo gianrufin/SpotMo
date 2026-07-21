@@ -310,6 +310,22 @@ as $$
 $$;
 grant execute on function public.increment_view_count(uuid) to anon, authenticated;
 
+-- 4b) Performance indexes — the events table has no index beyond its primary
+-- key and the external_uid unique constraint, so every query the app makes
+-- (map's "approved" query, an organizer's "mine", the admin's "all") does a
+-- full sequential scan. That was fine with a handful of rows; after the
+-- national-platform importers landed several hundred rows (many with large
+-- inline base64 poster_url values), the same scans started taking multiple
+-- seconds and sometimes hit Postgres's statement_timeout entirely — which
+-- the app silently swallowed as "no events" instead of an error. These
+-- indexes match the app's actual query shapes:
+--   - read approved / map query:      where status = 'approved' order by starts_at
+--   - organizer's "mine" + RLS:       where organizer_id = ...
+--   - admin's "all" query:            order by created_at desc
+create index if not exists events_status_starts_at_idx on public.events (status, starts_at);
+create index if not exists events_organizer_id_idx on public.events (organizer_id);
+create index if not exists events_created_at_idx on public.events (created_at desc);
+
 -- 5) Realtime — so admin approvals / organizer changes show up live for
 --    everyone with the app open, with no manual refresh needed.
 do $$

@@ -384,6 +384,8 @@ export default function App() {
           <MapScreen
             events={mapEvents}
             hasAnyEvents={allEvents.length > 0}
+            loadError={remoteMode ? remote.loadError : null}
+            onRetryLoad={remoteMode ? () => void remote.refresh() : undefined}
             filters={filters}
             setFilters={setFilters}
             selectedId={selectedPinId}
