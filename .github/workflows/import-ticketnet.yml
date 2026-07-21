@@ -1,0 +1,24 @@
+name: Import TicketNet events
+
+on:
+  schedule:
+    - cron: '0 15 * * *' # daily, end of day (11 PM PHT / UTC+8)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/import-ticketnet.mjs
+        env:
+          SUPABASE_URL: https://obdqfvniwblessnmesfj.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
