@@ -100,16 +100,37 @@ function dateOnly(iso) {
 
 // Plain fetch() gets a 403 from this site's WAF (a client-fingerprint
 // heuristic, not a stated bot policy — its robots.txt has no Disallow and
-// its terms don't mention scraping) while curl with the same UA passes
-// cleanly, so shell out to curl for the HTML fetches specifically.
-async function fetchHtml(url) {
+// its terms don't mention scraping) while curl passes cleanly from most
+// networks. GitHub Actions' runner IP ranges get an outright 403 even via
+// curl though (a common WAF heuristic against well-known datacenter/CI IP
+// blocks, same family of issue as the Wix CDN throttling worked around in
+// import-clarabenin.mjs) — a fuller browser-like header set plus a short
+// retry loop is enough in practice.
+async function fetchHtml(url, attempts = 4) {
   const { execFile } = await import('node:child_process');
   const { promisify } = await import('node:util');
   const run = promisify(execFile);
-  const { stdout } = await run('curl', ['-sSL', '-A', UA, '--fail', url], {
-    maxBuffer: 20 * 1024 * 1024,
-  });
-  return stdout;
+  const args = [
+    '-sSL',
+    '--fail',
+    '-H', `User-Agent: ${UA}`,
+    '-H', 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    '-H', 'Accept-Language: en-US,en;q=0.9',
+    '-H', 'Sec-Fetch-Mode: navigate',
+    url,
+  ];
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const { stdout } = await run('curl', args, { maxBuffer: 20 * 1024 * 1024 });
+      return stdout;
+    } catch (err) {
+      lastErr = err;
+      console.warn(`Fetch attempt ${i + 1}/${attempts} for ${url} failed: ${err.message.split('\n')[0]}`);
+      if (i < attempts - 1) await sleep(2500 * (i + 1));
+    }
+  }
+  throw lastErr;
 }
 
 function parseListingCards(html) {
