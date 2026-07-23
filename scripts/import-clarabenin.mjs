@@ -56,6 +56,29 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Stripped to bare alphanumerics (not space-normalized) so trivial formatting
+// differences between sources — "BLOODBATH 3" vs "BLOODBATH3" — still match.
+function normalizeTitle(title) {
+  return (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+function normalizeVenue(venue) {
+  return (venue || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+// One-directional substring containment catches "The Turf PH" vs "The Turf
+// PH (Art District)" — same venue, one source just adds a qualifier.
+function venuesMatch(a, b) {
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
+}
+function isDuplicate(title, venue, dateStr, existingList) {
+  const t = normalizeTitle(title);
+  const v = normalizeVenue(venue);
+  return existingList.some((e) => e.t === t && e.d === dateStr && venuesMatch(v, e.v));
+}
+function dateOnly(iso) {
+  return (iso || '').slice(0, 10);
+}
+
 // Wix's CDN appears to rate-limit/soft-block datacenter IPs (observed: the
 // connection gets cut mid-response after ~40KB of an ~860KB page, rather
 // than an outright refusal) — GitHub Actions runner IPs are a well-known
@@ -99,8 +122,29 @@ async function main() {
   const rawEvents = findEventsArray(appData);
   console.log(`Found ${rawEvents.length} event(s) in the page's embedded data.`);
 
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabaseUrl = process.env.SUPABASE_URL;
+  let supabase = null;
+  const existingEvents = [];
+  if (!dryRun) {
+    if (!supabaseUrl) throw new Error('SUPABASE_URL is required for a live run.');
+    supabase = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    });
+    // Dedup against *every* existing event, any source — not just our own
+    // past runs (external_uid already makes those idempotent via upsert).
+    const { data: existing, error } = await supabase.from('events').select('source,title,venue,starts_at');
+    if (error) throw error;
+    for (const row of existing ?? []) {
+      if (row.source === SOURCE_TAG) continue; // our own rows re-upsert fine
+      existingEvents.push({ t: normalizeTitle(row.title), v: normalizeVenue(row.venue), d: dateOnly(row.starts_at) });
+    }
+    console.log(`Loaded ${existingEvents.length} existing event(s) from other sources for dedup.`);
+  }
+
   const now = Date.now();
   const rows = [];
+  let skippedDuplicate = 0;
   for (const ev of rawEvents) {
     const startsAt = ev.scheduling?.config?.startDate;
     const lat = ev.location?.coordinates?.lat;
@@ -111,6 +155,13 @@ async function main() {
     }
     if (new Date(startsAt).getTime() < now - 3600_000) continue; // already past
 
+    const venue = ev.location?.name ?? ev.title;
+    if (isDuplicate(ev.title, venue, dateOnly(startsAt), existingEvents)) {
+      console.warn(`Skipping "${ev.title}" on ${dateOnly(startsAt)} — matches an existing event from another source.`);
+      skippedDuplicate++;
+      continue;
+    }
+
     const ticketing = ev.registration?.ticketing;
     rows.push({
       external_uid: `wix-clarabenin-${ev.id}`,
@@ -120,7 +171,7 @@ async function main() {
       poster_url: ev.mainImage?.url ?? null,
       lat,
       lng,
-      venue: ev.location?.name ?? ev.title,
+      venue,
       address: ev.location?.fullAddress?.formattedAddress ?? ev.location?.address ?? null,
       city: ev.location?.fullAddress?.city ?? null,
       starts_at: startsAt,
@@ -136,6 +187,7 @@ async function main() {
     });
   }
 
+  console.log(`Skipped: ${skippedDuplicate} duplicate of an existing event.`);
   console.log(`${rows.length} upcoming event(s) ready to import:`);
   for (const r of rows) {
     console.log(`  • ${r.title} — ${r.starts_at} @ ${r.venue} (${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}) [${r.city ?? 'city unknown'}] ${r.price_label ?? 'free'}`);
@@ -145,13 +197,6 @@ async function main() {
     console.log('\nDry run complete — nothing was written. Set SUPABASE_SERVICE_ROLE_KEY to actually upsert.');
     return;
   }
-
-  const { createClient } = await import('@supabase/supabase-js');
-  const supabaseUrl = process.env.SUPABASE_URL;
-  if (!supabaseUrl) throw new Error('SUPABASE_URL is required for a live run.');
-  const supabase = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false },
-  });
 
   if (rows.length === 0) {
     console.log('Nothing to upsert.');

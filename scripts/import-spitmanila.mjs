@@ -146,6 +146,29 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Stripped to bare alphanumerics (not space-normalized) so trivial formatting
+// differences between sources — "BLOODBATH 3" vs "BLOODBATH3" — still match.
+function normalizeTitle(title) {
+  return (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+function normalizeVenue(venue) {
+  return (venue || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+// One-directional substring containment catches "The Turf PH" vs "The Turf
+// PH (Art District)" — same venue, one source just adds a qualifier.
+function venuesMatch(a, b) {
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
+}
+function isDuplicate(title, venue, dateStr, existingList) {
+  const t = normalizeTitle(title);
+  const v = normalizeVenue(venue);
+  return existingList.some((e) => e.t === t && e.d === dateStr && venuesMatch(v, e.v));
+}
+function dateOnly(iso) {
+  return (iso || '').slice(0, 10);
+}
+
 async function main() {
   console.log(dryRun ? '[dry-run] no SUPABASE_SERVICE_ROLE_KEY set — parsing/geocoding only, no writes' : 'live run — will upsert to Supabase');
 
@@ -163,8 +186,29 @@ async function main() {
   const links = nextData?.props?.pageProps?.links ?? [];
   console.log(`Found ${links.length} link entries on the page.`);
 
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabaseUrl = process.env.SUPABASE_URL;
+  let supabase = null;
+  const existingEvents = [];
+  if (!dryRun) {
+    if (!supabaseUrl) throw new Error('SUPABASE_URL is required for a live run.');
+    supabase = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    });
+    // Dedup against *every* existing event, any source — not just our own
+    // past runs (external_uid already makes those idempotent via upsert).
+    const { data: existing, error } = await supabase.from('events').select('source,title,venue,starts_at');
+    if (error) throw error;
+    for (const row of existing ?? []) {
+      if (row.source === SOURCE_TAG) continue; // our own rows re-upsert fine
+      existingEvents.push({ t: normalizeTitle(row.title), v: normalizeVenue(row.venue), d: dateOnly(row.starts_at) });
+    }
+    console.log(`Loaded ${existingEvents.length} existing event(s) from other sources for dedup.`);
+  }
+
   const now = Date.now();
   const rows = [];
+  let skippedDuplicate = 0;
   for (const link of links) {
     if (link.type !== 'CLASSIC' || !link.title) continue;
     const parsed = parseLinktreeShow(link.title);
@@ -180,10 +224,17 @@ async function main() {
       const startsAt = resolveYear(t.month, t.day, t.hour, t.minute, now);
       if (new Date(startsAt).getTime() < now - 3600_000) return; // already past
 
+      const title = parsed.showtimes.length > 1 ? `${parsed.showTitle} (${formatHM(t.hour, t.minute)} show)` : parsed.showTitle;
+      if (isDuplicate(title, parsed.venue, dateOnly(startsAt), existingEvents)) {
+        console.warn(`Skipping "${title}" on ${dateOnly(startsAt)} — matches an existing event from another source.`);
+        skippedDuplicate++;
+        return;
+      }
+
       rows.push({
         external_uid: `linktree-spitmanila-${link.id}-${i}`,
         source: SOURCE_TAG,
-        title: parsed.showtimes.length > 1 ? `${parsed.showTitle} (${formatHM(t.hour, t.minute)} show)` : parsed.showTitle,
+        title,
         category: CATEGORY,
         poster_url: FALLBACK_POSTER,
         lat: geo.lat,
@@ -205,6 +256,7 @@ async function main() {
     });
   }
 
+  console.log(`Skipped: ${skippedDuplicate} duplicate of an existing event.`);
   console.log(`${rows.length} upcoming, geocoded show(s) ready to import:`);
   for (const r of rows) {
     console.log(`  • ${r.title} — ${r.starts_at} @ ${r.venue} (${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}) [${r.city ?? 'city unknown'}]`);
@@ -214,13 +266,6 @@ async function main() {
     console.log('\nDry run complete — nothing was written. Set SUPABASE_SERVICE_ROLE_KEY to actually upsert.');
     return;
   }
-
-  const { createClient } = await import('@supabase/supabase-js');
-  const supabaseUrl = process.env.SUPABASE_URL;
-  if (!supabaseUrl) throw new Error('SUPABASE_URL is required for a live run.');
-  const supabase = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false },
-  });
 
   if (rows.length === 0) {
     console.log('Nothing to upsert.');

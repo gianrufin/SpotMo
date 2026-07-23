@@ -90,8 +90,24 @@ function classify(cssClass, venue, title) {
   return 'music'; // blank class at a concert venue (e.g. a K-pop show) — still a concert
 }
 
+// Stripped to bare alphanumerics (not space-normalized) so trivial formatting
+// differences between sources — "BLOODBATH 3" vs "BLOODBATH3" — still match.
 function normalizeTitle(title) {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+function normalizeVenue(venue) {
+  return (venue || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+// One-directional substring containment catches "The Turf PH" vs "The Turf
+// PH (Art District)" — same venue, one source just adds a qualifier.
+function venuesMatch(a, b) {
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
+}
+function isDuplicate(title, venue, dateStr, existingList) {
+  const t = normalizeTitle(title);
+  const v = normalizeVenue(venue);
+  return existingList.some((e) => e.t === t && e.d === dateStr && venuesMatch(v, e.v));
 }
 
 function dateOnly(iso) {
@@ -207,7 +223,7 @@ async function main() {
   const { createClient } = await import('@supabase/supabase-js');
   const supabaseUrl = process.env.SUPABASE_URL;
   let supabase = null;
-  const existingKeys = new Set();
+  const existingEvents = [];
   if (!dryRun) {
     if (!supabaseUrl) throw new Error('SUPABASE_URL is required for a live run.');
     supabase = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, {
@@ -215,13 +231,13 @@ async function main() {
     });
     // Dedup against *every* existing event, any source — not just our own
     // past runs (external_uid already makes those idempotent via upsert).
-    const { data: existing, error } = await supabase.from('events').select('external_uid,title,starts_at');
+    const { data: existing, error } = await supabase.from('events').select('source,title,venue,starts_at');
     if (error) throw error;
     for (const row of existing ?? []) {
-      if (row.external_uid?.startsWith(`${SOURCE_TAG}-`)) continue; // our own rows re-upsert fine
-      existingKeys.add(`${normalizeTitle(row.title)}|${dateOnly(row.starts_at)}`);
+      if (row.source === SOURCE_TAG) continue; // our own rows re-upsert fine
+      existingEvents.push({ t: normalizeTitle(row.title), v: normalizeVenue(row.venue), d: dateOnly(row.starts_at) });
     }
-    console.log(`Loaded ${existingKeys.size} existing event key(s) from other sources for dedup.`);
+    console.log(`Loaded ${existingEvents.length} existing event(s) from other sources for dedup.`);
   }
 
   const now = Date.now();
@@ -261,8 +277,7 @@ async function main() {
       const startsAt = isoInManila(datePart.year, datePart.month, day, timePart.hour, timePart.minute);
       if (new Date(startsAt).getTime() < now - 3600_000) return; // already past
 
-      const dedupKey = `${normalizeTitle(card.title)}|${dateOnly(startsAt)}`;
-      if (existingKeys.has(dedupKey)) {
+      if (isDuplicate(card.title, card.venue, dateOnly(startsAt), existingEvents)) {
         console.warn(`Skipping "${card.title}" on ${dateOnly(startsAt)} — matches an existing event from another source.`);
         skippedDuplicate++;
         return;

@@ -4,6 +4,14 @@ import { supabase } from './supabase';
 import type { SpotEvent, Submission, SubmissionStatus } from '../types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// A missing price_label means the source never gave us a real number — not
+// that the event is free. Only fall back to "Free" when is_free actually
+// says so; otherwise say so honestly rather than guessing.
+function derivePriceLabel(r: any): string {
+  if (r.price_label) return r.price_label;
+  return r.is_free ? 'Free' : 'Price TBA';
+}
+
 function rowToEvent(r: any): SpotEvent {
   return {
     id: r.id,
@@ -17,7 +25,7 @@ function rowToEvent(r: any): SpotEvent {
     city: r.city ?? '',
     startsAt: r.starts_at,
     endsAt: r.ends_at ?? undefined,
-    priceLabel: r.price_label ?? 'Free',
+    priceLabel: derivePriceLabel(r),
     isFree: r.is_free,
     description: r.description ?? '',
     lineup: r.lineup ?? undefined,

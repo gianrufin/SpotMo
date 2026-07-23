@@ -77,8 +77,24 @@ function classify(schemaType) {
   return 'music'; // MusicEvent covers concerts/festivals/shows on this platform
 }
 
+// Stripped to bare alphanumerics (not space-normalized) so trivial formatting
+// differences between sources — "BLOODBATH 3" vs "BLOODBATH3" — still match.
 function normalizeTitle(title) {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+function normalizeVenue(venue) {
+  return (venue || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+// One-directional substring containment catches "The Turf PH" vs "The Turf
+// PH (Art District)" — same venue, one source just adds a qualifier.
+function venuesMatch(a, b) {
+  if (!a || !b) return false;
+  return a === b || a.includes(b) || b.includes(a);
+}
+function isDuplicate(title, venue, dateStr, existingList) {
+  const t = normalizeTitle(title);
+  const v = normalizeVenue(venue);
+  return existingList.some((e) => e.t === t && e.d === dateStr && venuesMatch(v, e.v));
 }
 
 function dateOnly(iso) {
@@ -95,6 +111,20 @@ function extractJsonLd(html) {
   }
 }
 
+// Every TicketMAX event embeds a real `offers` array (schema.org Offer, one
+// per ticket tier) with a numeric `price` — e.g. { name: "GENAD", price: 270,
+// priceCurrency: "PHP" }. Use the actual min/max instead of guessing.
+function extractPrice(offers) {
+  const list = Array.isArray(offers) ? offers : offers ? [offers] : [];
+  const prices = list.map((o) => Number(o?.price)).filter((n) => Number.isFinite(n));
+  if (prices.length === 0) return { priceLabel: null, isFree: false };
+  const lo = Math.min(...prices);
+  const hi = Math.max(...prices);
+  if (lo === 0 && hi === 0) return { priceLabel: 'Free', isFree: true };
+  const priceLabel = lo === hi ? `₱${lo.toLocaleString('en-PH')}` : `₱${lo.toLocaleString('en-PH')}–₱${hi.toLocaleString('en-PH')}`;
+  return { priceLabel, isFree: false };
+}
+
 async function main() {
   console.log(dryRun ? '[dry-run] no SUPABASE_SERVICE_ROLE_KEY set — parsing only, no writes' : 'live run — will upsert to Supabase');
 
@@ -107,17 +137,17 @@ async function main() {
   const { createClient } = await import('@supabase/supabase-js');
   const supabaseUrl = process.env.SUPABASE_URL;
   let supabase = null;
-  const existingKeys = new Set();
+  const existingEvents = [];
   if (!dryRun) {
     if (!supabaseUrl) throw new Error('SUPABASE_URL is required for a live run.');
     supabase = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
-    const { data: existing, error } = await supabase.from('events').select('external_uid,title,starts_at');
+    const { data: existing, error } = await supabase.from('events').select('source,title,venue,starts_at');
     if (error) throw error;
     for (const row of existing ?? []) {
-      if (row.external_uid?.startsWith(`${SOURCE_TAG}-`)) continue;
-      existingKeys.add(`${normalizeTitle(row.title)}|${dateOnly(row.starts_at)}`);
+      if (row.source === SOURCE_TAG) continue;
+      existingEvents.push({ t: normalizeTitle(row.title), v: normalizeVenue(row.venue), d: dateOnly(row.starts_at) });
     }
-    console.log(`Loaded ${existingKeys.size} existing event key(s) from other sources for dedup.`);
+    console.log(`Loaded ${existingEvents.length} existing event(s) from other sources for dedup.`);
   }
 
   const now = Date.now();
@@ -151,13 +181,14 @@ async function main() {
       continue;
     }
 
-    const dedupKey = `${normalizeTitle(ev.name)}|${dateOnly(startsAt)}`;
-    if (existingKeys.has(dedupKey)) {
+    const venue = ev.location.name ?? ev.name;
+    if (isDuplicate(ev.name, venue, dateOnly(startsAt), existingEvents)) {
       console.warn(`Skipping "${ev.name}" on ${dateOnly(startsAt)} — matches an existing event from another source.`);
       skippedDuplicate++;
       continue;
     }
 
+    const { priceLabel, isFree } = extractPrice(ev.offers);
     const slug = url.replace(`${SITE_ORIGIN}/events/`, '').replace(/\/$/, '');
     rows.push({
       external_uid: `${SOURCE_TAG}-${slug}`,
@@ -167,13 +198,13 @@ async function main() {
       poster_url: Array.isArray(ev.image) ? ev.image[0] : ev.image ?? '',
       lat: Number(ev.location.geo.latitude),
       lng: Number(ev.location.geo.longitude),
-      venue: ev.location.name ?? ev.name,
+      venue,
       address: ev.location.address ?? null,
       city: null,
       starts_at: startsAt,
       ends_at: ev.endDate ? new Date(ev.endDate).toISOString() : null,
-      price_label: null,
-      is_free: false,
+      price_label: priceLabel,
+      is_free: isFree,
       description: ev.description || `${ev.name}, at ${ev.location.name ?? 'TBA'}.`,
       lineup: [],
       ticket_url: url,
